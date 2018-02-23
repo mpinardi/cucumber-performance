@@ -3,6 +3,33 @@
   <groupId>cucumber-perf</groupId>
   <artifactId>cucumber-perf</artifactId>
   <version>1.0.0</version>
+  
+  <name>Cucumber-Perf</name>
+  <description>A performance testing framework for cucumber</description>
+  <url>https://github.com/mpinardi/cucumber-perf</url>
+  
+  <developers>
+    <developer>
+      <name>Matt Pinardi</name>
+      <email>pinardi@gmail.com</email>
+      <organization>BAO Systems</organization>
+      <organizationUrl>https://baosystems.com</organizationUrl>
+    </developer>
+  </developers>
+  
+  <licenses>
+	  <license>
+	    <name>MIT License</name>
+	    <url>http://www.opensource.org/licenses/mit-license.php</url>
+	  </license>
+  </licenses>
+
+  <scm>
+	  <connection>scm:git:git://github.com/mpinardi/cucumber-perf.git</connection>
+	  <developerConnection>scm:git:ssh://git@github.com:mpinardi/cucumber-perf.git</developerConnection>
+	  <url>https://github.com/mpinardi/cucumber-perf</url>
+  </scm>
+  
   <build>
     <plugins>
       <plugin>
