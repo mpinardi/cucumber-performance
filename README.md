@@ -19,9 +19,6 @@ Feature: Beer
 ```
 These scripts can be used to develop the features themselves but also drive automated tests.
 
-Cucumber Perf provides a level of automation ontop of Cucumber.
-Its a implimentation of a new concept (as far as i know) called Concurrent Behavior Driven Testing (CBDT).
-
 ### The issue?
 So you now have a working functional automation test suite.
 But you want to do a performance test. This would require either rewriteing your existing functional tests or copying a bunch of code.
@@ -30,6 +27,9 @@ Also you would need to create a performance test harness.
 Most likely each team will end up with something that is project specific and doesn't use the existing functional code base.
 
 ### The fix
+Cucumber Perf provides a level of automation ontop of Cucumber.
+Its a implimentation of a new concept (as far as i know) called Concurrent Behavior Driven Testing (CBDT).
+
 Cucumber perf provides a means to use your existing functional code without writing a single line of code.
 It provides the ability to run performance simulations with support for common load testing features:
 * Timed Tests
@@ -85,6 +85,13 @@ Time: 00:00:30
 RampUp: 00:00:10
 RampDown: 00:00:10
 ```
+## What is Concurrent Behavior Driven Testing?
+Concurrent Behavior Driven Testing is the methodolgy of createing functional automation that can be used in concurrent test scenarios.
+This means coding with the understanding that each functional test could be used in a multithreaded environment.
+
+CBDT requires an automation team to follow strict guidelines when coding functional test cases.
+Being careful to avoid static variables and race conditions that will cuase failures in a multi threaded world.
+This ofcourse requires a larger understanding of programing or a least team leadership that can enforce these guidelines.
 
 ## Getting Started
 It takes a lot of planing to impliment Cucumber Perf.
