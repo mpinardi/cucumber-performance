@@ -1,0 +1,17 @@
+Usage: java cucumber.api.perf.cli.Main [options] [[[FILE|DIR][:LINE[:LINE]*] ]+ | @FILE ]
+
+Options:
+
+  p=, plans=                        Where your plan files are located
+  t=, tags=TAG_EXPRESSION              Only run scenarios tagged with tags matching
+                                         TAG_EXPRESSION.
+  n=, name=REGEXP                      Only run scenarios whose names match REGEXP.
+  v, version                          Print version.
+  h, help                             You're looking at it.
+
+Plan path examples:
+  <path>                                 Load the files with the extension ".plan"
+                                         for the directory <path>
+                                         and its sub directories.
+  <path>/<name>.plan                  Load the feature file <path>/<name>.plan
+                                         from the file system.

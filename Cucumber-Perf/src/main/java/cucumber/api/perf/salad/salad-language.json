@@ -1,0 +1,99 @@
+ {
+  "es": {
+    "count": [
+    	"Cuenta"
+    ],
+    "group": [
+      "* ",
+      "Grupo"
+    ],
+    "name": "Spanish",
+    "native": "espaÃ±ol",
+    "plan": [
+            "Plan"
+     ],
+     "randomwait": [
+	     "Espera aleatoria",
+		 "AzarEsperar"
+	],
+     "runners": [
+         "Corredores"
+    ],
+	 "rampup": [
+	     "Rampa para arriba",
+		 "Rampa Arriba",
+	     "Rampa arriba"
+	],
+	 "rampdown": [
+	     "Rampa hacia abajo",
+		 "Rampa Abajo",
+		 "Rampa abajo",
+	],
+    "simulation": [
+      "Simulación"
+    ],
+    "simulationPeriod": [
+        "Período Simmulation",
+        "Período de SIM",
+        "Simulación de tiempo",
+        "Temporizador SIM"
+      ],
+	  "synchronized": [
+		  "Sincronizado",
+		  "Tamaño de grupo sincronizado"
+		],
+  "time": [
+      "Tiempo"
+    ]
+  },
+  "en": {
+	  "count": [
+	    	"Count"
+	    ],
+	    "group": [
+	      "* ",
+	      "Group"
+	    ],
+    "name": "English",
+    "native": "English",
+    "plan": [
+        "Plan"
+	 ],
+	 "randomwait": [
+	     "RandomWait",
+		 "RandomWaitMean"
+	],
+	 "runners": [
+	     "Runners",
+		 "Threads"
+	],
+	 "rampup": [
+	     "Ramp Up",
+		 "RampUp",
+	     "Ramp^"
+	],
+	 "rampdown": [
+	     "Ramp Down",
+		 "RampDown",
+		 "RampDn"
+	],
+	"simulation": [
+	  "Simulation",
+	  "Sim"
+	],
+	"simulationPeriod": [
+	    "Simulation Period",
+	    "Sim Period",
+	    "Timed Simulation",
+	    "Timed Sim"
+	  ],
+	  "synchronized": [
+		  "Synchronized",
+		  "SynchronizedGroupSize"
+		],
+	"time": [
+	  "Time",
+	  "Period"
+	]
+  }
+ }

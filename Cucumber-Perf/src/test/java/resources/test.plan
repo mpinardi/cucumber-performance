@@ -1,0 +1,76 @@
+@planNegTest
+@planPosTest
+Plan: test
+
+@simPos
+@tskip
+Simulation: simulation 1
+Group test.feature
+	#slices
+	#these values will replace property "value out"
+	|value out|
+	|changed value 1|
+	|changed value 2|
+	#number of threads
+	Runners: 2
+	#total number of threads to run.
+	Count: 2
+	Group test.feature
+	#slices
+	#these values will replace property "value out"
+	|value out|
+	|changed value 3|
+	|changed value 4|
+	#number of threads
+	Runners: 2
+	#total number of threads to run.
+	Count: 2
+#a optional random wait mean for before thread runs tests.
+#thread will wait between +-50% of this mean
+RandomWait: 00:00:02
+
+@bskip
+@tskip
+Simulation: simulation 1 skip
+Group test.feature
+	#slices
+	#these values will replace property "value out"
+	|value out|
+	|changed value 1|
+	|changed value 2|
+	#number of threads
+	Runners: 2
+	#total number of threads to run.
+	Count: 2
+	Group test.feature
+	#slices
+	#these values will replace property "value out"
+	|value out|
+	|changed value 3|
+	|changed value 4|
+	#number of threads
+	Runners: 2
+	#total number of threads to run.
+	Count: 2
+	
+	@bskip
+	#junit test case
+	Simulation: simulation test
+	Group test.feature
+	Runners: 3
+	Count: 6
+	
+	
+@tskip
+#Will run all groups for the period bellow
+Simulation Period: simulation 2 period
+Group test.feature
+	|value out|
+	|changed value |
+		Threads: 5
+		#count is ignored in a simulation period
+		Count: 1
+#run time
+Time: 00:00:30
+RampUp: 00:00:10
+RampDown: 00:00:10
