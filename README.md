@@ -101,8 +101,9 @@ Your functional automation should follow these rules:
 * Do not use static variables! Your code must work in a multithreaded world.
 * Properly comment your features and scenarios. You want to keep track of what scenarios can be run multithreaded.
 
-### Prerequisites
+Follow directions in [wiki](https://github.com/mpinardi/cucumber-performance/wiki) to get up and running.
 
+### Prerequisites
 io.cucumber cucumber-core
 ```
 <dependency>
@@ -113,15 +114,11 @@ io.cucumber cucumber-core
 ```
 
 ### Installing
-
 TBD
 
 
 ## Versioning
-
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
-
 ## License
-
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
