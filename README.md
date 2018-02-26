@@ -103,25 +103,16 @@ Your functional automation should follow these rules:
 
 Follow directions in [wiki](https://github.com/mpinardi/cucumber-performance/wiki) to get up and running.
 
-### Prerequisites
-io.cucumber cucumber-core
-```
-<dependency>
-    <groupId>io.cucumber</groupId>
-    <artifactId>cucumber-core</artifactId>
-    <version>2.3.1</version>
-</dependency>
-```
-
 ### Installing
 
 Maven
+```
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
   <version>0.8.0</version>
 </dependency>
-
+```
 ## Versioning
 We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
