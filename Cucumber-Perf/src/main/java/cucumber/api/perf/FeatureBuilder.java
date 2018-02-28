@@ -15,18 +15,20 @@ import cucumber.runtime.model.CucumberFeature;
 
 public class FeatureBuilder {
 
-	public static List<CucumberFeature> getFeatures(Class<?> clazz) {
-		ClassLoader classLoader = clazz.getClassLoader();
-		ResourceLoader resourceLoader = new MultiLoader(classLoader);
+	public static RuntimeOptions createRuntime(Class<?> clazz)
+	{
 		RuntimeOptionsFactory runtimeOptionsFactory = new RuntimeOptionsFactory(clazz);
-		RuntimeOptions runtimeOptions = runtimeOptionsFactory.create();
-		return runtimeOptions.cucumberFeatures(resourceLoader, new EventBus(TimeService.SYSTEM));
+		return runtimeOptionsFactory.create();
 	}
 	
-	public static List<CucumberFeature> getFeatures(Class<?> clazz,List<String> args) {
-		ClassLoader classLoader = clazz.getClassLoader();
+	public static RuntimeOptions createRuntime(List<String> args)
+	{
+		return new RuntimeOptions(args);
+	}
+	
+	public static List<CucumberFeature> getFeatures(RuntimeOptions runtimeOptions) {
+		ClassLoader classLoader = FeatureBuilder.class.getClassLoader();
 		ResourceLoader resourceLoader = new MultiLoader(classLoader);
-		RuntimeOptions  runtimeOptions = new RuntimeOptions(args);
 		return runtimeOptions.cucumberFeatures(resourceLoader, new EventBus(TimeService.SYSTEM));
 	}
 	

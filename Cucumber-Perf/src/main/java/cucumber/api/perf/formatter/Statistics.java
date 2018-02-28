@@ -20,7 +20,7 @@ public class Statistics {
 	private HashMap<String,FeatureResult> max = new HashMap<String,FeatureResult>();
 	private HashMap<String,FeatureResult> avg = new HashMap<String,FeatureResult>();
 
-	public Statistics(List<FeatureResult> results, boolean successOnly, boolean isStrict)
+	public Statistics(List<FeatureResult> results,boolean isStrict)
 	{
 		if (!results.isEmpty())
 		{
@@ -31,11 +31,11 @@ public class Statistics {
 				this.results.put(o.getName(), new ArrayList<FeatureResult>(Arrays.asList(o)));
 			}
 		}
-		calculate(successOnly, isStrict);
+		calculate(isStrict);
 		}
 	}
 	
-	private void calculate(boolean successOnly, boolean isStrict)
+	private void calculate(boolean isStrict)
 	{
 		for (Entry<String,List<FeatureResult>> entry: results.entrySet())
 		{
@@ -48,7 +48,7 @@ public class Statistics {
 				if (!first)
 				{
 					Result fSum = sum.getResult();
-					if ((successOnly && f.getResult().isOk(isStrict)) || !successOnly) {
+					if ((isStrict && f.getResult().isOk(isStrict)) || !isStrict) {
 						sum.setResult(new Result(f.getResult().getStatus(),fSum.getDuration()+f.getResultDuration(),f.getResult().getError()));
 						if (f.getResultDuration()>max.getResultDuration())
 						{
@@ -63,7 +63,7 @@ public class Statistics {
 					for (int sci = 0; sci < f.getChildResults().size(); sci++)
 					{
 						ScenarioResult sc = f.getChildResults().get(sci);
-						if ((successOnly && sc.getResult().isOk(isStrict)) || !successOnly) {
+						if ((isStrict && sc.getResult().isOk(isStrict)) || !isStrict) {
 							sum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
 							if (sc.getResultDuration()>max.getChildResults().get(sci).getResultDuration())
 							{
@@ -77,7 +77,7 @@ public class Statistics {
 						for (int sti = 0; sti < sc.getChildResults().size(); sti++)
 						{
 							StepResult stp = sc.getChildResults().get(sti);
-							if (sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()!=null&&((successOnly && stp.getResult().isOk(isStrict)) || !successOnly)){
+							if (sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()!=null&&((isStrict && stp.getResult().isOk(isStrict)) || !isStrict)){
 								sum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
 							}
 							if (stp.getResultDuration()!=null && stp.getResultDuration()>max.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
@@ -127,6 +127,7 @@ public class Statistics {
 	public HashMap<String, FeatureResult> getMax() {
 		return max;
 	}
-	
-		
+	public  HashMap<String, List<FeatureResult>> getResults() {
+		return results;
+	}
 }

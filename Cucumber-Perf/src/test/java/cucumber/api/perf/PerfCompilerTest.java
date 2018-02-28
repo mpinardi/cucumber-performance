@@ -22,7 +22,7 @@ public class PerfCompilerTest {
 		PerfCompiler c = new PerfCompiler();
 		List<TableCell> tcl = Arrays.asList(new TableCell[] {new TableCell(null, "value out")});
 		List<TableCell> tcl2 = Arrays.asList(new TableCell[] {new TableCell(null, "test")});
-		List<CucumberFeature> features = FeatureBuilder.getFeatures(options1.class);
+		List<CucumberFeature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntime(options1.class));
 		List<PickleEvent> p =c.compileFeature(features.get(0), new Slice(Arrays.asList(new TableRow[] {new TableRow(null, tcl),new TableRow(null, tcl2)})));
 		assertEquals("System out \"test\"",p.get(0).pickle.getSteps().get(1).getText());
 	}
@@ -32,7 +32,7 @@ public class PerfCompilerTest {
 		PerfCompiler c = new PerfCompiler();
 		List<TableCell> tcl = Arrays.asList(new TableCell[] {new TableCell(null, "value out")});
 		List<TableCell> tcl2 = Arrays.asList(new TableCell[] {new TableCell(null, "test")});
-		List<CucumberFeature> features = FeatureBuilder.getFeatures(options1.class);
+		List<CucumberFeature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntime(options1.class));
 		List<Pickle> p =c.compile(features.get(0).getGherkinFeature(), new Slice(Arrays.asList(new TableRow[] {new TableRow(null, tcl),new TableRow(null, tcl2)})));
 		assertEquals("System out \"test\"",p.get(0).getSteps().get(1).getText());
 	}

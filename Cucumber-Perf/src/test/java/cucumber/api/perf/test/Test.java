@@ -1,6 +1,7 @@
 package cucumber.api.perf.test;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.perf.cli.Main;
 import cucumber.api.perf.CucumberPerf;
 import cucumber.api.perf.CucumberPerfOptions;
 import cucumber.api.perf.PerfRuntimeOptions;
@@ -39,11 +40,13 @@ public class Test {
 		options.addTagFilters(Arrays.asList(new String[]{"not @bskip","@planPosTest"}));
 		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
 		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
+		options.addPlugins(Arrays.asList(new String[]{"detail_display"}));
 		//CucumberPerf cukePerf = new CucumberPerf(Test.class, options);
+		
 		
 		//Option 4 pass in runtime options
 		// options must contain both cucumber and perf options
-		options.addCucumberOptions(Arrays.asList(new String[]{"-g","steps","src/test/java/resources"}));
+		options.addCucumberOptions(Arrays.asList(new String[]{"-g","steps","src/test/java/resources","--plugin","null"}));
 		CucumberPerf cukePerf = new CucumberPerf(options);
 		try {
 			cukePerf.runThreads();

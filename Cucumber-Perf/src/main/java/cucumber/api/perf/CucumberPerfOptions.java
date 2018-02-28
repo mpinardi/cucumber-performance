@@ -36,6 +36,11 @@ import cucumber.api.SnippetType;
 	    String[] name() default {};
 
 	    /**
+	     * @return what plugins(s) to use
+	     */
+	    String[] plugin() default {};
+	    
+	    /**
 	     * @return what format should the snippets use. underscore, camelcase
 	     */
 	    SnippetType snippets() default SnippetType.UNDERSCORE;

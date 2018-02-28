@@ -1,7 +1,6 @@
 package cucumber.api.perf;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,13 +16,17 @@ import java.util.concurrent.FutureTask;
 import java.util.regex.Pattern;
 
 import cucumber.api.perf.formatter.Statistics;
-import cucumber.api.perf.formatter.JUnitFormatter;
+import cucumber.api.perf.formatter.SummaryPrinter;
+import cucumber.api.Plugin;
+import cucumber.api.perf.formatter.DisplayPrinter;
+import cucumber.api.perf.formatter.Formatter;
 import cucumber.api.perf.result.FeatureResult;
 import cucumber.api.perf.salad.ast.Group;
 import cucumber.api.perf.salad.ast.SaladDocument;
 import cucumber.api.perf.salad.ast.Simulation;
 import cucumber.api.perf.salad.ast.SimulationDefinition;
 import cucumber.api.perf.salad.ast.SimulationPeriod;
+import cucumber.runtime.RuntimeOptions;
 import cucumber.runtime.model.CucumberFeature;
 import gherkin.ast.Node;
 import gherkin.ast.Tag;
@@ -68,7 +71,9 @@ public class CucumberPerf {
 	public CucumberPerf(Class<?> clazz) {
 		this.clazz = clazz;
 		this.options = new PerfRuntimeOptionsFactory(clazz).create();
-		this.features = FeatureBuilder.getFeatures(clazz);
+		RuntimeOptions ro =  FeatureBuilder.createRuntime(clazz);
+		this.features = FeatureBuilder.getFeatures(ro);
+		this.warnProgressFormatter(ro);
 		this.setNameFilters(options.getNameFilters());
 		this.setTags(options.getTagFilters());
 	}
@@ -83,7 +88,9 @@ public class CucumberPerf {
 	public CucumberPerf(Class<?> clazz, PerfRuntimeOptions options) {
 		this.clazz = clazz;
 		this.options = options;
-		this.features = FeatureBuilder.getFeatures(clazz);
+		RuntimeOptions ro =  FeatureBuilder.createRuntime(clazz);
+		this.warnProgressFormatter(ro);
+		this.features = FeatureBuilder.getFeatures(ro);
 		this.setNameFilters(options.getNameFilters());
 		this.setTags(options.getTagFilters());
 	}
@@ -94,7 +101,9 @@ public class CucumberPerf {
 	 */
 	public CucumberPerf(PerfRuntimeOptions options) {
 		this.options = options;
-		this.features = FeatureBuilder.getFeatures(this.getClass(),options.getCucumberOptions());
+		RuntimeOptions ro =  FeatureBuilder.createRuntime(options.getCucumberOptions());
+		this.features = FeatureBuilder.getFeatures(ro);
+		this.warnProgressFormatter(ro);
 		this.setNameFilters(options.getNameFilters());
 		this.setTags(options.getTagFilters());
 	}
@@ -107,7 +116,9 @@ public class CucumberPerf {
 	 */
 	public CucumberPerf(String[] args) {
 		options = new PerfRuntimeOptions(Arrays.asList(args));
-		this.features = FeatureBuilder.getFeatures(this.getClass(),options.getCucumberOptions());
+		RuntimeOptions ro = FeatureBuilder.createRuntime(options.getCucumberOptions());
+		this.features = FeatureBuilder.getFeatures(ro);
+		this.warnProgressFormatter(ro);
 		this.setNameFilters(options.getNameFilters());
 		this.setTags(options.getTagFilters());
 	}
@@ -173,10 +184,11 @@ public class CucumberPerf {
 							endRamp = this.getEnd(curTime, rampUp);
 							rampPeriod = getRampPeriod(Duration.between(curTime, endRamp), maxRampPeriods);
 							nextRamp = this.getEnd(curTime, rampPeriod);
+							setCurGroupThreads(0);
 						}
 						while (executing) {
 							curTime = LocalDateTime.now();
-
+			
 							if (endRamp == null) {
 								// check if time is up
 								if ((beginEnd != null && curTime.isAfter(beginEnd))
@@ -198,20 +210,27 @@ public class CucumberPerf {
 										executing = false;
 									} else {
 										rampUp = null;
-										curPercent = 0;
+										curPercent = 100;
 									}
 								} else if (nextRamp != null && curTime.isAfter(nextRamp)) {
-									curPercent = curPercent + (100 / maxRampPeriods);
+									if (rampUp == null)
+									{
+										curPercent = curPercent - (100 / maxRampPeriods);
+									}
+									else
+									{
+										curPercent = curPercent + (100 / maxRampPeriods);
+									}
 									setCurGroupThreads(curPercent);
 									nextRamp = this.getEnd(curTime, rampPeriod);
 								}
 							}
 							if (runningCount < maxThreads) {
-								for (int i = runningCount > 0 ? runningCount - 1 : 0; i < maxRan; i++) {
+								for (int i = runningCount > 0 ? runningCount - 1 : 0; i < maxThreads; i++) {
 									PerfCucumberRunner runner = null;
-									for (int l = 0; runner == null; l++) {
+									for (int l = 0; (runner == null  && l < groups.size()); l++) {
 										PerfGroup pg = groups.get((i + l) % groups.size());
-										if (pg.getRunning() < pg.getThreads()) {
+										if (pg.getRunning() < pg.getThreads() && scheduledRuntime != null ||pg.getRan() < pg.getCount()) {
 											if (options.getCucumberOptions() != null && options.getCucumberOptions().size() > 0) {
 												try {
 													runner = new PerfCucumberRunner(this.getFeature(pg.getText()),options.getCucumberOptions(),
@@ -226,15 +245,21 @@ public class CucumberPerf {
 													throw e;
 												}
 											}
+											pg.incrementRunning();
 										}
+										
 									}
+									if (runner!=null)
+									{
 									FutureTask<Object> task = new FutureTask<Object>(runner);
 									pool.execute(task);
 									running.get(i % groups.size()).add(task);
 									ranCount++;
 									runningCount++;
+									}
 								}
 							}
+							printDisplay();
 							int gc = 0;
 							for (List<FutureTask<Object>> g : running) {
 								for (int r = 0; r < g.size(); r++) {
@@ -253,7 +278,7 @@ public class CucumberPerf {
 						//
 						this.totalRanCount += ranCount;
 						waitForFinished(60);
-						reportAvgs();
+						report();
 					}
 				}
 			}
@@ -347,45 +372,38 @@ public class CucumberPerf {
 		return true;
 	}
 
-	private void reportAvgs() throws IOException {
-		Statistics s = new Statistics(finished, true, true);
-		JUnitFormatter junit = null;
-
-		junit = new JUnitFormatter(new URL("file://C:/test/junit.xml"));
-
-		System.out.println("Averages:");
-
-		for (Entry<String, FeatureResult> entry : s.getAvg().entrySet()) {
-			junit.addFeatureResult(entry.getValue());
-			System.out.println("Feature: " + entry.getKey() + " Avg: " + entry.getValue().getResultDuration() / 1000000
-					+ " Min: " + s.getMin().get(entry.getKey()).getResultDuration() / 1000000 + " Max: "
-					+ s.getMax().get(entry.getKey()).getResultDuration() / 1000000);
-			for (int sc = 0; sc < entry.getValue().getChildResults().size(); sc++) {
-				System.out.println("	Scenario: " + entry.getValue().getChildResults().get(sc).getName() + " Avg: "
-						+ entry.getValue().getChildResults().get(sc).getResultDuration() / 1000000 + " Min: "
-						+ s.getMin().get(entry.getKey()).getChildResults().get(sc).getResultDuration() / 1000000
-						+ " Max: "
-						+ s.getMax().get(entry.getKey()).getChildResults().get(sc).getResultDuration() / 1000000);// 1000000
-			
-				for (int stp = 0; stp < entry.getValue().getChildResults().get(sc).getChildResults().size(); stp++) {
-					if (entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration() != null)
-					{
-					System.out.println("		Step: "
-							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getName() + " Avg: "
-							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration()
-									/ 1000000
-							+ " Min: "
-							+ s.getMin().get(entry.getKey()).getChildResults().get(sc).getChildResults().get(stp)
-									.getResultDuration() / 1000000
-							+ " Max: " + s.getMax().get(entry.getKey()).getChildResults().get(sc).getChildResults()
-									.get(stp).getResultDuration() / 1000000);
-					}
-				}
-			}
-		}
-		junit.finishReport();
+	public void report() throws IOException {
+		Statistics stats = new Statistics(finished, true);
+		printSummary(stats);
+		createReports(stats);		
 	}
 
+    private void printSummary(Statistics stats) {
+    	ClassLoader classLoader = this.getClass().getClassLoader();
+        SummaryPrinter summaryPrinter = options.summaryPrinter(classLoader);
+        summaryPrinter.print(stats);
+    }
+    
+	private void printDisplay() {
+		ClassLoader classLoader = this.getClass().getClassLoader();
+        DisplayPrinter printer = options.displayPrinter(classLoader);
+        printer.print(groups);
+		
+	}
+    private void createReports(Statistics stats) {
+    	ClassLoader classLoader = this.getClass().getClassLoader();
+        List<Formatter> formatters = options.formatters(classLoader);
+        List<FeatureResult> res = new ArrayList<FeatureResult>();
+        for (Entry<String,FeatureResult> r : stats.getAvg().entrySet())
+        {
+        	res.add(r.getValue());
+        }
+        for (Formatter f : formatters)
+        {
+        	f.process(res);
+        }
+    }
+    
 	/*
 	 * public void runScenario(PickleEvent pickleEvent, CucumberFeature feature)
 	 * throws Throwable { perfCucumberRunner.runScenario(pickleEvent); }
@@ -482,6 +500,20 @@ public class CucumberPerf {
 			this.filters.add(new NamePredicate(names));
 		}
 		
+	}
+	
+	public void warnProgressFormatter(RuntimeOptions runtimeOptions)
+	{
+		for(Plugin plugin: runtimeOptions.getPlugins())
+		{
+			if (plugin.getClass().getSimpleName().equalsIgnoreCase("ProgressFormatter"))
+			{
+				options.disableDisplay();
+				System.err.println("WARNING: Cucumber options contains Progress formatter.");
+				System.err.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
+				System.err.println(	"	Disabling all display printers. To enable pass in NullFormatter");
+			}
+		}
 	}
 	
 	public long getTotalRanCount() {

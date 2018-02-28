@@ -21,7 +21,7 @@ public class PerfCucumberRunnerTest {
 		PerfRuntimeOptions opt = optf.create();
 		List<PerfPlan> res = PlanBuilder.LoadPlans(this.getClass(), new ArrayList<String>(opt.getPlanPaths()));
 		List <PerfGroup> pg =buildGroups(res.get(0).getSaladPlan().getPlan().getChildren().get(0));
-		List<CucumberFeature> features = FeatureBuilder.getFeatures(options1.class);
+		List<CucumberFeature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntime(options1.class));
 		PerfCucumberRunner runner = new PerfCucumberRunner(features.get(0),opt.getCucumberOptions(),
 				pg.get(0).getSlice(),Duration.parse("PT5.1S"));
 		assertEquals("test",runner.getFeatures().get(0).getGherkinFeature().getFeature().getName());
@@ -33,7 +33,7 @@ public class PerfCucumberRunnerTest {
 		PerfRuntimeOptions opt = optf.create();
 		List<PerfPlan> res = PlanBuilder.LoadPlans(this.getClass(), new ArrayList<String>(opt.getPlanPaths()));
 		List <PerfGroup> pg =buildGroups(res.get(0).getSaladPlan().getPlan().getChildren().get(0));
-		List<CucumberFeature> features = FeatureBuilder.getFeatures(options1.class);
+		List<CucumberFeature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntime(options1.class));
 		PerfCucumberRunner runner = new PerfCucumberRunner(features.get(0),options1.class,
 				pg.get(0).getSlice(),Duration.parse("PT5.1S"));
 		assertEquals("test",runner.getFeatures().get(0).getGherkinFeature().getFeature().getName());

@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import cucumber.api.Result;
+import cucumber.api.event.EventPublisher;
 import cucumber.api.perf.result.FeatureResult;
 import cucumber.api.perf.result.ScenarioResult;
 import cucumber.runtime.CucumberException;
@@ -28,16 +29,16 @@ import java.io.Writer;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
-public final class JUnitFormatter {
+public final class JUnitFormatter implements Formatter{
     private final Writer out;
     private final Document doc;
     private final Element rootElement;
     private TestCase testCase;
     private Element root;
 
-   
 
     public JUnitFormatter(URL out) throws IOException {
         this.out = new UTF8OutputStreamWriter(new URLOutputStream(out));
@@ -53,6 +54,15 @@ public final class JUnitFormatter {
             throw new CucumberException("Error while processing unit report", e);
         }
     }
+    public void process(List<FeatureResult> result)
+    {
+    	for (FeatureResult r : result)
+    	{
+			this.addFeatureResult(r);
+    	}
+    	this.finishReport();
+    }
+    
     public void addFeatureResult(FeatureResult fresult)
     {
     	for (ScenarioResult res : fresult.getChildResults())
@@ -275,5 +285,4 @@ public final class JUnitFormatter {
             // go gentle into that good night
         }
     }
-
 }

@@ -9,12 +9,24 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import cucumber.api.CucumberOptions;
+import cucumber.api.Plugin;
 
 public class CucumberPerfTest {
 
 	@Test
 	public void testCucumberPerfClassOfQ() {
 		CucumberPerf cp = new CucumberPerf(options1.class);
+		try {
+			cp.runThreads();
+		} catch (Throwable e) {
+			fail("Error:"+e.getMessage());
+		}
+		assertEquals(cp.getMaxThreads(),3);
+	}
+	
+	@Test
+	public void testCucumberPerfClassOfQWithNull() {
+		CucumberPerf cp = new CucumberPerf(options3.class);
 		try {
 			cp.runThreads();
 		} catch (Throwable e) {
@@ -43,8 +55,9 @@ public class CucumberPerfTest {
 		PerfRuntimeOptions options = new PerfRuntimeOptions();
 		options.addTagFilters(Arrays.asList(new String[]{"not @tskip"}));
 		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
+		//options.addPlugins(Arrays.asList(new String[]{"pretty_display"}));
 		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
-		options.addCucumberOptions(Arrays.asList(new String[]{"--dry-run","-g","steps","src/test/java/resources"}));
+		options.addCucumberOptions(Arrays.asList(new String[]{"--dry-run","-g","steps","src/test/java/resources","--plugin null"}));
 		CucumberPerf cp = new CucumberPerf(options);
 		try {
 			cp.runThreads();
@@ -53,10 +66,34 @@ public class CucumberPerfTest {
 		}
 		assertEquals(cp.getMaxThreads(),3);
 	}
+	
+	@Test
+	public void testCucumberPerfPerfRuntimeOptionsVerifyNoPlugins() {
+		PerfRuntimeOptions options = new PerfRuntimeOptions();
+		options.addTagFilters(Arrays.asList(new String[]{"not @tskip"}));
+		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
+		options.addPlugins(Arrays.asList(new String[]{"detail_display"}));
+		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
+		options.addCucumberOptions(Arrays.asList(new String[]{"--dry-run","-g","steps","src/test/java/resources"}));
+		CucumberPerf cp = new CucumberPerf(options);
+		try {
+			cp.runThreads();
+			for (Plugin p : options.getPlugins())
+			{
+				if (p.getClass().getSimpleName().equalsIgnoreCase("PrettyDisplayPrinter"))
+				{
+					fail("Did not delete printer");
+				}
+			}
+		} catch (Throwable e) {
+			fail("Error:"+e.getMessage());
+		}
+		assertEquals(cp.getMaxThreads(),3);
+	}
 
 	@Test
 	public void testCucumberPerfStringArray() {
-		String[] args = new String[] {"plans=src/test/java/resources","tags=not @tskip","--dry-run -g steps src/test/java/resources"};
+		String[] args = new String[] {"plans=src/test/java/resources","tags=not @tskip","--dry-run", "-g","steps","src/test/java/resources"};
 		CucumberPerf cp = new CucumberPerf(args);
 		try {
 			cp.runThreads();
@@ -150,6 +187,19 @@ public class CucumberPerfTest {
     class options1
     {
     }
+	
+	@CucumberPerfOptions(
+			plans = {"src/test/java/resources"},
+			tags = {"not @tskip"},
+			plugin = {"null_display"},
+			dryRun = true)
+	@CucumberOptions(
+			features = {"src/test/java/resources"},
+			dryRun = true)
+    class options3
+    {
+    }
+
 
 	@CucumberOptions(
 			features = {"src/test/java/resources"},

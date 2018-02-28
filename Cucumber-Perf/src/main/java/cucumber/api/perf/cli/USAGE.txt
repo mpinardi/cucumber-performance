@@ -6,6 +6,20 @@ Options:
   t=, tags=TAG_EXPRESSION              Only run scenarios tagged with tags matching
                                          TAG_EXPRESSION.
   n=, name=REGEXP                      Only run scenarios whose names match REGEXP.
+  pg=,[add-]plugin= PLUGIN[:PATH_OR_URL]
+                                         Register a plugin.
+                                         Built-in formatter PLUGIN types: junit, TBD.
+                                         Built-in summary PLUGIN types:
+                                         default_summary, null_summary. 
+                                         Built-in display PLUGIN types: null_display,
+                                          detail_display, TBD.
+                                         PLUGIN can
+                                         also be a fully qualified class name, allowing
+                                         registration of 3rd party plugins.
+                                         --add-plugin does not clobber plugins of that 
+                                         type defined from a different source.					  
+  i18n=LANG                            List keywords for in a particular language
+                                         Run with "--i18n help" to see all languages					     
   v, version                          Print version.
   h, help                             You're looking at it.
 

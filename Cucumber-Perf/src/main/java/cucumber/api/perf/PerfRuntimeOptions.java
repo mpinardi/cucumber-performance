@@ -1,16 +1,24 @@
 package cucumber.api.perf;
 
+import cucumber.api.Plugin;
+import cucumber.api.perf.formatter.DisplayPrinter;
+import cucumber.api.perf.formatter.Formatter;
+import cucumber.api.perf.formatter.SummaryPrinter;
 import cucumber.api.perf.salad.ISaladDialectProvider;
 import cucumber.api.perf.salad.SaladDialect;
 import cucumber.api.perf.salad.SaladDialectProvider;
+import cucumber.runtime.CucumberException;
 import cucumber.runtime.Shellwords;
-import cucumber.runtime.formatter.PluginFactory;
+import cucumber.runtime.Utils;
 import cucumber.runtime.table.TablePrinter;
 import cucumber.util.FixJava;
 import cucumber.util.Mapper;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -20,7 +28,7 @@ import static cucumber.util.FixJava.join;
 import static cucumber.util.FixJava.map;
 import static java.util.Arrays.asList;
 
-// IMPORTANT! Make sure USAGE.txt is always uptodate if this class changes.
+// IMPORTANT! Make sure USAGE.txt is always up to date if this class changes.
 
 public class PerfRuntimeOptions {
 	public static final String VERSION = ResourceBundle.getBundle("cucumber.version").getString("cucumber-jvm.version");
@@ -39,10 +47,16 @@ public class PerfRuntimeOptions {
 	private final List<Pattern> nameFilters = new ArrayList<Pattern>();
 	private final List<String> planPaths = new ArrayList<String>();
 	private final List<String> cucumberOptions = new ArrayList<String>();
+	private final List<String> pluginFormatterNames = new ArrayList<String>();
+	private final List<String> pluginDisplayNames = new ArrayList<String>();
+    private final List<String> pluginSummaryPrinterNames = new ArrayList<String>();
+    private final PluginFactory pluginFactory;
+    private final List<Plugin> plugins = new ArrayList<Plugin>();
 	private boolean dryRun;
+	private boolean pluginNamesInstantiated;
 
 	public PerfRuntimeOptions() {
-
+		this(new ArrayList<String>());
 	}
 
 	/**
@@ -52,13 +66,35 @@ public class PerfRuntimeOptions {
 	 *            the arguments
 	 */
 	public PerfRuntimeOptions(List<String> argv) {
+		this(new PluginFactory(),argv);
+	}
+	
+	/**
+	 * Create a new instance from a list of options, for example:
+	 * <pre>{@code Arrays.asList("--name", "the fox", "--plugin", "pretty", "--strict");}</pre>
+	 * @param pluginFactory A existing plugin factory
+	 * @param argv
+	 *            the arguments
+	 */
+	public PerfRuntimeOptions(PluginFactory pluginFactory, List<String> argv) {
+		this.pluginFactory = pluginFactory;
 		argv = new ArrayList<String>(argv); // in case the one passed in is unmodifiable.
 		List<String> ls = parse(argv);
 		addCucumberOptions(ls);
+		
+		if (pluginFormatterNames.isEmpty()) {
+			//possible future default
+	    }
+		 
+        if (pluginSummaryPrinterNames.isEmpty()) {
+            pluginSummaryPrinterNames.add("default_summary");
+        }
 	}
+
 
 	private List<String> parse(List<String> args) {
 		List<String> list = new ArrayList<String>();
+		ParsedPluginData parsedPluginData = new ParsedPluginData();
 		for (String arg : args) {
 			if (arg.startsWith("tags=") || arg.startsWith("t=")) {
 				tagFilters.add(arg.split("=")[1]);
@@ -68,6 +104,8 @@ public class PerfRuntimeOptions {
 				nameFilters.add(patternFilter);
 			} else if (arg.startsWith("plans=") || arg.startsWith("p=")) {
 				planPaths.add(arg.split("=")[1]);
+			} else if (arg.startsWith("plugin=") || arg.startsWith("pg=") || arg.startsWith("add-plugin=")) {
+                parsedPluginData.addPluginName(arg.split("=")[1],arg.startsWith("add-plugin="));
 			} else if (arg.startsWith("dryrun")) {
 				this.dryRun = true;
 			} else if (arg.equals("help") || arg.equals("h")) {
@@ -82,6 +120,10 @@ public class PerfRuntimeOptions {
 				list.add(arg);
 			}
 		}
+		
+	    parsedPluginData.updatePluginFormatterNames(pluginFormatterNames);
+	    parsedPluginData.updatePluginDisplayNames(pluginDisplayNames);
+	    parsedPluginData.updatePluginSummaryPrinterNames(pluginSummaryPrinterNames);
 		return list;
 	}
 
@@ -144,14 +186,112 @@ public class PerfRuntimeOptions {
 		table.add(cells);
 	}
 	
-	private boolean isPlugin(String string) throws Exception {
-		if (PluginFactory.isSummaryPrinterName(string)) {
+	public List<Plugin> getPlugins() {
+        if (!pluginNamesInstantiated) {
+            for (String pluginName : pluginFormatterNames) {
+                Plugin plugin = pluginFactory.create(pluginName);
+                plugins.add(plugin);
+            }
+            for (String pluginName : pluginSummaryPrinterNames) {
+                Plugin plugin = pluginFactory.create(pluginName);
+                plugins.add(plugin);
+            }
+            for (String pluginName : pluginDisplayNames) {
+                Plugin plugin = pluginFactory.create(pluginName);
+                plugins.add(plugin);
+            }
+            pluginNamesInstantiated = true;
+        }
+        return plugins;
+    }
+
+    public List<Formatter> formatters(ClassLoader classLoader) {
+        return pluginProxies(classLoader, Formatter.class);
+    }
+
+    public SummaryPrinter summaryPrinter(ClassLoader classLoader) {
+        return pluginProxy(classLoader, SummaryPrinter.class);
+    }
+    
+    public DisplayPrinter displayPrinter(ClassLoader classLoader) {
+        return pluginProxy(classLoader, DisplayPrinter.class);
+    }
+    
+    /**
+     * Creates a dynamic proxy that multiplexes method invocations to all plugins of the same type.
+     *
+     * @param classLoader used to create the proxy
+     * @param type        proxy type
+     * @param <T>         generic proxy type
+     * @return a list of proxies
+     */
+    @SuppressWarnings("unchecked")
+	private <T> List<T> pluginProxies(ClassLoader classLoader, final Class<T> type) {
+    	List<Plugin> plugins = getPlugins();
+    	List<Object> proxies = new ArrayList<Object>();
+    	
+        for (Plugin plugin : plugins) {
+            if (type.isInstance(plugin)) {
+	        Object proxy = Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new InvocationHandler() {
+	            @Override
+	            public Object invoke(Object target, Method method, Object[] args) throws Throwable {
+				try {
+	                Utils.invoke(plugin, method, 0, args);
+	            } catch (Throwable t) {
+	                if (!method.getName().equals("startOfScenarioLifeCycle") && !method.getName().equals("endOfScenarioLifeCycle")) {
+	                    // IntelliJ has its own formatter which doesn't yet implement these methods.
+	                    throw t;
+	                }
+	            }
+	            return null;
+	            }
+	        });
+	        proxies.add(type.cast(proxy));
+	       }
+       }
+        return (List<T>) proxies;
+    }
+    
+    /**
+     * Creates a dynamic proxy that multiplexes method invocations to all plugins of the same type.
+     *
+     * @param classLoader used to create the proxy
+     * @param type        proxy type
+     * @param <T>         generic proxy type
+     * @return a proxy
+     */
+    private <T> T pluginProxy(ClassLoader classLoader, final Class<T> type) {
+    	List<Plugin> plugins = getPlugins();
+        Object proxy = Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new InvocationHandler() {
+            @Override
+            public Object invoke(Object target, Method method, Object[] args) throws Throwable {
+                for (Plugin plugin : plugins) {
+                    if (type.isInstance(plugin)) {
+                        try {
+                            Utils.invoke(plugin, method, 0, args);
+                        } catch (Throwable t) {
+                            if (!method.getName().equals("startOfScenarioLifeCycle") && !method.getName().equals("endOfScenarioLifeCycle")) {
+                                // IntelliJ has its own formatter which doesn't yet implement these methods.
+                                throw t;
+                            }
+                        }
+                    }
+                }
+                return null;
+            }
+        });
+        
+        return type.cast(proxy);
+    }
+    
+	private boolean isCucumberPlugin(String string) throws Exception {
+		if (cucumber.runtime.formatter.PluginFactory.isSummaryPrinterName(string)) {
 			return true;
 		}
-		if (PluginFactory.isFormatterName(string)) {
+		if (cucumber.runtime.formatter.PluginFactory.isFormatterName(string)) {
 			return true;
 		}
-		if (PluginFactory.isStepDefinitionReporterName(string)) {
+		if (cucumber.runtime.formatter.PluginFactory.isStepDefinitionReporterName(string)) {
 			return true;
 		}
 		return false;
@@ -195,10 +335,41 @@ public class PerfRuntimeOptions {
 		this.tagFilters.addAll(tagFilters);
 		return this;
 	}
+	
+	public PerfRuntimeOptions addPlugins(List<String> plugins) {
+		for (String plugin : plugins)
+		{
+			if (PluginFactory.isDisplayName(plugin))
+			{
+				this.pluginDisplayNames.add(plugin);
+			}
+			else if (PluginFactory.isFormatterName(plugin))
+			{
+				this.pluginFormatterNames.add(plugin);
+			}
+			else if (PluginFactory.isSummaryPrinterName(plugin))
+			{
+				this.pluginSummaryPrinterNames.add(plugin);
+			}
+		}
+		return this;
+	}
 
 	public PerfRuntimeOptions setDryRun(boolean value) {
 		dryRun = value;
 		return this;
+	}
+	
+	public void disableDisplay()
+	{
+		this.getPlugins();
+		for (int i = 0; i < plugins.size(); i++)
+		{
+			if (plugins.get(i) instanceof DisplayPrinter)
+			{
+				this.plugins.remove(i);
+			}
+		}
 	}
 	
 	/**
@@ -222,7 +393,7 @@ public class PerfRuntimeOptions {
 					ispretty = true;
 				}
 				try {
-					if (ispretty && (ca.get(i).contentEquals("-p") || !isPlugin(ca.get(i)))) {
+					if (ispretty && (ca.get(i).contentEquals("-p") || !isCucumberPlugin(ca.get(i)))) {
 						ispretty = false;
 						ca.remove(p);
 					}
@@ -234,6 +405,36 @@ public class PerfRuntimeOptions {
 		}
 		return this;
 	}
+	
+	class ParsedPluginData {
+        ParsedOptionNames formatterNames = new ParsedOptionNames();
+        ParsedOptionNames displayNames = new ParsedOptionNames();
+        ParsedOptionNames summaryPrinterNames = new ParsedOptionNames();
+
+        public void addPluginName(String name, boolean isAddPlugin) {
+            if (PluginFactory.isFormatterName(name)) {
+                formatterNames.addName(name, isAddPlugin);
+            } else if (PluginFactory.isDisplayName(name)) {
+                displayNames.addName(name, isAddPlugin);
+            } else if (PluginFactory.isSummaryPrinterName(name)) {
+                summaryPrinterNames.addName(name, isAddPlugin);
+            } else {
+                throw new CucumberException("Unrecognized plugin: " + name);
+            }
+        }
+
+        public void updatePluginFormatterNames(List<String> pluginFormatterNames) {
+            formatterNames.updateNameList(pluginFormatterNames);
+        }
+
+        public void updatePluginDisplayNames(List<String> pluginDisplayNames) {
+            displayNames.updateNameList(pluginDisplayNames);
+        }
+
+        public void updatePluginSummaryPrinterNames(List<String> pluginSummaryPrinterNames) {
+            summaryPrinterNames.updateNameList(pluginSummaryPrinterNames);
+        }
+    }
 
 	class ParsedOptionNames {
 		private List<String> names = new ArrayList<String>();

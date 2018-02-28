@@ -19,7 +19,7 @@ public class StatisticsTest {
 		List<FeatureResult> res = new ArrayList<FeatureResult>();
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1200, null), LocalDateTime.now(),LocalDateTime.now()));
-		Statistics s = new Statistics(res, true, true);
+		Statistics s = new Statistics(res, true);
 		assertEquals((long)1200,(long)s.getMax().get("test").getResultDuration());
 	}
 
@@ -29,7 +29,7 @@ public class StatisticsTest {
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1100, null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1200, null), LocalDateTime.now(),LocalDateTime.now()));
-		Statistics s = new Statistics(res, true, true);
+		Statistics s = new Statistics(res, true);
 		assertEquals((long)1100,(long)s.getAvg().get("test").getResultDuration());
 	}
 
@@ -38,7 +38,7 @@ public class StatisticsTest {
 		List<FeatureResult> res = new ArrayList<FeatureResult>();
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1200, null), LocalDateTime.now(),LocalDateTime.now()));
-		Statistics s = new Statistics(res, true, true);
+		Statistics s = new Statistics(res, true);
 		assertEquals((long)1000,(long)s.getMin().get("test").getResultDuration());
 	}
 
@@ -47,7 +47,7 @@ public class StatisticsTest {
 		List<FeatureResult> res = new ArrayList<FeatureResult>();
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new FeatureResult("test", new Result(Type.PASSED, (long)1200, null), LocalDateTime.now(),LocalDateTime.now()));
-		Statistics s = new Statistics(res, true, true);
+		Statistics s = new Statistics(res, true);
 		assertEquals((long)1200,(long)s.getMax().get("test").getResultDuration());
 	}
 
