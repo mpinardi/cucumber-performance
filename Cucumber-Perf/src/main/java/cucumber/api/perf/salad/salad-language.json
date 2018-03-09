@@ -17,17 +17,20 @@
 		 "AzarEsperar"
 	],
      "runners": [
-         "Corredores"
+         "Corredores",
+		 "Hilos"
     ],
 	 "rampup": [
 	     "Rampa para arriba",
 		 "Rampa Arriba",
+		 "RampaArriba",
 	     "Rampa arriba"
 	],
 	 "rampdown": [
 	     "Rampa hacia abajo",
+		 "RampaAbajo",
 		 "Rampa Abajo",
-		 "Rampa abajo",
+		 "Rampa abajo"
 	],
     "simulation": [
       "Simulación"
@@ -37,63 +40,165 @@
         "Período de SIM",
         "Simulación de tiempo",
         "Temporizador SIM"
-      ],
-	  "synchronized": [
-		  "Sincronizado",
-		  "Tamaño de grupo sincronizado"
-		],
-  "time": [
+    ],
+	"synchronized": [
+		"Sincronizado",
+		"Tamaño de grupo sincronizado"
+	],
+	"time": [
       "Tiempo"
     ]
   },
   "en": {
-	  "count": [
+		"count": [
 	    	"Count"
 	    ],
 	    "group": [
 	      "* ",
 	      "Group"
 	    ],
-    "name": "English",
-    "native": "English",
-    "plan": [
-        "Plan"
-	 ],
-	 "randomwait": [
-	     "RandomWait",
-		 "RandomWaitMean"
-	],
-	 "runners": [
-	     "Runners",
-		 "Threads"
-	],
-	 "rampup": [
-	     "Ramp Up",
-		 "RampUp",
-	     "Ramp^"
-	],
-	 "rampdown": [
-	     "Ramp Down",
-		 "RampDown",
-		 "RampDn"
-	],
-	"simulation": [
-	  "Simulation",
-	  "Sim"
-	],
-	"simulationPeriod": [
-	    "Simulation Period",
-	    "Sim Period",
-	    "Timed Simulation",
-	    "Timed Sim"
-	  ],
-	  "synchronized": [
+		"name": "English",
+		"native": "English",
+		"plan": [
+			"Plan"
+		 ],
+		 "randomwait": [
+			 "RandomWait",
+			 "Random Wait",
+			 "RandomWaitMean"
+		],
+		 "runners": [
+			 "Runners",
+			 "Threads"
+		],
+		 "rampup": [
+			 "Ramp Up",
+			 "RampUp",
+			 "Ramp^"
+		],
+		 "rampdown": [
+			 "Ramp Down",
+			 "RampDown",
+			 "RampDn"
+		],
+		"simulation": [
+		  "Simulation",
+		  "Sim"
+		],
+		"simulationPeriod": [
+			"Simulation Period",
+			"Sim Period",
+			"Timed Simulation",
+			"Timed Sim"
+		],
+		"synchronized": [
 		  "Synchronized",
 		  "SynchronizedGroupSize"
 		],
-	"time": [
-	  "Time",
-	  "Period"
-	]
-  }
+		"time": [
+		  "Time",
+		  "Period"
+		]
+	 },
+  "de": {
+		"count": [
+	    	"Count"
+	    ],
+	    "group": [
+	      "* ",
+	      "Group"
+	    ],
+	      "name": "German",
+	      "native": "Deutsch",
+		"plan": [
+				"Plan"
+		],
+		 "randomwait": [
+		     "ZufälligeWartezeit",
+			 "Zufällige Wartezeit",
+			 "ZufälligeWartezeitBedeuten",
+			 "Zufällige Wartezeit bedeuten"
+		],
+		 "runners": [
+			 "Läufer",
+			 "Stufen"
+		],
+		 "rampup": [
+			"RampeBis",
+			"Rampe Bis",
+			 "RampUp",
+			 "Ramp Up",
+			 "Ramp^"
+		],
+		 "rampdown": [
+			 "Rampe nach unten",
+			 "RampDown",
+			 "Ramp Down"
+		],
+		"simulation": [
+			"Simulation",
+			"Sim"
+		],
+		"simulationPeriod": [
+			"Simulationszeitraum",
+			"SimulationPeriod"
+		],
+		"synchronized": [
+			"Synchronisiert"
+		],
+		"time": [
+		  "Zeit"
+		]
+	},
+	"it": {
+		"count": [
+			"Contare"
+		],
+		"group": [
+		  "* ",
+		  "Grupo"
+		],
+			"name": "Italian",
+			"native": "italiano",
+		 "plan": [
+			"Piano"
+		 ],
+		 "randomwait": [
+			 "Attesa Casuale",
+			 "AttesaCasuale",
+			 "attesa casuale"
+		],
+		 "runners": [
+			 "Corridori",
+			 "Threads"
+		],
+		 "rampup": [
+			 "Rampa para arriba",
+			 "Rampa Arriba",
+			 "Rampa arriba"
+		],
+		 "rampdown": [
+			 "Rampa hacia abajo",
+			 "Rampa Abajo",
+			 "Rampa abajo",
+		],
+		  "simulation": [
+			  "Simulazione",
+			  "Sim"
+		],
+		  "simulationPeriod": [
+			"Periodo di simulazione",
+			"Periodo SIM",
+			"Simulazione temporizzata",
+			"Temporizzato SIM"
+		],
+		  "synchronized": [
+			  "Sincronizzato",
+			  "dimensione gruppo sincronizzato",
+			  "DimensioneGruppoSincronizzato"
+		],
+		"time": [
+		  "Tempo"
+		]
+	}
  }

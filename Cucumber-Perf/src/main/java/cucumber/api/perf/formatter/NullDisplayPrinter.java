@@ -6,6 +6,7 @@ import java.util.List;
 import cucumber.api.perf.PerfGroup;
 
 public class NullDisplayPrinter implements DisplayPrinter{
+	@SuppressWarnings("unused")
 	private final PrintStream out;
 
     public NullDisplayPrinter() {
@@ -13,8 +14,7 @@ public class NullDisplayPrinter implements DisplayPrinter{
     }
 	@Override
 	public void print(List<PerfGroup> groups) {
-		// TODO Auto-generated method stub
-		
+		//do nothing
 	}
 
 }

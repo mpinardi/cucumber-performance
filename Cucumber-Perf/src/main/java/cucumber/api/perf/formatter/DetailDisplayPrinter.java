@@ -7,7 +7,7 @@ import cucumber.api.perf.PerfGroup;
 
 public class DetailDisplayPrinter implements DisplayPrinter {
 	private final PrintStream out;
-	private final String osname = System.getProperty("os.name");
+	//private final String osname = System.getProperty("os.name");
 
 	public DetailDisplayPrinter() {
 		this.out = System.out;

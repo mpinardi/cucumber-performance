@@ -8,7 +8,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,7 +31,7 @@ import gherkin.ast.Node;
 import gherkin.ast.Tag;
 
 /**
- * Cucumber Perf(Performance)
+ * Cucumber Perf(Performance) AKA Cucumber Salad
  * A tool that interfaces with the standard cucumber application to allow for the running of performance tests.
  * Provides multithread execution of existing functional BDD test cases.
  * @author Matt Pinardi
@@ -393,14 +392,9 @@ public class CucumberPerf {
     private void createReports(Statistics stats) {
     	ClassLoader classLoader = this.getClass().getClassLoader();
         List<Formatter> formatters = options.formatters(classLoader);
-        List<FeatureResult> res = new ArrayList<FeatureResult>();
-        for (Entry<String,FeatureResult> r : stats.getAvg().entrySet())
-        {
-        	res.add(r.getValue());
-        }
         for (Formatter f : formatters)
         {
-        	f.process(res);
+        	f.process(stats);
         }
     }
     
@@ -502,7 +496,7 @@ public class CucumberPerf {
 		
 	}
 	
-	public void warnProgressFormatter(RuntimeOptions runtimeOptions)
+	private void warnProgressFormatter(RuntimeOptions runtimeOptions)
 	{
 		for(Plugin plugin: runtimeOptions.getPlugins())
 		{
@@ -516,23 +510,34 @@ public class CucumberPerf {
 		}
 	}
 	
+	/**
+	 * @return Total number of threads ran so far.
+	 */
 	public long getTotalRanCount() {
 		return totalRanCount;
 	}
 
+	/**
+	 * @return Start of Cucumber Perf execution
+	 */
 	public LocalDateTime getStart() {
 		return start;
 	}
-
+	/**
+	 * @return End of Cucumber Perf execution
+	 */
 	public LocalDateTime getEnd() {
 		return end;
 	}
 
+	/**
+	 * @return Duration of of Cucumber Perf execution.
+	 */
 	public String getRunTime() {
 		Duration d = Duration.between(start, end);
 		return d.toString();
 	}
-
+	
 	public int getMaxThreads() {
 		return maxThreads;
 	}

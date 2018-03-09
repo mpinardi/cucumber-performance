@@ -58,7 +58,6 @@ public class FeatureBuilder {
 	}
 
 	public static List<List<ScenarioDefinition>> GetScenarios(List<CucumberFeature> features) {
-
 		List<List<ScenarioDefinition>> result = new ArrayList<List<ScenarioDefinition>>();
 		for (CucumberFeature f : features) {
 			List<ScenarioDefinition> sc = new ArrayList<ScenarioDefinition>();

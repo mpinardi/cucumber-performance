@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 @CucumberPerfOptions(
 		plans = {"src/test/java/resources"},
 		tags = {"not @bskip","@planPosTest"},
+		plugin = {"chart_points:target/chartpoints|-#0001.csv"},
 		name = {"^(?!.*period).*$"})
 public class Test {
 	
@@ -40,7 +41,7 @@ public class Test {
 		options.addTagFilters(Arrays.asList(new String[]{"not @bskip","@planPosTest"}));
 		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
 		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
-		options.addPlugins(Arrays.asList(new String[]{"detail_display"}));
+		options.addPlugins(Arrays.asList(new String[]{"detail_display","chart_points:file://C:/test/chartpoints|-@dd-#1-@HHmmss-@yyyy.csv"}));
 		//CucumberPerf cukePerf = new CucumberPerf(Test.class, options);
 		
 		

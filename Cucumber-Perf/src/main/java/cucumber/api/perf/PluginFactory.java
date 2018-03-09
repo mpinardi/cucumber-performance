@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cucumber.api.Plugin;
+import cucumber.api.perf.formatter.ChartPointsFormatter;
 import cucumber.api.perf.formatter.DefaultSummaryPrinter;
 import cucumber.api.perf.formatter.DisplayPrinter;
 import cucumber.api.perf.formatter.Formatter;
@@ -38,10 +39,13 @@ import cucumber.runtime.io.UTF8OutputStreamWriter;
  * @see Plugin for specific requirements
  */
 public final class PluginFactory {
-    private final Class[] CTOR_PARAMETERS = new Class[]{String.class, Appendable.class, URI.class, URL.class, File.class};
+    @SuppressWarnings("rawtypes")
+	private final Class[] CTOR_PARAMETERS = new Class[]{String.class, Appendable.class, URI.class, URL.class, File.class};
 
-    private static final HashMap<String, Class<? extends Plugin>> PLUGIN_CLASSES = new HashMap<String, Class<? extends Plugin>>() {{
+    @SuppressWarnings("serial")
+	private static final HashMap<String, Class<? extends Plugin>> PLUGIN_CLASSES = new HashMap<String, Class<? extends Plugin>>() {{
         put("junit", JUnitFormatter.class);
+        put("chart_points", ChartPointsFormatter.class);
         put("default_summary", DefaultSummaryPrinter.class);
         put("null_summary", NullSummaryPrinter.class);
         put("null_display",NullDisplayPrinter.class);
@@ -108,7 +112,7 @@ public final class PluginFactory {
         }
     }
 
-    private Object convertOrNull(String arg, Class ctorArgClass, String formatterString) throws IOException, URISyntaxException {
+    private Object convertOrNull(String arg, Class<?> ctorArgClass, String formatterString) throws IOException, URISyntaxException {
         if (arg == null) {
             if (ctorArgClass.equals(Appendable.class)) {
                 return defaultOutOrFailIfAlreadyUsed(formatterString);
@@ -136,7 +140,7 @@ public final class PluginFactory {
 
     private <T> Constructor<T> findSingleArgConstructor(Class<T> pluginClass) {
         Constructor<T> constructor = null;
-        for (Class ctorArgClass : CTOR_PARAMETERS) {
+        for (Class<?> ctorArgClass : CTOR_PARAMETERS) {
             try {
                 Constructor<T> candidate = pluginClass.getConstructor(ctorArgClass);
                 if (constructor != null) {
@@ -195,21 +199,21 @@ public final class PluginFactory {
     }
 
     public static boolean isFormatterName(String name) {
-        Class pluginClass = getPluginClass(name);
+        Class<?> pluginClass = getPluginClass(name);
         return Formatter.class.isAssignableFrom(pluginClass);
     }
 
     public static boolean isSummaryPrinterName(String name) {
-        Class pluginClass = getPluginClass(name);
+        Class<?> pluginClass = getPluginClass(name);
         return SummaryPrinter.class.isAssignableFrom(pluginClass);
     }
     
     public static boolean isDisplayName(String name) {
-        Class pluginClass = getPluginClass(name);
+        Class<?> pluginClass = getPluginClass(name);
         return DisplayPrinter.class.isAssignableFrom(pluginClass);
     }
 
-    private static Class getPluginClass(String name) {
+    private static Class<?> getPluginClass(String name) {
         Matcher pluginWithFile = PLUGIN_WITH_ARGUMENT_PATTERN.matcher(name);
         String pluginName;
         if (pluginWithFile.matches()) {

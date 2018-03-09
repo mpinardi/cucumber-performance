@@ -61,7 +61,7 @@ public class PerfRuntimeOptions {
 
 	/**
 	 * Create a new instance from a list of options, for example:
-	 * <pre>{@code Arrays.asList("--name", "the fox", "--plugin", "pretty", "--strict");}</pre>
+	 * <pre>{@code Arrays.asList("name=the fox", "plugin=detail_display);}</pre>
 	 * @param argv
 	 *            the arguments
 	 */
@@ -71,7 +71,7 @@ public class PerfRuntimeOptions {
 	
 	/**
 	 * Create a new instance from a list of options, for example:
-	 * <pre>{@code Arrays.asList("--name", "the fox", "--plugin", "pretty", "--strict");}</pre>
+	 * <pre>{@code Arrays.asList("name=the fox", "plugin=detail_display);}</pre>
 	 * @param pluginFactory A existing plugin factory
 	 * @param argv
 	 *            the arguments
@@ -90,7 +90,6 @@ public class PerfRuntimeOptions {
             pluginSummaryPrinterNames.add("default_summary");
         }
 	}
-
 
 	private List<String> parse(List<String> args) {
 		List<String> list = new ArrayList<String>();
