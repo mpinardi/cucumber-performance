@@ -1,5 +1,6 @@
 package cucumber.api.perf;
 
+import cucumber.api.Result;
 import cucumber.api.event.TestRunFinished;
 import cucumber.api.event.TestRunStarted;
 import cucumber.api.perf.result.FeatureResult;
@@ -20,6 +21,7 @@ import gherkin.ast.ScenarioDefinition;
 import gherkin.events.PickleEvent;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -134,7 +136,9 @@ public class PerfCucumberRunner implements Callable<Object> {
 				result = resultListener.getResult();
 				result.setChildResults(scenarioResults);
 			} catch (Throwable e) {
-				result = resultListener.getResult();
+				//Name in feature: f.getGherkinFeature().getFeature().getName()
+				//Name of feature file: f.getUri().substring(f.getUri().lastIndexOf("/")+1);	
+				result = (resultListener.getResult() != null) ? resultListener.getResult(): new FeatureResult(f.getUri().substring(f.getUri().lastIndexOf("/")+1), new Result(Result.Type.FAILED, (long)0, e),LocalDateTime.now(), LocalDateTime.now()) ;
 				result.setChildResults(scenarioResults);
 			}
 		}
@@ -161,14 +165,15 @@ public class PerfCucumberRunner implements Callable<Object> {
 
 	private void runScenario(PickleEvent pickle) throws Throwable {
 		runtime.getRunner().runPickle(pickle);
-		if (!testCaseResultListener.getResult().isPassed()) {
-			throw testCaseResultListener.getResult().getError();
-		}
 
 		ScenarioResult sr = testCaseResultListener.getResult();
 		sr.setChildResults(stepResultListener.getResults());
 		scenarioResults.add(sr);
 		stepResultListener.reset();
+		
+		if (!testCaseResultListener.getResult().isPassed()) {
+			throw testCaseResultListener.getResult().getError();
+		}
 	}
 
 	/**

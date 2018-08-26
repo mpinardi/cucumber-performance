@@ -1,6 +1,8 @@
 package cucumber.api.perf.formatter;
 
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import cucumber.api.perf.result.FeatureResult;
@@ -50,8 +52,18 @@ public class DefaultSummaryPrinter implements SummaryPrinter {
 				}
 			}
 		}
+		
+		HashMap<String,HashMap<String,Throwable>> errors = s.getErrors();
+		if (!errors.isEmpty())
+		{
+			out.println("Errors:");
+			for (Entry<String,HashMap<String,Throwable>> entry : errors.entrySet()) {
+				out.println("Feature: " + entry.getKey());
+				for (Entry<String,Throwable> sentry: entry.getValue().entrySet()) {
+					out.println("Step: " + entry.getKey());
+					sentry.getValue().printStackTrace(out);
+				}
+			}
+		}
 	}
-
-
-
 }

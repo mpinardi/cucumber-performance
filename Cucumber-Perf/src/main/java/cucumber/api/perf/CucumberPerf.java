@@ -210,6 +210,7 @@ public class CucumberPerf {
 									} else {
 										rampUp = null;
 										curPercent = 100;
+										setCurGroupThreads(curPercent);
 									}
 								} else if (nextRamp != null && curTime.isAfter(nextRamp)) {
 									if (rampUp == null)

@@ -62,12 +62,13 @@ Group test.feature
 	
 	
 @tskip
+@simperiodtest
 #Will run all groups for the period bellow
 Simulation Period: simulation 2 period
 Group test.feature
 	|value out|
 	|changed value |
-		Threads: 5
+		Threads: 50
 		#count is ignored in a simulation period
 		Count: 1
 #run time

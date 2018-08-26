@@ -38,7 +38,7 @@ public class Test {
 		//Option 3 pass in class and runtime options
 		// The class must contain cucumber runtime options
 		PerfRuntimeOptions options = new PerfRuntimeOptions();
-		options.addTagFilters(Arrays.asList(new String[]{"not @bskip","@planPosTest"}));
+		options.addTagFilters(Arrays.asList(new String[]{"not @bskip","@simperiodtest"}));
 		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
 		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
 		options.addPlugins(Arrays.asList(new String[]{"detail_display","chart_points:file://C:/test/chartpoints|-@dd-#1-@HHmmss-@yyyy.csv"}));
