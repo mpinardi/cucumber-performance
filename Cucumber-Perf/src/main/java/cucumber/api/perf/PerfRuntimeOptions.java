@@ -10,9 +10,10 @@ import cucumber.api.perf.salad.SaladDialectProvider;
 import cucumber.runtime.CucumberException;
 import cucumber.runtime.Shellwords;
 import cucumber.runtime.Utils;
-import cucumber.runtime.table.TablePrinter;
+//import cucumber.runtime.table.TablePrinter;
 import cucumber.util.FixJava;
 import cucumber.util.Mapper;
+import io.cucumber.datatable.DataTable;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -32,7 +33,7 @@ import static java.util.Arrays.asList;
 
 public class PerfRuntimeOptions {
 	public static final String VERSION = ResourceBundle.getBundle("cucumber.version").getString("cucumber-jvm.version");
-	public static final String USAGE_RESOURCE = "/cucumber/api/perf/cli/USAGE.txt";
+	public static final String USAGE_RESOURCE = "/USAGE.txt";
 
 	static String usageText;
 
@@ -162,7 +163,7 @@ public class PerfRuntimeOptions {
 
 	private int printKeywordsFor(SaladDialect dialect) {
 		StringBuilder builder = new StringBuilder();
-		TablePrinter printer = new TablePrinter();
+		//TablePrinter printer = new TablePrinter();
 		List<List<String>> table = new ArrayList<List<String>>();
 		addKeywordRow(table, "plan", dialect.getPlanKeywords());
 		addKeywordRow(table, "simulation", dialect.getSimulationKeywords());
@@ -175,7 +176,8 @@ public class PerfRuntimeOptions {
 		addKeywordRow(table, "time", dialect.getTimeKeywords());
 		addKeywordRow(table, "synchronized", dialect.getSynchronizedKeywords());
 		addKeywordRow(table, "randomwait", dialect.getRandomWaitKeywords());
-		printer.printTable(table, builder);
+		//printer.printTable(table, builder);
+		DataTable.create(table).print(builder);
 		System.out.println(builder.toString());
 		return 0;
 	}
