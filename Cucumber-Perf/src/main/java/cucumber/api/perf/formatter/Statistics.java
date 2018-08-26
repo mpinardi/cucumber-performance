@@ -72,16 +72,16 @@ public class Statistics {
 						count = 0;
 						FeatureResult pointAvg = new FeatureResult(pointSum);
 						pointAvg.setResult(new Result(pointAvg.getResult().getStatus(),count > 0 ?pointAvg.getResultDuration()/count :pointAvg.getResultDuration() ,pointAvg.getResult().getError()));
-						for (int sci = 0; sci < pointAvg.getChildResults().size(); sci++)
+						for (int sci = 0; sci < sum.getChildResults().size(); sci++)
 						{
-								pointAvg.getChildResults().get(sci).setResult(new Result(pointSum.getChildResults().get(sci).getResult().getStatus(),count>0?pointSum.getChildResults().get(sci).getResultDuration()/count:pointSum.getChildResults().get(sci).getResultDuration(),pointAvg.getChildResults().get(sci).getResult().getError()));
-								for (int sti = 0; sti < pointAvg.getChildResults().get(sci).getChildResults().size(); sti++)
+							pointAvg.getChildResults().get(sci).setResult(new Result(pointSum.getChildResults().get(sci).getResult().getStatus(),count>0?pointSum.getChildResults().get(sci).getResultDuration()/count:pointSum.getChildResults().get(sci).getResultDuration(),pointAvg.getChildResults().get(sci).getResult().getError()));
+							for (int sti = 0; sti < sum.getChildResults().get(sci).getChildResults().size(); sti++)
+							{
+								if (pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getDuration()!=null)
 								{
-									if (pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getDuration()!=null)
-									{
-										pointAvg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),count>0?pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/count:pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration(),pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
-									}
+									pointAvg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),count>0?pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/count:pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration(),pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
 								}
+							}
 						}
 						chartPoints.get(entry.getKey()).get(chartPoints.get(entry.getKey()).size()-1).put("avg", pointAvg);
 						chartPoints.get(entry.getKey()).get(chartPoints.get(entry.getKey()).size()-1).put("min", pointMin);
@@ -114,60 +114,42 @@ public class Statistics {
 					{
 						ScenarioResult sc = f.getChildResults().get(sci);
 						if ((isStrict && sc.getResult().isOk(isStrict)) || !isStrict) {
-							try {
-								sum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
-								pointSum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
-								if (sc.getResultDuration()>max.getChildResults().get(sci).getResultDuration())
-								{
-									max.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
-									pointMax.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
-								}
-								else if (sc.getResultDuration()<min.getChildResults().get(sci).getResultDuration())
-								{
-									min.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
-									pointMin.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
-								}
-							}
-							catch (Exception e)
+							sum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
+							pointSum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
+							if (sc.getResultDuration()>max.getChildResults().get(sci).getResultDuration())
 							{
-								//e.printStackTrace();
-								//Range exception
+								max.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
+								pointMax.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
+							}
+							else if (sc.getResultDuration()<min.getChildResults().get(sci).getResultDuration())
+							{
+								min.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
+								pointMin.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
 							}
 						}
 						for (int sti = 0; sti < sc.getChildResults().size(); sti++)
 						{
-							try {
-								StepResult stp = sc.getChildResults().get(sti);
-								if (sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()!=null&&((isStrict && stp.getResult().isOk(isStrict)) || !isStrict)){
-									sum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
-									pointSum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
-								}
-								if (stp.getResultDuration()!=null && stp.getResultDuration()>max.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
-								{
-									max.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));
-									pointMax.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));
-								}
-								else if (stp.getResultDuration()!=null && stp.getResultDuration()<min.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
-								{
-									min.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));							
-									pointMin.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));							
-								}
+							StepResult stp = sc.getChildResults().get(sti);
+							if (sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()!=null&&((isStrict && stp.getResult().isOk(isStrict)) || !isStrict)){
+								sum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
+								pointSum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
 							}
-							catch (Exception e)
+							if (stp.getResultDuration()!=null && stp.getResultDuration()>max.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
 							{
-								//e.printStackTrace();
-								//Range exception
+								max.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));
+								pointMax.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));
+							}
+							else if (stp.getResultDuration()!=null && stp.getResultDuration()<min.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
+							{
+								min.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));							
+								pointMin.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),stp.getResultDuration(),stp.getResult().getError()));							
 							}
 						}
 					}
 				}
-				else if (first)
-				{
-					first = false;
-				}
 				else
 				{
-					
+					first = false;
 				}
 			}
 			FeatureResult avg = new FeatureResult(sum);
@@ -218,33 +200,5 @@ public class Statistics {
 	
 	public  HashMap<String,List<HashMap<String,FeatureResult>>> getChartPoints() {
 		return chartPoints;
-	}
-	
-	public HashMap<String,HashMap<String,Throwable>> getErrors()
-	{
-		HashMap<String,HashMap<String,Throwable>> map = new HashMap<String,HashMap<String,Throwable>>();
-		for (Entry<String,List<FeatureResult>> entry: results.entrySet())
-		{
-			for (FeatureResult f : entry.getValue())
-			{
-				if (f.getResult().is(Result.Type.FAILED))
-				{
-					HashMap<String,Throwable> sErrs = new HashMap<String,Throwable>();
-					if (map.containsKey(f.getName()))
-					{
-						sErrs = map.get(f.getName());
-					}
-					for (ScenarioResult sr : f.getChildResults())
-					{
-						if (sr.getResult().is(Result.Type.FAILED))
-						{
-							sErrs.put(sr.getName(), sr.getError());
-						}
-					}
-					map.put(f.getName(), sErrs);
-				}
-			}
-		}
-		return map;
 	}
 }

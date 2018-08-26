@@ -63,7 +63,7 @@ public class ChartPointsFormatterTest {
 	@Test
 	public void testFinishReportWPrefix1() {
 		try {
-			ChartPointsFormatter cpf = new ChartPointsFormatter("file://C:/test/chartpoints|@H#1.csv");
+			ChartPointsFormatter cpf = new ChartPointsFormatter("file://C:/test/chartpoints|@HH#1.csv");
 			HashMap<String,FeatureResult> fr = new HashMap<String,FeatureResult>();
 			fr.put("sum", new FeatureResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now()));
 			cpf.addLines(fr);

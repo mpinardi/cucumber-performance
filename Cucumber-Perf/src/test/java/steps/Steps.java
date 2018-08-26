@@ -2,10 +2,9 @@ package steps;
 
 import java.util.Random;
 
-//import cucumber.api.DataTable;
+import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import io.cucumber.datatable.DataTable;
 
 public class Steps {
 	

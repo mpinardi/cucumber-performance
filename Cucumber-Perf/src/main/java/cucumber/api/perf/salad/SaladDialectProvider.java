@@ -21,7 +21,7 @@ public class SaladDialectProvider implements ISaladDialectProvider {
     static {
         Gson gson = new Gson();
         try {
-            Reader dialects = new InputStreamReader(SaladDialectProvider.class.getResourceAsStream("/salad-language.json"), "UTF-8");
+            Reader dialects = new InputStreamReader(SaladDialectProvider.class.getResourceAsStream("salad-language.json"), "UTF-8");
             DIALECTS = gson.fromJson(dialects, Map.class);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
