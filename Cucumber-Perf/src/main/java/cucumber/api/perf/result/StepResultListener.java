@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import cucumber.api.PickleStepTestStep;
 import cucumber.api.event.EventHandler;
 import cucumber.api.event.EventListener;
 import cucumber.api.event.EventPublisher;
@@ -27,7 +28,7 @@ public class StepResultListener implements EventListener {
 		@Override
 		public void receive(TestStepStarted event) {
 			start = LocalDateTime.now();
-			name = event.testStep.getStepText();
+			name = ((PickleStepTestStep)event.testStep).getStepText();
 		}
     };
     
