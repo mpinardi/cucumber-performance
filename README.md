@@ -110,7 +110,7 @@ Maven
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
 </dependency>
 ```
 ## Versioning
