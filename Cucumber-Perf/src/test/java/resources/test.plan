@@ -54,6 +54,7 @@ Group test.feature
 	Count: 2
 	
 	@bskip
+	@outputtest
 	#junit test case
 	Simulation: simulation test
 	Group test.feature

@@ -17,11 +17,10 @@ import cucumber.api.perf.result.StepResult;
 public class Statistics {
 	private int maxPoints;
 	private HashMap<String,List<FeatureResult>> results = new HashMap<String,List<FeatureResult>>();
-	//HashMap<FeatureName,FeatureResult>()
 	private HashMap<String,FeatureResult> min = new HashMap<String,FeatureResult>();
 	private HashMap<String,FeatureResult> max = new HashMap<String,FeatureResult>();
 	private HashMap<String,FeatureResult> avg = new HashMap<String,FeatureResult>();
-	//HashMap<FeatureName,List<HashMap<StatType,FeatureResult>>>
+	private HashMap<String,FeatureResult> cnt = new HashMap<String,FeatureResult>();
 	private HashMap<String,List<HashMap<String,FeatureResult>>> chartPoints = new HashMap<String,List<HashMap<String,FeatureResult>>>();
 	
 	public Statistics(List<FeatureResult> results,boolean isStrict)
@@ -172,20 +171,24 @@ public class Statistics {
 			}
 			FeatureResult avg = new FeatureResult(sum);
 			avg.setResult(new Result(avg.getResult().getStatus(),avg.getResultDuration()/entry.getValue().size(),avg.getResult().getError()));
+			FeatureResult cnt = new FeatureResult(sum);
+			cnt.setResult(new Result(cnt.getResult().getStatus(),(long) entry.getValue().size(),null));
 			for (int sci = 0; sci < sum.getChildResults().size(); sci++)
 			{
 				avg.getChildResults().get(sci).setResult(new Result(sum.getChildResults().get(sci).getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()/entry.getValue().size(),avg.getChildResults().get(sci).getResult().getError()));
+				cnt.getChildResults().get(sci).setResult(new Result(sum.getChildResults().get(sci).getResult().getStatus(),(long) entry.getValue().size(),null));
 				for (int sti = 0; sti < sum.getChildResults().get(sci).getChildResults().size(); sti++)
 				{
 					if (avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getDuration()!=null)
 					{
 					avg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),avg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/entry.getValue().size(),avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
-				
+					cnt.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(cnt.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),(long) entry.getValue().size(),null));
 					}
 				}
 			
 			}
 			this.avg.put(entry.getKey(), avg);
+			this.cnt.put(entry.getKey(), cnt);
 			this.min.put(entry.getKey(), min);
 			this.max.put(entry.getKey(), max);
 		}
@@ -204,6 +207,12 @@ public class Statistics {
 	{
 		return avg;
 	}
+	
+	public HashMap<String,FeatureResult> getCnt()
+	{
+		return cnt;
+	}
+	
 	public HashMap<String, FeatureResult> getMin() {
 		return min;
 	}

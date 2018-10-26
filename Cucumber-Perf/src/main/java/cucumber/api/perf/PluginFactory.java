@@ -23,6 +23,7 @@ import cucumber.api.perf.formatter.Formatter;
 import cucumber.api.perf.formatter.JUnitFormatter;
 import cucumber.api.perf.formatter.NullDisplayPrinter;
 import cucumber.api.perf.formatter.NullSummaryPrinter;
+import cucumber.api.perf.formatter.SummaryTextFormatter;
 import cucumber.api.perf.formatter.DetailDisplayPrinter;
 import cucumber.api.perf.formatter.SummaryPrinter;
 import cucumber.runtime.CucumberException;
@@ -46,6 +47,7 @@ public final class PluginFactory {
 	private static final HashMap<String, Class<? extends Plugin>> PLUGIN_CLASSES = new HashMap<String, Class<? extends Plugin>>() {{
         put("junit", JUnitFormatter.class);
         put("chart_points", ChartPointsFormatter.class);
+        put("summary_text", SummaryTextFormatter.class);
         put("default_summary", DefaultSummaryPrinter.class);
         put("null_summary", NullSummaryPrinter.class);
         put("null_display",NullDisplayPrinter.class);

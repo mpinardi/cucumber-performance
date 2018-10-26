@@ -47,7 +47,7 @@ public class Test {
 		
 		//Option 4 pass in runtime options
 		// options must contain both cucumber and perf options
-		options.addCucumberOptions(Arrays.asList(new String[]{"-g","steps","src/test/java/resources","--plugin","null"}));
+		options.addCucumberOptions(Arrays.asList(new String[]{"-g","steps","-t","@only2","src/test/java/resources","--plugin","null"}));
 		CucumberPerf cukePerf = new CucumberPerf(options);
 		try {
 			cukePerf.runThreads();

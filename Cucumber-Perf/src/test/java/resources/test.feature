@@ -8,6 +8,7 @@ Then Verify
 |name|value|
 |bla|vla|
 
+@only2
 Scenario Outline: scenario 2
 When System out "<value>"
 

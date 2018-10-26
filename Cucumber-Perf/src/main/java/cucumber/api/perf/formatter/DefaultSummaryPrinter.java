@@ -26,11 +26,13 @@ public class DefaultSummaryPrinter implements SummaryPrinter {
 		out.println("Averages:");
 
 		for (Entry<String, FeatureResult> entry : s.getAvg().entrySet()) {
-			out.println("Feature: " + entry.getKey() + " Avg: " + entry.getValue().getResultDuration() / 1000000
+			out.println("Feature: " + entry.getKey() + " Count: " + s.getCnt().get(entry.getKey()).getResultDuration()
+					+ " Avg: " + entry.getValue().getResultDuration() / 1000000
 					+ " Min: " + s.getMin().get(entry.getKey()).getResultDuration() / 1000000 + " Max: "
 					+ s.getMax().get(entry.getKey()).getResultDuration() / 1000000);
 			for (int sc = 0; sc < entry.getValue().getChildResults().size(); sc++) {
-				out.println("	Scenario: " + entry.getValue().getChildResults().get(sc).getName() + " Avg: "
+				out.println("	Scenario: " + entry.getValue().getChildResults().get(sc).getName() + " Count: "
+						+ s.getCnt().get(entry.getKey()).getChildResults().get(sc).getResultDuration() + " Avg: "
 						+ entry.getValue().getChildResults().get(sc).getResultDuration() / 1000000 + " Min: "
 						+ s.getMin().get(entry.getKey()).getChildResults().get(sc).getResultDuration() / 1000000
 						+ " Max: "
@@ -40,7 +42,9 @@ public class DefaultSummaryPrinter implements SummaryPrinter {
 					if (entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration() != null)
 					{
 					out.println("		Step: "
-							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getName() + " Avg: "
+							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getName() + " Count: "
+							+ s.getCnt().get(entry.getKey()).getChildResults().get(sc).getChildResults().get(stp)
+									.getResultDuration() + " Avg: "
 							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration()
 									/ 1000000
 							+ " Min: "

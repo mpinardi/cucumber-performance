@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 import cucumber.api.perf.formatter.Statistics;
@@ -228,9 +229,11 @@ public class CucumberPerf {
 							if (runningCount < maxThreads) {
 								for (int i = runningCount > 0 ? runningCount - 1 : 0; i < maxThreads; i++) {
 									PerfCucumberRunner runner = null;
+									//Seed for random start location to avoid clumping
+									int loc = ThreadLocalRandom.current().nextInt(0, 99999999);
 									for (int l = 0; (runner == null  && l < groups.size()); l++) {
-										PerfGroup pg = groups.get((i + l) % groups.size());
-										if (pg.getRunning() < pg.getThreads() && scheduledRuntime != null ||pg.getRan() < pg.getCount()) {
+										PerfGroup pg = groups.get((loc + l) % groups.size());
+										if (pg.getRunning() < pg.getThreads() && (scheduledRuntime != null ||pg.getRan() < pg.getCount())) {
 											if (options.getCucumberOptions() != null && options.getCucumberOptions().size() > 0) {
 												try {
 													runner = new PerfCucumberRunner(this.getFeature(pg.getText()),options.getCucumberOptions(),
@@ -245,17 +248,18 @@ public class CucumberPerf {
 													throw e;
 												}
 											}
+											loc = ((loc + l) % groups.size());
 											pg.incrementRunning();
 										}
 										
 									}
 									if (runner!=null)
 									{
-									FutureTask<Object> task = new FutureTask<Object>(runner);
-									pool.execute(task);
-									running.get(i % groups.size()).add(task);
-									ranCount++;
-									runningCount++;
+										FutureTask<Object> task = new FutureTask<Object>(runner);
+										pool.execute(task);
+										running.get(loc).add(task);
+										ranCount++;
+										runningCount++;
 									}
 								}
 							}

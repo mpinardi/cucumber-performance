@@ -8,7 +8,8 @@ Options:
   n=, name=REGEXP                      Only run scenarios whose names match REGEXP.
   pg=,[add-]plugin= PLUGIN[:PATH_OR_URL[|[DELIM][#NUM][DELIM][@DATE_FORMAT]...]EXTENSION]
                                          Register a plugin.
-                                         Built-in formatter PLUGIN types: junit, chart_points.
+                                         Built-in formatter PLUGIN types: junit, chart_points
+                                         and summary_text.
                                          These support postfix's for file names. 
                                          The | char separates the path from the postfix.
                                          A auto incremented number with padding is supported:
