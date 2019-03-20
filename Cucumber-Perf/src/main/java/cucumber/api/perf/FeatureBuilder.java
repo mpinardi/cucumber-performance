@@ -5,13 +5,13 @@ import gherkin.ast.ScenarioDefinition;
 import java.util.ArrayList;
 import java.util.List;
 
-import cucumber.runner.EventBus;
-import cucumber.runner.TimeService;
+import cucumber.runtime.FeaturePathFeatureSupplier;
 import cucumber.runtime.RuntimeOptions;
 import cucumber.runtime.RuntimeOptionsFactory;
 import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.model.CucumberFeature;
+import cucumber.runtime.model.FeatureLoader;
 
 public class FeatureBuilder {
 
@@ -21,7 +21,7 @@ public class FeatureBuilder {
 		return runtimeOptionsFactory.create();
 	}
 	
-	public static RuntimeOptions createRuntime(List<String> args)
+	public static RuntimeOptions createRuntimeOptions(List<String> args)
 	{
 		return new RuntimeOptions(args);
 	}
@@ -29,7 +29,9 @@ public class FeatureBuilder {
 	public static List<CucumberFeature> getFeatures(RuntimeOptions runtimeOptions) {
 		ClassLoader classLoader = FeatureBuilder.class.getClassLoader();
 		ResourceLoader resourceLoader = new MultiLoader(classLoader);
-		return runtimeOptions.cucumberFeatures(resourceLoader, new EventBus(TimeService.SYSTEM));
+		FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
+		FeaturePathFeatureSupplier featureSupplier =  new FeaturePathFeatureSupplier(featureLoader, runtimeOptions);
+		return featureSupplier.get();
 	}
 	
 	public static List<CucumberFeature> FindFeatures(String prefix, List<CucumberFeature> features) {

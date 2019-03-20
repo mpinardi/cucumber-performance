@@ -1,14 +1,12 @@
 package cucumber.api.perf.test;
 
 import cucumber.api.CucumberOptions;
-import cucumber.api.perf.cli.Main;
 import cucumber.api.perf.CucumberPerf;
 import cucumber.api.perf.CucumberPerfOptions;
 import cucumber.api.perf.PerfRuntimeOptions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Pattern;
+
 
 @CucumberOptions(
 		// format = {"Pretty","json:target/cucumber.json"},"pretty",
@@ -41,13 +39,13 @@ public class Test {
 		options.addTagFilters(Arrays.asList(new String[]{"not @bskip","@simperiodtest"}));
 		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
 		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
-		options.addPlugins(Arrays.asList(new String[]{"detail_display","chart_points:file://C:/test/chartpoints|-@dd-#1-@HHmmss-@yyyy.csv"}));
+		options.addPlugins(Arrays.asList(new String[]{"chart_points:file://C:/test/chartpoints|-@dd-#1-@HHmmss-@yyyy.csv"}));
 		//CucumberPerf cukePerf = new CucumberPerf(Test.class, options);
 		
 		
 		//Option 4 pass in runtime options
 		// options must contain both cucumber and perf options
-		options.addCucumberOptions(Arrays.asList(new String[]{"-g","steps","-t","@only2","src/test/java/resources","--plugin","null"}));
+		options.addCucumberOptions(Arrays.asList(new String[]{"-g","steps","-t","@only2","src/test/java/resources",}));//"--plugin","default_summary","--plugin","null_summary","--plugin","cucumber.formatter.NullFormatter"
 		CucumberPerf cukePerf = new CucumberPerf(options);
 		try {
 			cukePerf.runThreads();

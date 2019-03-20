@@ -1,7 +1,6 @@
 package cucumber.api.perf;
 
-import io.cucumber.tagexpressions.Expression;
-import io.cucumber.tagexpressions.TagExpressionParser;
+import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,13 +9,12 @@ import java.util.List;
 import cucumber.api.perf.salad.ast.Plan;
 import cucumber.api.perf.salad.ast.Simulation;
 import cucumber.api.perf.salad.ast.SimulationPeriod;
-import cucumber.runtime.TagExpressionOld;
 import gherkin.ast.Node;
 import gherkin.ast.Tag;
 import gherkin.pickles.PickleLocation;
 import gherkin.pickles.PickleTag;
-
-import static java.util.Arrays.asList;
+import io.cucumber.tagexpressions.Expression;
+import io.cucumber.tagexpressions.TagExpressionParser;
 
 
 public class TagPredicate implements Predicate {

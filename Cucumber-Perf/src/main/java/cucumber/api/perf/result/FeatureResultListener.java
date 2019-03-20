@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
 import cucumber.api.event.EventHandler;
+import cucumber.api.event.EventListener;
 import cucumber.api.event.EventPublisher;
 import cucumber.api.event.TestRunFinished;
 import cucumber.api.event.TestRunStarted;
-import cucumber.api.formatter.Formatter;
 
-public class FeatureResultListener implements Formatter {
+public class FeatureResultListener implements EventListener {
 	private String featureName = "";
 	private FeatureResult result = null;
 	private LocalDateTime start = LocalDateTime.now();

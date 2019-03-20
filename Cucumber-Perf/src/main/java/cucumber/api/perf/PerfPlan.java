@@ -11,6 +11,7 @@ import cucumber.runtime.model.PathWithLines;
 import cucumber.util.Encoding;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +27,18 @@ public class PerfPlan implements Serializable {
     private String saladSource;
     public static final Pattern RERUN_PATH_SPECIFICATION = Pattern.compile("(?m:^| |)(.*?\\.feature(?:(?::\\d+)*))");
 
+    public static List<PerfPlan> load(ResourceLoader resourceLoader, List<String> planPaths, PrintStream out) {
+        final List<PerfPlan> perfPlans = load(resourceLoader, planPaths);
+        if (perfPlans.isEmpty()) {
+            if (planPaths.isEmpty()) {
+                out.println("No *.plan files path was passed in!");
+            } else {
+                out.println(String.format("No *.plan files found at %s", planPaths));
+            }
+        }
+        return perfPlans;
+    }
+    
     public static List<PerfPlan> load(ResourceLoader resourceLoader, List<String> planPaths) {
         final List<PerfPlan> perfPlan = new ArrayList<PerfPlan>();
         final PlanBuilder builder = new PlanBuilder(perfPlan);

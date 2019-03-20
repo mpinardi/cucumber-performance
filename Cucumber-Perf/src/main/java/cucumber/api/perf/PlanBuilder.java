@@ -87,7 +87,7 @@ public class PlanBuilder {
 	public static List<PerfPlan> LoadPlans(Class<?> clazz, List<String> planPaths) {
 		ClassLoader classLoader = clazz.getClassLoader();
 		ResourceLoader resourceLoader = new MultiLoader(classLoader);
-		return PerfPlan.load(resourceLoader, planPaths);
+		return PerfPlan.load(resourceLoader, planPaths,System.err);
 	}
 
 	public static List<PerfPlan> FindPlan(String prefix, List<PerfPlan> plans) {

@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 import cucumber.api.perf.formatter.Statistics;
 import cucumber.api.perf.formatter.SummaryPrinter;
-import cucumber.api.Plugin;
 import cucumber.api.perf.formatter.DisplayPrinter;
 import cucumber.api.perf.formatter.Formatter;
 import cucumber.api.perf.result.FeatureResult;
@@ -101,7 +100,7 @@ public class CucumberPerf {
 	 */
 	public CucumberPerf(PerfRuntimeOptions options) {
 		this.options = options;
-		RuntimeOptions ro =  FeatureBuilder.createRuntime(options.getCucumberOptions());
+		RuntimeOptions ro =  FeatureBuilder.createRuntimeOptions(options.getCucumberOptions());
 		this.features = FeatureBuilder.getFeatures(ro);
 		this.warnProgressFormatter(ro);
 		this.setNameFilters(options.getNameFilters());
@@ -116,7 +115,7 @@ public class CucumberPerf {
 	 */
 	public CucumberPerf(String[] args) {
 		options = new PerfRuntimeOptions(Arrays.asList(args));
-		RuntimeOptions ro = FeatureBuilder.createRuntime(options.getCucumberOptions());
+		RuntimeOptions ro = FeatureBuilder.createRuntimeOptions(options.getCucumberOptions());
 		this.features = FeatureBuilder.getFeatures(ro);
 		this.warnProgressFormatter(ro);
 		this.setNameFilters(options.getNameFilters());
@@ -325,7 +324,11 @@ public class CucumberPerf {
 		} else if (sim instanceof SimulationPeriod) {
 			this.wait = ((SimulationPeriod) sim).getRandomWait() != null ? convertRuntime(((SimulationPeriod) sim).getRandomWait().getText()) : null;
 		}
-		
+		if (wait !=null && (wait.isZero() || wait.isNegative()))
+		{
+			wait = null;
+			System.err.println("WARNING: Random wait is not a valid duration. It will be ignored."); 
+		}
 		this.groups = new ArrayList<PerfGroup>();
 		this.running = new ArrayList<List<FutureTask<Object>>>();
 		for (Group g : sim.getGroups()) {
@@ -503,14 +506,21 @@ public class CucumberPerf {
 	
 	private void warnProgressFormatter(RuntimeOptions runtimeOptions)
 	{
-		for(Plugin plugin: runtimeOptions.getPlugins())
+		for(String plugin: runtimeOptions.getPluginFormatterNames())
 		{
-			if (plugin.getClass().getSimpleName().equalsIgnoreCase("ProgressFormatter"))
+			if (plugin.equalsIgnoreCase("progress"))
 			{
 				options.disableDisplay();
 				System.err.println("WARNING: Cucumber options contains Progress formatter.");
 				System.err.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
-				System.err.println(	"	Disabling all display printers. To enable pass in NullFormatter");
+				System.err.println(	"	Disabling all display printers. To enable pass in plugin \"cucumber.formatter.NullFormatter\"");
+			}
+			else if (plugin.equalsIgnoreCase("default_summary"))
+			{
+				options.disableDisplay();
+				System.err.println("WARNING: Cucumber options contains default summary.");
+				System.err.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
+				System.err.println(	"	Disabling all display printers. To enable pass in plugin \"null_summary\"");
 			}
 		}
 	}

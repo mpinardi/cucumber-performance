@@ -2,7 +2,6 @@ package cucumber.api.perf.formatter;
 
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import cucumber.api.perf.result.FeatureResult;

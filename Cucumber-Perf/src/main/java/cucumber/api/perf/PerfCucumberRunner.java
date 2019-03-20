@@ -9,14 +9,27 @@ import cucumber.api.perf.result.ScenarioResult;
 import cucumber.api.perf.result.StepResultListener;
 import cucumber.api.perf.result.TestCaseResultListener;
 import cucumber.api.perf.salad.ast.Slice;
+import cucumber.runner.TimeServiceEventBus;
+import cucumber.runner.TimeService;
+import cucumber.runner.EventBus;
+import cucumber.runner.RunnerSupplier;
+import cucumber.runner.ThreadLocalRunnerSupplier;
+import cucumber.runtime.BackendModuleBackendSupplier;
+import cucumber.runtime.BackendSupplier;
 import cucumber.runtime.ClassFinder;
-import cucumber.runtime.Runtime;
+import cucumber.runtime.FeaturePathFeatureSupplier;
+import cucumber.runtime.FeatureSupplier;
 import cucumber.runtime.RuntimeOptions;
 import cucumber.runtime.RuntimeOptionsFactory;
+import cucumber.runtime.filter.Filters;
+import cucumber.runtime.filter.RerunFilters;
+import cucumber.runtime.formatter.Plugins;
+import cucumber.runtime.formatter.PluginFactory;
 import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.io.ResourceLoaderClassFinder;
 import cucumber.runtime.model.CucumberFeature;
+import cucumber.runtime.model.FeatureLoader;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.events.PickleEvent;
 
@@ -35,9 +48,14 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  */
 public class PerfCucumberRunner implements Callable<Object> {
-	private Runtime runtime;
 	private RuntimeOptions runtimeOptions;
-	private ResourceLoader resourceLoader;
+    private RunnerSupplier runnerSupplier;
+    private EventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+    private Filters filters;
+    private FeatureSupplier featureSupplier;
+    @SuppressWarnings("unused")
+	private Plugins plugins;
+
 	private FeatureResultListener resultListener;
 	private TestCaseResultListener testCaseResultListener;
 	private StepResultListener stepResultListener;
@@ -67,24 +85,25 @@ public class PerfCucumberRunner implements Callable<Object> {
 		this.wait = wait;
 		this.features = new ArrayList<CucumberFeature>(Arrays.asList(feature));
 		// prepare runtime options
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		resourceLoader = new MultiLoader(classLoader);
 		runtimeOptions = new RuntimeOptions(args);
 
 		// prepare runtime
-		ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-		runtime = new Runtime(resourceLoader, classFinder, classLoader, runtimeOptions);
-		runtimeOptions.getPlugins();
-		feature.sendTestSourceRead(runtime.getEventBus());
+		this.BuildRuntime();
+		
+		feature.sendTestSourceRead(eventBus);
+		
+		//Enable plugins
+        //StepDefinitionReporter stepDefinitionReporter = plugins.stepDefinitionReporter();
+        //runnerSupplier.get().reportStepDefinitions(stepDefinitionReporter);
 
 		resultListener = new FeatureResultListener(feature.getUri().substring(feature.getUri().lastIndexOf("/") + 1));
-		resultListener.setEventPublisher(runtime.getEventBus());
+		resultListener.setEventPublisher(eventBus);
 
 		testCaseResultListener = new TestCaseResultListener();
-		testCaseResultListener.setEventPublisher(runtime.getEventBus());
+		testCaseResultListener.setEventPublisher(eventBus);
 
 		stepResultListener = new StepResultListener();
-		stepResultListener.setEventPublisher(runtime.getEventBus());
+		stepResultListener.setEventPublisher(eventBus);
 	}
 
 	public PerfCucumberRunner(CucumberFeature feature, Class<?> clazz, Slice slice, Duration wait) {
@@ -92,17 +111,15 @@ public class PerfCucumberRunner implements Callable<Object> {
 		this.slice = slice;
 		this.wait = wait;
 		// prepare runtime options
-		ClassLoader classLoader = clazz.getClassLoader();
-		resourceLoader = new MultiLoader(classLoader);
 		RuntimeOptionsFactory runtimeOptionsFactory = new RuntimeOptionsFactory(clazz);
 		runtimeOptions = runtimeOptionsFactory.create();
 
 		// prepare runtime
-		ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-		runtime = new Runtime(resourceLoader, classFinder, classLoader, runtimeOptions);
-		runtimeOptions.getPlugins();
-		feature.sendTestSourceRead(runtime.getEventBus());
+		this.BuildRuntime();
 
+		feature.sendTestSourceRead(eventBus);
+
+		//Pre Cucumber 4.0.0
 		// trying to remove pretty but doesn't seem possible
 		// you can do getPlugins() before creating the runtime to disable all plugins
 		// however
@@ -112,15 +129,21 @@ public class PerfCucumberRunner implements Callable<Object> {
 		 * PluginFactory().create("pretty"))) { runtimeOptions.getPlugins().remove(i);
 		 * System.out.println(""+runtimeOptions.getPlugins().get(i).getClass()); } }
 		 */
-		// reporter.setEventPublisher(runtime.getEventBus());
+		// reporter.setEventPublisher(eventBus);
+		
+		//Post Cucumber 4.0.0
+		//Enable plugins
+        //StepDefinitionReporter stepDefinitionReporter = plugins.stepDefinitionReporter();
+        //runnerSupplier.get().reportStepDefinitions(stepDefinitionReporter);
+        
 		resultListener = new FeatureResultListener(feature.getUri().substring(feature.getUri().lastIndexOf("/") + 1));
-		resultListener.setEventPublisher(runtime.getEventBus());
+		resultListener.setEventPublisher(eventBus);
 
 		testCaseResultListener = new TestCaseResultListener();
-		testCaseResultListener.setEventPublisher(runtime.getEventBus());
+		testCaseResultListener.setEventPublisher(eventBus);
 
 		stepResultListener = new StepResultListener();
-		stepResultListener.setEventPublisher(runtime.getEventBus());
+		stepResultListener.setEventPublisher(eventBus);
 	}
 
 	@Override
@@ -150,7 +173,9 @@ public class PerfCucumberRunner implements Callable<Object> {
 		List<PickleEvent> pickles = compiler.compileFeature(cucumberFeature, slice);
 		resultListener.startFeature();
 		for (PickleEvent pickle : pickles) {
-			runScenario(pickle);
+			if (filters.matchesFilters(pickle)) {
+				runScenario(pickle);
+			}
 		}
 	}
 
@@ -164,8 +189,9 @@ public class PerfCucumberRunner implements Callable<Object> {
 	}*/
 
 	private void runScenario(PickleEvent pickle) throws Throwable {
-		runtime.getRunner().runPickle(pickle);
-
+		//runtime.getRunner().runPickle(pickle);
+		runnerSupplier.get().runPickle(pickle);
+		
 		ScenarioResult sr = testCaseResultListener.getResult();
 		sr.setChildResults(stepResultListener.getResults());
 		scenarioResults.add(sr);
@@ -177,18 +203,44 @@ public class PerfCucumberRunner implements Callable<Object> {
 	}
 
 	/**
-	 * Sends the test run start to Cucumber runtime bus.
+	 * Sends the test run start to Cucumber runtime eventBus.
 	 */
 	private void start() {
-		runtime.getEventBus().send(new TestRunStarted(runtime.getEventBus().getTime()));
+		eventBus.send(new TestRunStarted(eventBus.getTime()));
 	}
 
 	/**
-	 * Sends the test run finished to Cucumber runtime bus.
+	 * Sends the test run finished to Cucumber runtime eventBus.
 	 */
 	private void finish() {
-		runtime.getEventBus().send(new TestRunFinished(runtime.getEventBus().getTime()));
+		eventBus.send(new TestRunFinished(eventBus.getTime()));
 	}
+	
+	/**
+	 * Builds local runtime instead of using cucumber runtime class.
+	 */
+	private void BuildRuntime() {
+		ClassLoader classLoader = this.getClass().getClassLoader();
+        ResourceLoader resourceLoader = new MultiLoader(classLoader);
+        ClassFinder classFinder =  new ResourceLoaderClassFinder(resourceLoader,classLoader);
+        BackendSupplier backendSupplier =new BackendModuleBackendSupplier(resourceLoader, classFinder, this.runtimeOptions);
+        //can cull out pretty here 
+        // Plugins orgPlugins = new Plugins(this.classLoader, new PluginFactory(), this.eventBus, this.runtimeOptions);
+        // this.plugins = new Plugins(classLoader, new PluginFactory(), eventBus, new RuntimeOptions(new ArrayList<String>()));
+        //for (final Plugin plugin : orgPlugins) {
+        //	if(!(plugin instanceof PrettyFormatter))
+        //	{
+        //  	plugins.addPlugin(plugin);
+		//	}
+        //}
+        this.plugins = new Plugins(classLoader, new PluginFactory(), eventBus, runtimeOptions);
+        this.runnerSupplier = new ThreadLocalRunnerSupplier(this.runtimeOptions, eventBus, backendSupplier);
+        FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
+        this.featureSupplier =  new FeaturePathFeatureSupplier(featureLoader, this.runtimeOptions);
+        RerunFilters rerunFilters = new RerunFilters(this.runtimeOptions, featureLoader);
+        this.filters = new Filters(this.runtimeOptions, rerunFilters);
+	}
+
 
 	/**
 	 * @return List of detected cucumber features
@@ -196,7 +248,7 @@ public class PerfCucumberRunner implements Callable<Object> {
 	public List<CucumberFeature> getFeatures() {
 
 		if (features == null) {
-			return runtimeOptions.cucumberFeatures(resourceLoader, runtime.getEventBus());
+			return featureSupplier.get();
 		}
 		return features;
 	}

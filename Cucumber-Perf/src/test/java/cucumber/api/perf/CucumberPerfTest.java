@@ -57,7 +57,8 @@ public class CucumberPerfTest {
 		//options.addNameFilters(Arrays.asList(new String[]{"^(?!.*period).*$"}));
 		//options.addPlugins(Arrays.asList(new String[]{"pretty_display"}));
 		options.addPlanPaths(Arrays.asList(new String[]{"src/test/java/resources"}));
-		options.addCucumberOptions(Arrays.asList(new String[]{"--dry-run","-g","steps","src/test/java/resources","--plugin null"}));
+		options.addCucumberOptions(Arrays.asList(new String[]{"--dry-run","-g","steps","src/test/java/resources"}));
+		//Originally had a null plugin "--plugin null"
 		CucumberPerf cp = new CucumberPerf(options);
 		try {
 			cp.runThreads();

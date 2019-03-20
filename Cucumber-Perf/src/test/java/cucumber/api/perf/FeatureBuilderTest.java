@@ -22,7 +22,7 @@ public class FeatureBuilderTest {
 	@Test
 	public void testGetFeaturesClazzAndArgs() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntime(options.getCucumberOptions()));
+		List<CucumberFeature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		assertEquals(1,features.size());
 	}
 
