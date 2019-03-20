@@ -68,7 +68,6 @@ public class Statistics {
 				{
 					if (f.getStop().isAfter(nextPeriod))
 					{
-						count = 0;
 						FeatureResult pointAvg = new FeatureResult(pointSum);
 						pointAvg.setResult(new Result(pointAvg.getResult().getStatus(),count > 0 ?pointAvg.getResultDuration()/count :pointAvg.getResultDuration() ,pointAvg.getResult().getError()));
 						for (int sci = 0; sci < pointAvg.getChildResults().size(); sci++)
@@ -90,12 +89,13 @@ public class Statistics {
 						pointMax = new FeatureResult(f);
 						pointSum = new FeatureResult(f);
 						chartPoints.get(entry.getKey()).add(new HashMap<String,FeatureResult>());
+						count = 0;
 					}
 					count++;
-					Result fSum = sum.getResult();
 					if ((isStrict && f.getResult().isOk(isStrict)) || !isStrict) {
-						sum.setResult(new Result(f.getResult().getStatus(),fSum.getDuration()+f.getResultDuration(),f.getResult().getError()));
-						pointSum.setResult(new Result(f.getResult().getStatus(),fSum.getDuration()+f.getResultDuration(),f.getResult().getError()));
+						sum.setResult(new Result(f.getResult().getStatus(),sum.getResultDuration()+f.getResultDuration(),f.getResult().getError()));
+						pointSum.setResult(new Result(f.getResult().getStatus(),count>1 ? pointSum.getResultDuration()+f.getResultDuration():f.getResultDuration(),f.getResult().getError()));
+						
 						if (f.getResultDuration()>max.getResultDuration())
 						{
 							max.setResult(new Result(f.getResult().getStatus(),f.getResultDuration(),f.getResult().getError()));
@@ -115,7 +115,7 @@ public class Statistics {
 						if ((isStrict && sc.getResult().isOk(isStrict)) || !isStrict) {
 							try {
 								sum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
-								pointSum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
+								pointSum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),count>1?pointSum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration():sc.getResultDuration(),sc.getResult().getError()));
 								if (sc.getResultDuration()>max.getChildResults().get(sci).getResultDuration())
 								{
 									max.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
@@ -139,7 +139,7 @@ public class Statistics {
 								StepResult stp = sc.getChildResults().get(sti);
 								if (sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()!=null&&((isStrict && stp.getResult().isOk(isStrict)) || !isStrict)){
 									sum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
-									pointSum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
+									pointSum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),count>1 ?pointSum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration():stp.getResultDuration(),stp.getResult().getError()));
 								}
 								if (stp.getResultDuration()!=null && stp.getResultDuration()>max.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
 								{
