@@ -31,9 +31,9 @@ public class PerfPlan implements Serializable {
         final List<PerfPlan> perfPlans = load(resourceLoader, planPaths);
         if (perfPlans.isEmpty()) {
             if (planPaths.isEmpty()) {
-                out.println("No *.plan files path was passed in!");
+                out.println("Got no path to plan directory or plan file");
             } else {
-                out.println(String.format("No *.plan files found at %s", planPaths));
+                out.println(String.format("No plans found at %s", planPaths));
             }
         }
         return perfPlans;

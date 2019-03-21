@@ -1,4 +1,5 @@
-Usage: java cucumber.api.perf.cli.Main [options] [[[FILE|DIR][:LINE[:LINE]*] ]+ | @FILE ]
+Usage: java -cp [path] cucumber.api.perf.cli.Main [options] [[[FILE|DIR][:LINE[:LINE]*] ]+ | @FILE ]
+	   path = directory with cucumber-core-*.*.*.jar, gherkin-*.*.*.jar and cucumber-perf-*.*.*.jar
 
 Options:
 

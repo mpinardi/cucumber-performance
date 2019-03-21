@@ -511,16 +511,19 @@ public class CucumberPerf {
 			if (plugin.equalsIgnoreCase("progress"))
 			{
 				options.disableDisplay();
-				System.err.println("WARNING: Cucumber options contains Progress formatter.");
-				System.err.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
-				System.err.println(	"	Disabling all display printers. To enable pass in plugin \"cucumber.formatter.NullFormatter\"");
+				System.out.println("WARNING: Cucumber options contains Progress formatter.");
+				System.out.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
+				System.out.println(	"	Disabling all display printers. To enable pass in plugin \"cucumber.formatter.NullFormatter\"");
 			}
-			else if (plugin.equalsIgnoreCase("default_summary"))
+		}
+		for(String plugin: runtimeOptions.getPluginSummaryPrinterNames())
+		{
+			if (plugin.equalsIgnoreCase("default_summary"))
 			{
 				options.disableDisplay();
-				System.err.println("WARNING: Cucumber options contains default summary.");
-				System.err.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
-				System.err.println(	"	Disabling all display printers. To enable pass in plugin \"null_summary\"");
+				System.out.println("WARNING: Cucumber options contains default summary.");
+				System.out.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
+				System.out.println(	"	Disabling all display printers. To enable pass in plugin \"null_summary\"");
 			}
 		}
 	}
