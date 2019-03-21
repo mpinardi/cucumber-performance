@@ -5,7 +5,7 @@ A performance testing framework for cucumber io.
 Cucumber perf represents a new idea in automated testing development.
 
 ### What is Cucumber?
-Cucumber itself is a implimentation of Behavior Driven Development (BDD).
+Cucumber is a implementation of Behavior Driven Development (BDD).
 Which uses simple natural language scripts to define a software feature.
 These executable specifications are written in a language called gherkin.
 Example:
@@ -20,15 +20,15 @@ Feature: Beer
 These scripts can be used to develop the features themselves but also drive automated tests.
 
 ### The issue?
-So you now have a working functional automation test suite.
-But you want to do a performance test. This would require either rewriteing your existing functional tests or copying a bunch of code.
-Also you would need to create a performance test harness.
+So, you now have a working functional automation test suite.
+But you want to run a performance test. This would require either rewriting your existing functional tests or copying a bunch of code.
+Also, you would need to create a performance test harness.
 
 Most likely each team will end up with something that is project specific and doesn't use the existing functional code base.
 
 ### The fix
-Cucumber Perf provides a level of automation ontop of Cucumber.
-Its a implimentation of a new concept (as far as i know) called Concurrent Behavior Driven Testing (CBDT).
+Cucumber Perf provides a level of automation on top of Cucumber.
+It’s an implementation of a new concept (as far as I know) called Concurrent Behavior Driven Testing (CBDT).
 
 Cucumber perf provides a means to use your existing functional code without writing a single line of code.
 It provides the ability to run performance simulations with support for common load testing features:
@@ -36,14 +36,14 @@ It provides the ability to run performance simulations with support for common l
 * Multi-Threading
 * Thread Count Limits
 * Ramp Up/Down
-* Data replaceing
+* Data replacing
 * Random Wait
 * Reporting
 * Junit XML export
 * more to come.
 
 It uses a new type of script called Salad.
-Salad is a reimplimentation of Cucumber Gherkin with the focus on performance simulations.
+Salad is a reimplementation of Cucumber Gherkin with the focus on performance simulations.
 
 ```
 Plan: Bar visit
@@ -86,31 +86,30 @@ RampUp: 00:00:10
 RampDown: 00:00:10
 ```
 ## What is Concurrent Behavior Driven Testing?
-Concurrent Behavior Driven Testing is the methodolgy of createing functional automation that can be used in concurrent test scenarios.
+Concurrent Behavior Driven Testing is the methodology of creating functional automation that can be used in concurrent test scenarios.
 This means coding with the understanding that each functional test could be used in a multithreaded environment.
 
 CBDT requires an automation team to follow strict guidelines when coding functional test cases.
-Being careful to avoid static variables and race conditions that will cuase failures in a multi threaded world.
-This ofcourse requires a larger understanding of programing or a least team leadership that can enforce these guidelines.
+Being careful to avoid static variables and race conditions that will cause failures in a multi-threaded world.
+This of course requires a larger understanding of programing or a least team leadership that can enforce these guidelines.
 
 ## Getting Started
-It takes a lot of planing to impliment Cucumber Perf.
+It takes a lot of planning to implement Cucumber Perf.
 
 Your functional automation should follow these rules:
-* Use a non specific test harness. This should standerdize all your common functions.
+* Use a non specific test harness. This should standardize all your common functions.
 * Do not use static variables! Your code must work in a multithreaded world.
 * Properly comment your features and scenarios. You want to keep track of what scenarios can be run multithreaded.
 
 Follow directions in [wiki](https://github.com/mpinardi/cucumber-performance/wiki) to get up and running.
 
 ### Installing
-
 Maven
 ```
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>1.1.0</version>
+  <version>1.3.0</version>
 </dependency>
 ```
 ## Versioning
