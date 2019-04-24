@@ -27,6 +27,7 @@ public class PerfRuntimeOptionsFactory {
                 addTags(options, args);
                 addName(options, args);
                 addPlans(options, args);
+                addPlugins(options, args);
             }
         }
         addDefaultFeaturePathIfNoPlanPathIsSpecified(args, clazz);
@@ -50,12 +51,19 @@ public class PerfRuntimeOptionsFactory {
             args.add("tags="+tags);
         }
     }
+    
     private void addPlans(CucumberPerfOptions options, List<String> args) {
         if (options != null && options.plans().length != 0) {
         	  for (String plans : options.plans()) {
         		  args.add("plans="+plans);
               }
             plansSpecified = true;
+        }
+    }
+    
+    private void addPlugins(CucumberPerfOptions options, List<String> args) {
+        for (String plugin : options.plugin()) {
+            args.add("plugin="+plugin);
         }
     }
 
