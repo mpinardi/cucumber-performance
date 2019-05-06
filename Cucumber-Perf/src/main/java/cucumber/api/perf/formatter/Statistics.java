@@ -84,7 +84,7 @@ public class Statistics {
 						chartPoints.get(entry.getKey()).get(chartPoints.get(entry.getKey()).size()-1).put("avg", pointAvg);
 						chartPoints.get(entry.getKey()).get(chartPoints.get(entry.getKey()).size()-1).put("min", pointMin);
 						chartPoints.get(entry.getKey()).get(chartPoints.get(entry.getKey()).size()-1).put("max", pointMax);
-						nextPeriod = this.getEnd(startPeriod, period);
+						nextPeriod = this.getEnd(nextPeriod, period);
 						pointMin = new FeatureResult(f);
 						pointMax = new FeatureResult(f);
 						pointSum = new FeatureResult(f);
