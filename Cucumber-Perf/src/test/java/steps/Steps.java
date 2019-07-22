@@ -2,6 +2,8 @@ package steps;
 
 import java.util.Random;
 
+import org.junit.Assert;
+
 //import cucumber.api.DataTable;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -26,6 +28,11 @@ public class Steps {
 	@Then("^Verify$")
 	public void verify(DataTable arg1) throws Exception {
 	  
+	}
+	
+	@When("Fail me")
+	public void fail_me() {
+		Assert.fail();
 	}
 
 }

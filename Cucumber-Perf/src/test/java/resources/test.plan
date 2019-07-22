@@ -29,6 +29,21 @@ Group test.feature
 #thread will wait between +-50% of this mean
 RandomWait: 00:00:02
 
+@tskip
+@simperiodtest
+#Will run all groups for the period bellow
+Simulation Period: simulation 2 period
+Group test.feature
+	|value out|
+	|changed value |
+		Threads: 50
+		#count is ignored in a simulation period
+		Count: 1
+#run time
+Time: 00:00:30
+RampUp: 00:00:10
+RampDown: 00:00:10
+
 @bskip
 @tskip
 Simulation: simulation 1 skip
@@ -60,19 +75,16 @@ Group test.feature
 	Group test.feature
 	Runners: 3
 	Count: 6
-	
-	
+
+@failFastTest
 @tskip
-@simperiodtest
-#Will run all groups for the period bellow
-Simulation Period: simulation 2 period
-Group test.feature
-	|value out|
-	|changed value |
-		Threads: 50
-		#count is ignored in a simulation period
-		Count: 1
-#run time
-Time: 00:00:30
-RampUp: 00:00:10
-RampDown: 00:00:10
+@bskip
+Simulation: simulation 1
+Group fail.feature
+	#number of threads
+	Runners: 2
+	#total number of threads to run.
+	Count: 2
+#a optional random wait mean for before thread runs tests.
+#thread will wait between +-50% of this mean
+RandomWait: 00:00:02

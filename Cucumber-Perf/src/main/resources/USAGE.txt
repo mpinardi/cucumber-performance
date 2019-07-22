@@ -3,7 +3,7 @@ Usage: java -cp [path] cucumber.api.perf.cli.Main [options] [[[FILE|DIR][:LINE[:
 
 Options:
 
-  p=, plans=                        Where your plan files are located
+  p=, plans=                       	   Where your plan files are located
   t=, tags=TAG_EXPRESSION              Only run scenarios tagged with tags matching
                                          TAG_EXPRESSION.
   n=, name=REGEXP                      Only run scenarios whose names match REGEXP.
@@ -26,8 +26,12 @@ Options:
                                          also be a fully qualified class name, allowing
                                          registration of 3rd party plugins.
                                          --add-plugin does not clobber plugins of that 
-                                         type defined from a different source.					  
-  i18n=LANG                            List keywords for in a particular language
+                                         type defined from a different source.
+  monochrome  				          Turn on monochrome mode for formatters.
+  no-strict  				          Process errors into statistics.
+  dryrun  				          	  Run without starting threads. 
+  failfast 				          	  Fail and stop a group after a scenario fails.
+  i18n=LANG                           List keywords for in a particular language
                                          Run with "--i18n help" to see all languages					     
   v, version                          Print version.
   h, help                             You're looking at it.
