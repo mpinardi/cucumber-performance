@@ -8,17 +8,14 @@ public interface EventPublisher {
      * The available events types are:
      * <ul>
      * <li>{@link Event} - all events.
-     * <li>{@link TestRunStarted} - the first event sent.
-     * <li>{@link TestSourceRead} - sent for each feature file read, contains the feature file source.
-     * <li>{@link SnippetsSuggestedEvent} - sent for each step that could not be matched to a step definition, contains the raw snippets for the step.
-     * <li>{@link StepDefinedEvent} - sent for each step definition as it is loaded, contains the StepDefinition
-     * <li>{@link TestCaseStarted} - sent before starting the execution of a Test Case(/Pickle/Scenario), contains the Test Case
-     * <li>{@link TestStepStarted} - sent before starting the execution of a Test Step, contains the Test Step
-     * <li>{@link EmbedEvent} - calling scenario.embed in a hook triggers this event.
-     * <li>{@link WriteEvent} - calling scenario.write in a hook triggers this event.
-     * <li>{@link TestStepFinished} - sent after the execution of a Test Step, contains the Test Step and its Result.
-     * <li>{@link TestCaseFinished} - sent after the execution of a Test Case(/Pickle/Scenario), contains the Test Case and its Result.
-     * <li>{@link TestRunFinished} - the last event sent.
+     * <li>{@link PerfRunStarted} - the first event sent.
+     * <li>{@link SimulationStarted} - sent before starting the execution of a Simulation, contains the simulation name
+     * <li>{@link GroupStarted} - sent before starting the execution of a Group, contains the PerfGroup
+     * <li>{@link GroupFinished} - sent after the execution of a Group, contains the PerfGroup and its Result.
+     * <li>{@link SimulationFinished} - sent after the execution of a Simulation, contains its Result.
+     * <li>{@link StatisticsStarted} - sent before starting creation of Statistics.
+     * <li>{@link StatisticsFinished} - sent after the creation of Statistics, contains its Statistics.
+     * <li>{@link PerfRunFinished} - the last event sent.
      * </ul>
      *
      * @param eventType the event type for which the handler is being registered

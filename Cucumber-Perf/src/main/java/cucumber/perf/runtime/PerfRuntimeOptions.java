@@ -55,7 +55,6 @@ public class PerfRuntimeOptions {
 	/**
 	 * Create a new instance from a list of options, for example:
 	 * <pre>{@code Arrays.asList("name=the fox", "plugin=detail_display);}</pre>
-	 * @param pluginFactory A existing plugin factory
 	 * @param argv
 	 *            the arguments
 	 */

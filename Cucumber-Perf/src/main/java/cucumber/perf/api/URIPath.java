@@ -5,8 +5,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * @see Cucumber io.cucumber.core.model.FeaturePath.java
- */
+ * @see <a href="https://github.com/cucumber/cucumber-jvm/blob/master/core/src/main/java/io/cucumber/core/model/FeaturePath.java">io.cucumber.core.model.FeaturePath.java</a>
+ */ 
 public class URIPath {
 
     private URIPath() {

@@ -40,7 +40,7 @@ It provides the ability to run performance simulations with support for common l
 * Random Wait
 * Reporting
 * Junit XML export
-* more to come.
+* Logging
 
 It uses a new type of script called Salad.
 Salad is a reimplementation of Cucumber Gherkin with the focus on performance simulations.
@@ -109,7 +109,7 @@ Maven
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>1.3.0</version>
+  <version>2.0.0</version>
 </dependency>
 ```
 ## Versioning
