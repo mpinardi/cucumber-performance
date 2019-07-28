@@ -13,6 +13,7 @@ import cucumber.perf.runtime.PerfRuntimeOptions;
 import cucumber.runtime.model.CucumberFeature;
 import gherkin.ast.ScenarioDefinition;
 
+@SuppressWarnings("deprecation")
 public class FeatureBuilderTest {
 
 	@Test

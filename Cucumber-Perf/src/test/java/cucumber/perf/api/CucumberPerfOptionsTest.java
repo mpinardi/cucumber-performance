@@ -3,7 +3,6 @@ package cucumber.perf.api;
 import org.junit.Assert;
 import org.junit.Test;
 
-import cucumber.api.SnippetType;
 import cucumber.perf.api.CucumberPerfOptions;
 
 public class CucumberPerfOptionsTest {
@@ -62,13 +61,6 @@ public class CucumberPerfOptionsTest {
 		CucumberPerfOptions options = this.getOptions(options3.class);
 		Assert.assertFalse(options.dryRun());
 		Assert.assertTrue(!options.name()[0].isEmpty());
-	}
-
-	@Test
-	public void testSnippets() {
-		CucumberPerfOptions options = this.getOptions(options2.class);
-		Assert.assertFalse(options.dryRun());
-		Assert.assertTrue(options.snippets().equals(SnippetType.UNDERSCORE));
 	}
 	
 	@Test

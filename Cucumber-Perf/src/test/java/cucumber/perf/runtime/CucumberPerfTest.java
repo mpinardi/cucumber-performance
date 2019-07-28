@@ -14,6 +14,7 @@ import cucumber.perf.api.CucumberPerfOptions;
 import cucumber.perf.runtime.CucumberPerf;
 import cucumber.perf.runtime.PerfRuntimeOptions;
 
+@SuppressWarnings("deprecation")
 public class CucumberPerfTest {
 
 	@Test

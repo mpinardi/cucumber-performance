@@ -9,6 +9,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import io.cucumber.datatable.DataTable;
 
+@SuppressWarnings("deprecation")
 public class Steps {
 	
 	@When("^System out \"([^\"]*)\"$")

@@ -18,10 +18,9 @@ import cucumber.runner.ThreadLocalRunnerSupplier;
 import cucumber.runtime.BackendModuleBackendSupplier;
 import cucumber.runtime.BackendSupplier;
 import cucumber.runtime.ClassFinder;
+import cucumber.runtime.Env;
 import cucumber.runtime.FeaturePathFeatureSupplier;
 import cucumber.runtime.FeatureSupplier;
-import cucumber.runtime.RuntimeOptions;
-import cucumber.runtime.RuntimeOptionsFactory;
 import cucumber.runtime.filter.Filters;
 import cucumber.runtime.formatter.Plugins;
 import cucumber.runtime.formatter.PluginFactory;
@@ -32,6 +31,10 @@ import cucumber.runtime.model.CucumberFeature;
 import cucumber.runtime.model.FeatureLoader;
 import gherkin.ast.ScenarioDefinition;
 import gherkin.events.PickleEvent;
+import io.cucumber.core.options.CommandlineOptionsParser;
+import io.cucumber.core.options.CucumberOptionsAnnotationParser;
+import io.cucumber.core.options.EnvironmentOptionsParser;
+import io.cucumber.core.options.RuntimeOptions;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -81,7 +84,9 @@ public class CucumberRunner implements Callable<Object> {
 		this.failFast = failFast;
 		this.options = options;
 		// prepare runtime options
-		runtimeOptions = new RuntimeOptions(args);
+		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
+		runtimeOptions = new CommandlineOptionsParser(resourceLoader).parse(args).build();
+		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
 		// prepare runtime
 		this.BuildRuntime();
 		this.configListeners();
@@ -92,8 +97,9 @@ public class CucumberRunner implements Callable<Object> {
 		this.failFast = failFast;
 		this.options = options;
 		// prepare runtime options
-		RuntimeOptionsFactory runtimeOptionsFactory = new RuntimeOptionsFactory(clazz);
-		runtimeOptions = runtimeOptionsFactory.create();
+		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
+		runtimeOptions = new CucumberOptionsAnnotationParser(resourceLoader).parse(clazz).build();
+		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
 		// prepare runtime
 		this.BuildRuntime();
 		this.configListeners();
@@ -226,7 +232,9 @@ public class CucumberRunner implements Callable<Object> {
 		// plugins.addPlugin(plugin);
 		// }
 		// }
-		this.plugins = new Plugins(classLoader, new PluginFactory(), eventBus, runtimeOptions);
+		this.plugins = new Plugins(classLoader, new PluginFactory(), runtimeOptions);
+		this.plugins.setEventBusOnEventListenerPlugins(eventBus);
+		this.plugins.setSerialEventBusOnEventListenerPlugins(eventBus);
 		this.runnerSupplier = new ThreadLocalRunnerSupplier(this.runtimeOptions, eventBus, backendSupplier);
 		FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
 		this.featureSupplier = new FeaturePathFeatureSupplier(featureLoader, this.runtimeOptions);

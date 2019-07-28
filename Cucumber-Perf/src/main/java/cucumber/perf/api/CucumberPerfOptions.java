@@ -5,8 +5,6 @@ package cucumber.perf.api;
 	import java.lang.annotation.RetentionPolicy;
 	import java.lang.annotation.Target;
 
-import cucumber.api.SnippetType;
-
 	/**
 	 * This annotation provides the same options as the cucumber command line, {@link cucumber.api.cli.Main}.
 	 */
@@ -55,9 +53,5 @@ import cucumber.api.SnippetType;
 	     */
 	    String[] plugin() default {};
 	    
-	    /**
-	     * @return what format should the snippets use. underscore, camelcase
-	     */
-	    SnippetType snippets() default SnippetType.UNDERSCORE;
 	}
 

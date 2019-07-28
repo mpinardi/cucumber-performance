@@ -23,6 +23,7 @@ import cucumber.perf.runtime.PerfRuntimeOptionsFactory;
 import cucumber.perf.salad.ast.Group;
 import cucumber.perf.salad.ast.SimulationDefinition;
 
+@SuppressWarnings("deprecation")
 public class PerfCucumberRunnerTest {
 
 	@Test

@@ -79,6 +79,10 @@ public class GroupResult extends BaseResult{
  			if (Result.Type.FAILED.ordinal() > curtype.ordinal())
  				curtype = Result.Type.FAILED;
  			break;
+		case UNUSED:
+			break;
+		default:
+			break;
 		}
 		return curtype;
 	}

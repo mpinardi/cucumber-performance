@@ -5,9 +5,12 @@ import gherkin.ast.ScenarioDefinition;
 import java.util.ArrayList;
 import java.util.List;
 
+import cucumber.runtime.Env;
 import cucumber.runtime.FeaturePathFeatureSupplier;
-import cucumber.runtime.RuntimeOptions;
-import cucumber.runtime.RuntimeOptionsFactory;
+import io.cucumber.core.options.CommandlineOptionsParser;
+import io.cucumber.core.options.EnvironmentOptionsParser;
+import io.cucumber.core.options.CucumberOptionsAnnotationParser;
+import io.cucumber.core.options.RuntimeOptions;
 import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.model.CucumberFeature;
@@ -15,25 +18,30 @@ import cucumber.runtime.model.FeatureLoader;
 
 public class FeatureBuilder {
 
-	public static RuntimeOptions createRuntimeOptions(Class<?> clazz)
-	{
-		RuntimeOptionsFactory runtimeOptionsFactory = new RuntimeOptionsFactory(clazz);
-		return runtimeOptionsFactory.create();
+	public static RuntimeOptions createRuntimeOptions(Class<?> clazz) {
+		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
+		RuntimeOptions runtimeOptions = new CucumberOptionsAnnotationParser(resourceLoader).parse(clazz).build();
+
+		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
+		return runtimeOptions;
 	}
-	
-	public static RuntimeOptions createRuntimeOptions(List<String> args)
-	{
-		return new RuntimeOptions(args);
+
+	public static RuntimeOptions createRuntimeOptions(List<String> args) {
+		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
+		RuntimeOptions runtimeOptions = new CommandlineOptionsParser(resourceLoader).parse(args).build();
+
+		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
+		return runtimeOptions;
 	}
-	
+
 	public static List<CucumberFeature> getFeatures(RuntimeOptions runtimeOptions) {
 		ClassLoader classLoader = FeatureBuilder.class.getClassLoader();
 		ResourceLoader resourceLoader = new MultiLoader(classLoader);
 		FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
-		FeaturePathFeatureSupplier featureSupplier =  new FeaturePathFeatureSupplier(featureLoader, runtimeOptions);
+		FeaturePathFeatureSupplier featureSupplier = new FeaturePathFeatureSupplier(featureLoader, runtimeOptions);
 		return featureSupplier.get();
 	}
-	
+
 	public static List<CucumberFeature> FindFeatures(String prefix, List<CucumberFeature> features) {
 		List<CucumberFeature> result = new ArrayList<CucumberFeature>();
 		for (CucumberFeature f : features) {

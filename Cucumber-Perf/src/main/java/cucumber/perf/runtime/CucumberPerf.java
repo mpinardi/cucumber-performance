@@ -36,9 +36,9 @@ import cucumber.perf.salad.ast.Simulation;
 import cucumber.perf.salad.ast.SimulationDefinition;
 import cucumber.perf.salad.ast.SimulationPeriod;
 import cucumber.runner.TimeService;
-import cucumber.runtime.RuntimeOptions;
 import cucumber.runtime.model.CucumberFeature;
 import gherkin.ast.Tag;
+import io.cucumber.core.options.RuntimeOptions;
 
 /**
  * Cucumber Perf(Performance) AKA Cucumber Salad

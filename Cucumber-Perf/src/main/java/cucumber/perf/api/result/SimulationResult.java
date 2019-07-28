@@ -89,6 +89,8 @@ public class SimulationResult extends BaseResult{
  			if (Result.Type.FAILED.ordinal() > curtype.ordinal())
  				curtype = Result.Type.FAILED;
  			break;
+		default:
+			break;
 		}
 		return curtype;
 	}

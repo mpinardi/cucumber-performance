@@ -21,6 +21,7 @@ import java.util.Arrays;
 		tags = {"not @bskip","@planPosTest"},
 		plugin = {"detail_display","chart_points:file://C:/test/chartpoints|-#0001.csv"},
 		name = {"^(?!.*period).*$"})
+@SuppressWarnings("deprecation")
 public class Test {
 	
 	public static void main(String[] args)
