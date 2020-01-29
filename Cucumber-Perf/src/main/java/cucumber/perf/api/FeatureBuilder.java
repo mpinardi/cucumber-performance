@@ -38,8 +38,7 @@ public class FeatureBuilder {
 		ClassLoader classLoader = FeatureBuilder.class.getClassLoader();
 		ResourceLoader resourceLoader = new MultiLoader(classLoader);
 		FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
-		FeaturePathFeatureSupplier featureSupplier = new FeaturePathFeatureSupplier(featureLoader, runtimeOptions);
-		return featureSupplier.get();
+		return new FeaturePathFeatureSupplier(featureLoader, runtimeOptions).get();
 	}
 
 	public static List<CucumberFeature> FindFeatures(String prefix, List<CucumberFeature> features) {

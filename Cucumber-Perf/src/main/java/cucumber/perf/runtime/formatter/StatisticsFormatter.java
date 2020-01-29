@@ -72,7 +72,6 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 		this.isStrict =strict;
 	}
 	
-	
 	private void config(String setting, Object value) {
 		if (setting==CONFIG_MAXPOINTS)
 		{
@@ -108,17 +107,19 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 		for (Entry<String,List<GroupResult>> entry: results.entrySet())
 		{
 			List<HashMap<String,GroupResult>> l = new ArrayList<HashMap<String,GroupResult>>();
-			l.add(new HashMap<String,GroupResult>());
 			stats.getChartPoints().put(entry.getKey(), l);
 			LocalDateTime startPeriod = entry.getValue().get(0).getStart();
 			Long period = getPeriod(Duration.between(entry.getValue().get(0).getStart(), entry.getValue().get(entry.getValue().size()-1).getStart()), maxPoints);
 			LocalDateTime nextPeriod = this.getEnd(startPeriod, period);
+			GroupResult pointCnt = null;
 			GroupResult pointMin = new GroupResult(entry.getValue().get(0));
 			GroupResult pointMax = new GroupResult(entry.getValue().get(0));
 			GroupResult pointSum = new GroupResult(entry.getValue().get(0));
 			GroupResult sum = new GroupResult(entry.getValue().get(0));
 			GroupResult min = new GroupResult(entry.getValue().get(0));
 			GroupResult max = new GroupResult(entry.getValue().get(0));
+			GroupResult cnt = new GroupResult(entry.getValue().get(0));
+
 			boolean first = true;
 			int count = 0;
 			for (GroupResult f : entry.getValue())
@@ -128,18 +129,20 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 					if (f.getStop().isAfter(nextPeriod))
 					{
 						GroupResult pointAvg = new GroupResult(pointSum);
-						pointAvg.setResult(new Result(pointAvg.getResult().getStatus(),count > 0 ?pointAvg.getResultDuration()/count :pointAvg.getResultDuration() ,pointAvg.getResult().getError()));
+						pointAvg.setResult(new Result(pointAvg.getResult().getStatus(),count > 0 ?pointAvg.getResultDuration()/pointCnt.getResultDuration() :pointAvg.getResultDuration() ,pointAvg.getResult().getError()));
 						for (int sci = 0; sci < pointAvg.getChildResults().size(); sci++)
 						{
-								pointAvg.getChildResults().get(sci).setResult(new Result(pointSum.getChildResults().get(sci).getResult().getStatus(),count>0?pointSum.getChildResults().get(sci).getResultDuration()/count:pointSum.getChildResults().get(sci).getResultDuration(),pointAvg.getChildResults().get(sci).getResult().getError()));
+								pointAvg.getChildResults().get(sci).setResult(new Result(pointSum.getChildResults().get(sci).getResult().getStatus(),count>0?pointSum.getChildResults().get(sci).getResultDuration()/pointCnt.getChildResults().get(sci).getResultDuration():pointSum.getChildResults().get(sci).getResultDuration(),pointAvg.getChildResults().get(sci).getResult().getError()));
 								for (int sti = 0; sti < pointAvg.getChildResults().get(sci).getChildResults().size(); sti++)
 								{
 									if (pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getDuration()!=null)
 									{
-										pointAvg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),count>0?pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/count:pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration(),pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
+										pointAvg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),count>0?pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/pointCnt.getChildResults().get(sci).getChildResults().get(sti).getResultDuration():pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration(),pointAvg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
 									}
 								}
 						}
+						stats.getChartPoints().get(entry.getKey()).add(new HashMap<String,GroupResult>());
+						stats.getChartPoints().get(entry.getKey()).get(stats.getChartPoints().get(entry.getKey()).size()-1).put("cnt", pointCnt);
 						stats.getChartPoints().get(entry.getKey()).get(stats.getChartPoints().get(entry.getKey()).size()-1).put("avg", pointAvg);
 						stats.getChartPoints().get(entry.getKey()).get(stats.getChartPoints().get(entry.getKey()).size()-1).put("min", pointMin);
 						stats.getChartPoints().get(entry.getKey()).get(stats.getChartPoints().get(entry.getKey()).size()-1).put("max", pointMax);
@@ -147,14 +150,16 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 						pointMin = new GroupResult(f);
 						pointMax = new GroupResult(f);
 						pointSum = new GroupResult(f);
-						stats.getChartPoints().get(entry.getKey()).add(new HashMap<String,GroupResult>());
+						pointCnt = new GroupResult(f);
+						clearResultDuration(pointCnt,(long)1);
 						count = 0;
 					}
 					count++;
 					if ((isStrict && f.getResult().isOk(isStrict)) || !isStrict) {
 						sum.setResult(new Result(f.getResult().getStatus(),sum.getResultDuration()+f.getResultDuration(),f.getResult().getError()));
+						cnt.setResult(new Result(f.getResult().getStatus(),cnt.getResultDuration()+1,f.getResult().getError()));
 						pointSum.setResult(new Result(f.getResult().getStatus(),count>1 ? pointSum.getResultDuration()+f.getResultDuration():f.getResultDuration(),f.getResult().getError()));
-						
+						pointCnt.setResult(new Result(f.getResult().getStatus(),pointCnt.getResultDuration()+1,f.getResult().getError()));
 						if (f.getResultDuration()>max.getResultDuration())
 						{
 							max.setResult(new Result(f.getResult().getStatus(),f.getResultDuration(),f.getResult().getError()));
@@ -174,7 +179,9 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 						if ((isStrict && sc.getResult().isOk(isStrict)) || !isStrict) {
 							try {
 								sum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration(),sc.getResult().getError()));
+								cnt.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),cnt.getChildResults().get(sci).getResultDuration()+1,sc.getResult().getError()));
 								pointSum.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),count>1?pointSum.getChildResults().get(sci).getResultDuration()+sc.getResultDuration():sc.getResultDuration(),sc.getResult().getError()));
+								pointCnt.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),pointCnt.getChildResults().get(sci).getResultDuration()+1,sc.getResult().getError()));
 								if (sc.getResultDuration()>max.getChildResults().get(sci).getResultDuration())
 								{
 									max.getChildResults().get(sci).setResult(new Result(sc.getResult().getStatus(),sc.getResultDuration(),sc.getResult().getError()));
@@ -198,7 +205,9 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 								StepResult stp = sc.getChildResults().get(sti);
 								if (sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()!=null&&((isStrict && stp.getResult().isOk(isStrict)) || !isStrict)){
 									sum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),sum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration(),stp.getResult().getError()));
+									cnt.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),cnt.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+1,stp.getResult().getError()));
 									pointSum.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),count>1 ?pointSum.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+stp.getResultDuration():stp.getResultDuration(),stp.getResult().getError()));
+									pointCnt.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(stp.getResult().getStatus(),pointCnt.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()+1,stp.getResult().getError()));
 								}
 								if (stp.getResultDuration()!=null && stp.getResultDuration()>max.getChildResults().get(sci).getChildResults().get(sti).getResultDuration())
 								{
@@ -222,26 +231,24 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 				else if (first)
 				{
 					first = false;
+					count++;
+					clearResultDuration(cnt,(long)1);
+					pointCnt = new GroupResult(cnt);
 				}
 				else
-				{
-					
+				{		
 				}
 			}
 			GroupResult avg = new GroupResult(sum);
-			avg.setResult(new Result(avg.getResult().getStatus(),avg.getResultDuration()/entry.getValue().size(),avg.getResult().getError()));
-			GroupResult cnt = new GroupResult(sum);
-			cnt.setResult(new Result(cnt.getResult().getStatus(),(long) entry.getValue().size(),null));
+			avg.setResult(new Result(avg.getResult().getStatus(),avg.getResultDuration()/cnt.getResultDuration(),avg.getResult().getError()));
 			for (int sci = 0; sci < sum.getChildResults().size(); sci++)
 			{
-				avg.getChildResults().get(sci).setResult(new Result(sum.getChildResults().get(sci).getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()/entry.getValue().size(),avg.getChildResults().get(sci).getResult().getError()));
-				cnt.getChildResults().get(sci).setResult(new Result(sum.getChildResults().get(sci).getResult().getStatus(),(long) entry.getValue().size(),null));
+				avg.getChildResults().get(sci).setResult(new Result(sum.getChildResults().get(sci).getResult().getStatus(),sum.getChildResults().get(sci).getResultDuration()/cnt.getChildResults().get(sci).getResultDuration(),avg.getChildResults().get(sci).getResult().getError()));
 				for (int sti = 0; sti < sum.getChildResults().get(sci).getChildResults().size(); sti++)
 				{
 					if (avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getDuration()!=null)
 					{
-					avg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),avg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/entry.getValue().size(),avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
-					cnt.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(cnt.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),(long) entry.getValue().size(),null));
+					avg.getChildResults().get(sci).getChildResults().get(sti).setResult(new Result(avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getStatus(),avg.getChildResults().get(sci).getChildResults().get(sti).getResultDuration()/cnt.getChildResults().get(sci).getChildResults().get(sti).getResultDuration(),avg.getChildResults().get(sci).getChildResults().get(sti).getResult().getError()));
 					}
 				}
 			
@@ -253,6 +260,15 @@ public class StatisticsFormatter implements EventListener,EventWriter,StrictAwar
 		}
 	}
 	
+	private void clearResultDuration(GroupResult group,long value) {
+		group.setResult(new Result(group.getResult().getStatus(),value,group.getResult().getError()));
+		for (ScenarioResult sc : group.getChildResults()){
+			sc.setResult(new Result(sc.getResult().getStatus(),value,sc.getResult().getError()));
+			for (StepResult st : sc.getChildResults())
+				st.setResult(new Result(st.getResult().getStatus(),value,st.getResult().getError()));
+		}
+	}
+
 	private long getPeriod(Duration time, int times) {
 		return (time.getSeconds()*1000) / times;
 	}

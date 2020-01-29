@@ -181,7 +181,7 @@ public class SummaryTextFormatterTest {
 		String result = readFile(filepath);
 		String compare = "\r\nSimulation: test Start: 2007-12-12T05:20:22 Stop: 2007-12-12T05:25:22 Duration: PT5M"+
 				"\r\n\tGroup: test2 Count: 1 Avg: 0 Min: 0 Max: 0"+
-				"\r\n\tGroup: test Count: 2 Avg: 0 Min: 0 Max: 0"+
+				"\r\n\tGroup: test Count: 1 Avg: 0 Min: 0 Max: 0"+
 				"\r\nErrors:"+
 				  "\r\n\tScenario: test"+
 				  "\r\n\t\tStep: test"+
