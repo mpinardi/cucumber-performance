@@ -1,6 +1,6 @@
 package cucumber.perf.api.event;
 
-import cucumber.api.Plugin;
+import io.cucumber.plugin.Plugin;
 
 /**
  * Listens to pickle execution events. Can be used to

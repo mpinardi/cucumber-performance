@@ -1,21 +1,18 @@
 package cucumber.perf.runtime.formatter;
 
-import static cucumber.runtime.Utils.toURL;
-
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import cucumber.api.Result;
-import cucumber.api.formatter.NiceAppendable;
 import cucumber.perf.api.PerfGroup;
 import cucumber.perf.api.event.EventBus;
 import cucumber.perf.api.event.EventHandler;
@@ -26,6 +23,7 @@ import cucumber.perf.api.event.PerfRunStarted;
 import cucumber.perf.api.event.SimulationFinished;
 import cucumber.perf.api.event.SimulationStarted;
 import cucumber.perf.api.formatter.EventWriter;
+import cucumber.perf.api.formatter.NiceAppendable;
 import cucumber.perf.api.result.BaseResult;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.ScenarioResult;
@@ -33,9 +31,11 @@ import cucumber.perf.api.result.SimulationResult;
 import cucumber.perf.api.result.StepResult;
 import cucumber.perf.api.result.TestCase;
 import cucumber.perf.api.result.TestStep;
-import cucumber.runtime.CucumberException;
-import gherkin.deps.com.google.gson.Gson;
-import gherkin.pickles.PickleTag;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.core.internal.gherkin.deps.com.google.gson.Gson;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
+
 
 public class LoggerFormatter implements EventListener, EventWriter {
 
@@ -128,7 +128,7 @@ public class LoggerFormatter implements EventListener, EventWriter {
 		String name = (String) sim.get("simulation");
 		LocalDateTime start = gson.fromJson(gson.toJson(mapList.get(0).get("start")), LocalDateTime.class);
 		LocalDateTime stop = gson.fromJson(gson.toJson(mapList.get((mapList.size()-1)).get("stop")), LocalDateTime.class);
-		return new SimulationResult(name,new Result(Result.Type.PASSED, (stop.toInstant(ZoneOffset.UTC).getEpochSecond()-start.toInstant(ZoneOffset.UTC).getEpochSecond()), null),start,stop,createGroupResultList(mapList));
+		return new SimulationResult(name,new Result(Status.PASSED, Duration.between(start,stop), null),start,stop,createGroupResultList(mapList));
 	}
 	
 	public List<GroupResult> createGroupResultList(List<Map<String, Object>> mapList) {
@@ -163,10 +163,10 @@ public class LoggerFormatter implements EventListener, EventWriter {
 		Gson gson = new Gson();
 		BaseResult br = createBaseResult(map);
 		Map<String, Object> tcm = (Map<String, Object>) map.get("testCase");
-		List<PickleTag> tags = gson.fromJson(gson.toJson(tcm.get("tags")), (new ArrayList<PickleTag>()).getClass());
-		List<cucumber.api.TestStep> testSteps = gson.fromJson(gson.toJson(tcm.get("testSteps")),
+		List<String> tags = gson.fromJson(gson.toJson(tcm.get("tags")), (new ArrayList<String>()).getClass());
+		List<io.cucumber.plugin.event.TestStep> testSteps = gson.fromJson(gson.toJson(tcm.get("testSteps")),
 				(new ArrayList<TestStep>()).getClass());
-		TestCase tc = new TestCase((int) ((double) tcm.get("line")), (String) tcm.get("uri"), (String) tcm.get("name"),
+		TestCase tc = new TestCase((int) ((double) tcm.get("line")), URI.create((String) tcm.get("uri")), (String) tcm.get("name"),
 				(String) tcm.get("scenarioDesignation"), tags, testSteps);
 		ScenarioResult result = new ScenarioResult(br.getName(), tc, br.getResult(), br.getStart(), br.getStop());
 		for (Map<String, Object> m : (List<Map<String, Object>>) map.get("childResults")) {
@@ -219,4 +219,19 @@ public class LoggerFormatter implements EventListener, EventWriter {
 			// go gentle into that good night
 		}
 	}
+	
+    private static URL toURL(String pathOrUrl) {
+        try {
+            if (!pathOrUrl.endsWith("/")) {
+                pathOrUrl = pathOrUrl + "/";
+            }
+            if (pathOrUrl.matches("^(file|http|https):.*")) {
+                return new URL(pathOrUrl);
+            } else {
+                return new URL("file:" + pathOrUrl);
+            }
+        } catch (MalformedURLException e) {
+            throw new CucumberException("Bad URL:" + pathOrUrl, e);
+        }
+    }
 }

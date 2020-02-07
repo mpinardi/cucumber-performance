@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import cucumber.perf.runtime.PerfRuntimeOptions;
 import cucumber.perf.runtime.filter.Predicate;
-import gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.Node;
 
 public class Filters {
 	private final List<Predicate> filters;

@@ -5,12 +5,13 @@ import java.util.List;
 
 import cucumber.perf.api.PerfGroup;
 import cucumber.perf.salad.ast.Slice;
-import cucumber.runtime.model.CucumberFeature;
+//import cucumber.runtime.model.CucumberFeature;
+import io.cucumber.core.gherkin.Feature;
 
 public class RunnerOptions {
 	private String groupText;
 	private Slice slice;
-	private List<CucumberFeature> features = new ArrayList<CucumberFeature>();
+	private List<Feature> features = new ArrayList<Feature>();
 	
 	public RunnerOptions(PerfGroup pg)
 	{
@@ -19,7 +20,7 @@ public class RunnerOptions {
 		this.features = pg.getFeatures();
 	}
 	
-	public RunnerOptions(String groupText,List<CucumberFeature> features,Slice slice)
+	public RunnerOptions(String groupText,List<Feature> features,Slice slice)
 	{
 		this.groupText = groupText;
 		this.slice = slice;
@@ -42,11 +43,11 @@ public class RunnerOptions {
 		this.slice = slice;
 	}
 
-	public List<CucumberFeature> getFeatures() {
+	public List<Feature> getFeatures() {
 		return features;
 	}
 
-	public void setFeatures(List<CucumberFeature> features) {
+	public void setFeatures(List<Feature> features) {
 		this.features = features;
 	}
 	

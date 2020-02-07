@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.mpinardi</groupId>
 	<artifactId>cucumber-perf</artifactId>
-	<version>2.1.1</version>
+	<version>RC4.0.0</version>
 
 	<name>Cucumber-Perf</name>
 	<description>A performance testing framework for cucumber</description>
@@ -134,9 +134,10 @@
 		<!-- 4.1.3 --><!-- 5.0.0 --><!-- 5.0.0 --><!-- 5.0.0 --><!-- 5.0.0 -->
 		<!-- 3.0.0--><!-- 3.0.2-->
 		<!-- 5.0.0--><!-- 5.1.0-->
-		<!-- 4.2.0--><!-- 4.3.1--><!--4.4.0--><!--4.5.4--><!--4.6.0--><!--4.7.0-->
-		<!-- 5.0.0--><!-- 5.1.0--><!--5.1.0--><!--5.1.0--><!--5.1.0--><!--5.1.0-->
-		<cucumber.io.version>4.7.0</cucumber.io.version>
+		<!-- 4.2.0--><!-- 4.3.1--><!--4.4.0--><!--4.5.4--><!--4.6.0--><!--4.7.0--><!--4.8.0-->
+		<!-- 5.0.0--><!-- 5.1.0--><!--5.1.0--><!--5.1.0--><!--5.1.0--><!--5.1.0--><!--5.1.0-->
+		<!--5.1.0-->
+		<cucumber.io.version>5.1.2</cucumber.io.version>
 		<gherkin.io.version>5.1.0</gherkin.io.version>
 		<mockito.version>2.28.2</mockito.version>
 	</properties>
@@ -149,8 +150,8 @@
 		</dependency>
 		<dependency>
 			<groupId>io.cucumber</groupId>
-			<artifactId>gherkin</artifactId>
-			<version>${gherkin.io.version}</version>
+			<artifactId>cucumber-gherkin</artifactId>
+			<version>${cucumber.io.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.cucumber</groupId>
@@ -162,12 +163,12 @@
 			<artifactId>cucumber-java</artifactId>
 			<version>${cucumber.io.version}</version>
 		</dependency>
-		<!--<dependency>
+		<!-- <dependency>
 		    <groupId>io.cucumber</groupId>
 		    <artifactId>cucumber-junit</artifactId>
 		    <version>${cucumber.io.version}</version>
 		    <scope>test</scope>
-		</dependency> -->
+		</dependency> --> 
 		<!-- <dependency> <groupId>info.cukes</groupId> <artifactId>cucumber-java</artifactId> 
 			<version>${cucumber.info.version}</version> <scope>test</scope> </dependency> 
 			<dependency> <groupId>info.cukes</groupId> <artifactId>gherkin</artifactId> 

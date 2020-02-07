@@ -1,6 +1,6 @@
 package cucumber.perf.runtime.filter;
 
-import gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.Node;
 
 interface Predicate {
     boolean apply(Node n);

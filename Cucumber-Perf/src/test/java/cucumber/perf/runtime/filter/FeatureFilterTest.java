@@ -9,34 +9,34 @@ import org.junit.Test;
 import cucumber.perf.api.FeatureBuilder;
 import cucumber.perf.runtime.PerfRuntimeOptions;
 import cucumber.perf.runtime.filter.FeatureFilter;
-import cucumber.runtime.model.CucumberFeature;
+import io.cucumber.core.gherkin.Feature;
 
 public class FeatureFilterTest {
 	
 	@Test
 	public void filterTagReduceScenarioTest() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
+		List<Feature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		FeatureFilter filter = new FeatureFilter(features);
-		List<CucumberFeature> ffs = filter.filter("@onlyfilter1");
+		List<Feature> ffs = filter.filter("@onlyfilter1");
 		assertEquals(ffs.get(0).getPickles().size(),1);
 	}
 	
 	@Test
 	public void filterTagTest() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
+		List<Feature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		FeatureFilter filter = new FeatureFilter(features);
-		List<CucumberFeature> ffs = filter.filter("@onlyfilter");
+		List<Feature> ffs = filter.filter("@onlyfilter");
 		assertEquals(ffs.get(0).getPickles().size(),2);
 	}
 	
 	@Test
 	public void filterMultiTagTest() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
+		List<Feature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		FeatureFilter filter = new FeatureFilter(features);
-		List<CucumberFeature> ffs = filter.filter("@onlyfilter or @only");
+		List<Feature> ffs = filter.filter("@onlyfilter or @only");
 		assertEquals(ffs.size(),2);
 		assertEquals(ffs.get(0).getPickles().size(),2);
 		assertEquals(ffs.get(1).getPickles().size(),2);
@@ -46,9 +46,9 @@ public class FeatureFilterTest {
 	@Test
 	public void filterNameTest() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
+		List<Feature>  features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		FeatureFilter filter = new FeatureFilter(features);
-		List<CucumberFeature> ffs = filter.filter("test.feature");
+		List<Feature> ffs = filter.filter("test.feature");
 		assertEquals(ffs.get(0).getName(),"test");
 		assertEquals(ffs.get(0).getPickles().size(),4);
 	}
@@ -56,14 +56,14 @@ public class FeatureFilterTest {
 	@Test
 	public void isMatchTrueTest() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
+		List<Feature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		assertTrue(FeatureFilter.isMatch(features.get(1), "@onlyfilter"));
 	}
 	
 	@Test
 	public void isMatchFalseTest() {
 		PerfRuntimeOptions options = new PerfRuntimeOptions(Arrays.asList(new String[] {"-g steps","src/test/java/resources"}));
-		List<CucumberFeature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
+		List<Feature> features = FeatureBuilder.getFeatures(FeatureBuilder.createRuntimeOptions(options.getCucumberOptions()));
 		assertFalse(FeatureFilter.isMatch(features.get(0), "@notefilter"));
 	}
 	

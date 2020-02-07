@@ -3,9 +3,10 @@ package cucumber.perf.salad.ast;
 import java.util.Collections;
 import java.util.List;
 
-import gherkin.ast.Location;
-import gherkin.ast.Node;
-import gherkin.ast.Tag;
+import io.cucumber.core.internal.gherkin.ast.Location;
+import io.cucumber.core.internal.gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.Tag;
+
 
 public class Plan extends Node {
     private final List<Tag> tags;

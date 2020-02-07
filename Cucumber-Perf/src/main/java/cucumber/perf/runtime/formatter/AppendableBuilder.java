@@ -1,7 +1,5 @@
 package cucumber.perf.runtime.formatter;
 
-import static cucumber.runtime.Utils.toURL;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -13,7 +11,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 
 public class AppendableBuilder {
 	private static final Pattern ARGUMENT_POSTFIX_PATTERN = Pattern.compile("([^|]+)\\|(.*)");
@@ -102,5 +100,20 @@ public class AppendableBuilder {
 		LocalDateTime dateTime = LocalDateTime.now();
 		return dateTime.format(formatter);
 	}
+	
+    private URL toURL(String pathOrUrl) {
+        try {
+            if (!pathOrUrl.endsWith("/")) {
+                pathOrUrl = pathOrUrl + "/";
+            }
+            if (pathOrUrl.matches("^(file|http|https):.*")) {
+                return new URL(pathOrUrl);
+            } else {
+                return new URL("file:" + pathOrUrl);
+            }
+        } catch (MalformedURLException e) {
+            throw new CucumberException("Bad URL:" + pathOrUrl, e);
+        }
+    }
 	
 }

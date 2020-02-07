@@ -1,7 +1,8 @@
 package cucumber.perf.runtime;
 
 import cucumber.perf.api.CucumberPerfOptions;
-import io.cucumber.core.model.Classpath;
+//import io.cucumber.core.model.Classpath;
+import io.cucumber.core.resource.ClasspathSupport;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +70,7 @@ public class PerfRuntimeOptionsFactory {
 
     private void addDefaultPlanPathIfNoPlanPathIsSpecified(List<String> args, Class<?> clazz) {
         if (!plansSpecified) {
-            args.add(Classpath.CLASSPATH_SCHEME + packagePath(clazz));
+            args.add(ClasspathSupport.CLASSPATH_SCHEME + packagePath(clazz));
         }
     }
 

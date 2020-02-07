@@ -5,7 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import cucumber.api.Result;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
 
 public class SimulationResult extends BaseResult{
 	
@@ -55,39 +56,39 @@ public class SimulationResult extends BaseResult{
 	
 	private void updateStatus(List<GroupResult> childResults)
 	{
-		Result.Type curtype = Result.Type.PASSED;
+		Status curtype = Status.PASSED;
 		for (GroupResult child : childResults)
 		{
 			curtype = compareStatus(curtype,child.getResult().getStatus());
 		}
 		Result res = this.getResult();
-		this.setResult(new Result(Result.Type.valueOf(curtype.name()),res.getDuration(),res.getError()));
+		this.setResult(new Result(Status.valueOf(curtype.name()),res.getDuration(),res.getError()));
 	}
 	
-	private Result.Type compareStatus(Result.Type curtype, Result.Type compare)
+	private Status compareStatus(Status curtype, Status compare)
 	{
 		switch(compare) {
  		case PASSED:
 		    break;
  		case SKIPPED:
- 			if (Result.Type.SKIPPED.ordinal() > curtype.ordinal())
- 				curtype = Result.Type.SKIPPED;
+ 			if (Status.SKIPPED.ordinal() > curtype.ordinal())
+ 				curtype = Status.SKIPPED;
 		    break;
  		case PENDING:
- 			if (Result.Type.PENDING.ordinal() > curtype.ordinal())
- 				curtype = Result.Type.PENDING;
+ 			if (Status.PENDING.ordinal() > curtype.ordinal())
+ 				curtype = Status.PENDING;
 		    break;
  		case UNDEFINED:
- 			if (Result.Type.UNDEFINED.ordinal() > curtype.ordinal())
- 				curtype = Result.Type.UNDEFINED;
+ 			if (Status.UNDEFINED.ordinal() > curtype.ordinal())
+ 				curtype = Status.UNDEFINED;
 		    break;
  		case AMBIGUOUS:
- 			if (Result.Type.AMBIGUOUS.ordinal() > curtype.ordinal())
- 				curtype = Result.Type.AMBIGUOUS;
+ 			if (Status.AMBIGUOUS.ordinal() > curtype.ordinal())
+ 				curtype = Status.AMBIGUOUS;
 		    break;
  		case FAILED:
- 			if (Result.Type.FAILED.ordinal() > curtype.ordinal())
- 				curtype = Result.Type.FAILED;
+ 			if (Status.FAILED.ordinal() > curtype.ordinal())
+ 				curtype = Status.FAILED;
  			break;
 		default:
 			break;

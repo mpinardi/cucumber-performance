@@ -8,13 +8,12 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import cucumber.api.CucumberOptions;
-import cucumber.api.Plugin;
+import cucumber.perf.api.CucumberOptions;
 import cucumber.perf.api.CucumberPerfOptions;
 import cucumber.perf.runtime.CucumberPerf;
 import cucumber.perf.runtime.PerfRuntimeOptions;
+import io.cucumber.plugin.Plugin;
 
-@SuppressWarnings("deprecation")
 public class CucumberPerfTest {
 
 	@Test

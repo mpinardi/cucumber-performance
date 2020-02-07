@@ -17,18 +17,18 @@ import cucumber.perf.salad.ast.Simulation;
 import cucumber.perf.salad.ast.SimulationDefinition;
 import cucumber.perf.salad.ast.SimulationPeriod;
 import cucumber.perf.salad.ast.Time;
-import gherkin.GherkinLineSpan;
-import gherkin.StringUtils;
-import gherkin.ast.Comment;
-import gherkin.ast.DataTable;
-import gherkin.ast.DocString;
-import gherkin.ast.Location;
-import gherkin.ast.Node;
-import gherkin.ast.TableCell;
-import gherkin.ast.TableRow;
-import gherkin.ast.Tag;
+import io.cucumber.core.internal.gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.GherkinLineSpan;
+import io.cucumber.core.internal.gherkin.StringUtils;
+import io.cucumber.core.internal.gherkin.ast.Comment;
+import io.cucumber.core.internal.gherkin.ast.DataTable;
+import io.cucumber.core.internal.gherkin.ast.DocString;
+import io.cucumber.core.internal.gherkin.ast.Location;
+import io.cucumber.core.internal.gherkin.ast.TableCell;
+import io.cucumber.core.internal.gherkin.ast.TableRow;
+import io.cucumber.core.internal.gherkin.ast.Tag;
 
-import static gherkin.StringUtils.join;
+import static io.cucumber.core.internal.gherkin.StringUtils.join;
 
 public class AstBuilder implements Builder<SaladDocument> {
     private Deque<AstNode> stack;

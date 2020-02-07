@@ -13,7 +13,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import cucumber.api.Result;
 import cucumber.perf.api.event.EventHandler;
 import cucumber.perf.api.event.EventListener;
 import cucumber.perf.api.event.EventPublisher;
@@ -21,7 +20,9 @@ import cucumber.perf.api.event.StatisticsFinished;
 import cucumber.perf.api.formatter.Statistics;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.ScenarioResult;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -87,9 +88,9 @@ public final class JUnitFormatter implements EventListener {
 	}
 
 	private void addScenarioResult(ScenarioResult result) {
-		if (TestCase.currentFeatureFile == null || !TestCase.currentFeatureFile.equals(result.getTestCase().getUri())) {
-			TestCase.currentFeatureFile = result.getTestCase().getUri();
-			TestCase.previousTestCaseName = "";
+		if (TestCase.currentFeatureFile == null || !TestCase.currentFeatureFile.equals(result.getTestCase().getUri().toString())) {
+			TestCase.currentFeatureFile = result.getTestCase().getUri().toString();
+			TestCase.previousTestCaseName = null;
 			TestCase.exampleNumber = 1;
 		}
 		testCase = new TestCase(result);
@@ -213,22 +214,22 @@ public final class JUnitFormatter implements EventListener {
 			StringBuilder sb = new StringBuilder();
 			addStepAndResultListing(sb);
 			Element child;
-			if (result.is(Result.Type.FAILED)) {
+			if (result.getStatus().is(Status.FAILED)) {
 				addStackTrace(sb, result);
-				child = createElementWithMessage(doc, sb, "failure", result.getErrorMessage());
-			} else if (result.is(Result.Type.AMBIGUOUS)) {
+				child = createElementWithMessage(doc, sb, "failure", result.getError().getMessage());
+			} else if (result.getStatus().is(Status.AMBIGUOUS)) {
 				addStackTrace(sb, result);
-				child = createElementWithMessage(doc, sb, "failure", result.getErrorMessage());
-			} else if (result.is(Result.Type.PENDING) || result.is(Result.Type.UNDEFINED)) {
+				child = createElementWithMessage(doc, sb, "failure", result.getError().getMessage());
+			} else if (result.getStatus().is(Status.PENDING) || result.getStatus().is(Status.UNDEFINED)) {
 				if (treatConditionallySkippedAsFailure) {
 					child = createElementWithMessage(doc, sb, "failure",
 							"The scenario has pending or undefined step(s)");
 				} else {
 					child = createElement(doc, sb, "skipped");
 				}
-			} else if (result.is(Result.Type.SKIPPED) && result.getError() != null) {
+			} else if (result.getStatus().is(Status.SKIPPED) && result.getError() != null) {
 				addStackTrace(sb, result);
-				child = createElementWithMessage(doc, sb, "skipped", result.getErrorMessage());
+				child = createElementWithMessage(doc, sb, "skipped", result.getError().getMessage());
 			} else {
 				child = createElement(doc, sb, "system-out");
 			}
@@ -246,7 +247,7 @@ public final class JUnitFormatter implements EventListener {
 		}
 
 		private String calculateTotalDurationString(Result result) {
-			return NUMBER_FORMAT.format(((double) result.getDuration()) / 1000000000);
+			return NUMBER_FORMAT.format(((double) result.getDuration().toNanos()) / 1000000000);
 		}
 
 		private void addStepAndResultListing(StringBuilder sb) {
@@ -254,7 +255,7 @@ public final class JUnitFormatter implements EventListener {
 				int length = sb.length();
 				String resultStatus = "not executed";
 				if (i < result.getChildResults().size()) {
-					resultStatus = result.getChildResults().get(i).getResult().getStatus().lowerCaseName();
+					resultStatus = result.getChildResults().get(i).getResult().getStatus().name().toLowerCase();
 				}
 				sb.append(result.getChildResults().get(i).getName());
 				do {

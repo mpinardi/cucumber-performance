@@ -1,6 +1,5 @@
 package cucumber.perf.runtime.formatter;
 
-import static cucumber.runtime.Utils.toURL;
 import static java.util.Arrays.asList;
 
 import java.io.File;
@@ -8,6 +7,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import cucumber.api.Plugin;
 import cucumber.perf.api.event.ConcurrentEventListener;
 import cucumber.perf.api.event.EventListener;
 import cucumber.perf.api.formatter.DisplayPrinter;
 import cucumber.perf.api.formatter.SummaryPrinter;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.plugin.Plugin;
 
 /**
  * This class creates plugin instances from a String.
@@ -257,6 +257,22 @@ public final class PluginFactory {
         }
         return pluginClass(pluginName);
     }
+    
+    private static URL toURL(String pathOrUrl) {
+        try {
+            if (!pathOrUrl.endsWith("/")) {
+                pathOrUrl = pathOrUrl + "/";
+            }
+            if (pathOrUrl.matches("^(file|http|https):.*")) {
+                return new URL(pathOrUrl);
+            } else {
+                return new URL("file:" + pathOrUrl);
+            }
+        } catch (MalformedURLException e) {
+            throw new CucumberException("Bad URL:" + pathOrUrl, e);
+        }
+    }
+
     
 }
 

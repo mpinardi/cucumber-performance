@@ -1,6 +1,5 @@
 package cucumber.perf.test;
-
-import cucumber.api.CucumberOptions;
+import cucumber.perf.api.CucumberOptions;
 import cucumber.perf.api.CucumberPerfOptions;
 import cucumber.perf.runtime.CucumberPerf;
 import cucumber.perf.runtime.PerfRuntimeOptions;
@@ -21,7 +20,7 @@ import java.util.Arrays;
 		tags = {"not @bskip","@planPosTest"},
 		plugin = {"detail_display","chart_points:file://C:/test/chartpoints|-#0001.csv"},
 		name = {"^(?!.*period).*$"})
-@SuppressWarnings("deprecation")
+
 public class Test {
 	
 	public static void main(String[] args)
@@ -52,7 +51,6 @@ public class Test {
 		try {
 			cukePerf.runThreads();
 		} catch (Throwable e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

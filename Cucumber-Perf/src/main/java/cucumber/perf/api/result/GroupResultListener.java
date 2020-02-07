@@ -3,13 +3,13 @@ package cucumber.perf.api.result;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import cucumber.api.Result;
-import cucumber.api.Result.Type;
-import cucumber.api.event.EventHandler;
-import cucumber.api.event.EventListener;
-import cucumber.api.event.EventPublisher;
-import cucumber.api.event.TestRunFinished;
-import cucumber.api.event.TestRunStarted;
+import io.cucumber.plugin.EventListener;
+import io.cucumber.plugin.event.EventHandler;
+import io.cucumber.plugin.event.EventPublisher;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
+import io.cucumber.plugin.event.TestRunFinished;
+import io.cucumber.plugin.event.TestRunStarted;
 
 public class GroupResultListener implements EventListener {
 	private String groupName = "";
@@ -26,7 +26,7 @@ public class GroupResultListener implements EventListener {
 	private final EventHandler<TestRunFinished> testRunFinishedHandler = new EventHandler<TestRunFinished>() {
 		@Override
 		public void receive(TestRunFinished event) {
-			result = new GroupResult(groupName,new Result(Type.PASSED, Duration.between(start,LocalDateTime.now()).toNanos(), null),start,LocalDateTime.now());
+			result = new GroupResult(groupName,new Result(Status.PASSED, Duration.between(start,LocalDateTime.now()), null),start,LocalDateTime.now());
 		}
 	};
 	

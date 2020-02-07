@@ -3,6 +3,7 @@ package cucumber.perf.formatter;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import org.junit.Test;
@@ -15,11 +16,10 @@ import cucumber.perf.runtime.formatter.AppendableBuilder;
 import cucumber.perf.runtime.formatter.ChartPointsFormatter;
 import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
-import cucumber.runner.TimeService;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 
 public class AppendableBuilderTest {
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemDefaultZone());
 	
 	@Test
 	public void testFinishReportWPrefix1() {

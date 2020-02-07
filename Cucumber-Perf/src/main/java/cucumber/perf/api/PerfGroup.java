@@ -7,10 +7,11 @@ import cucumber.perf.salad.ast.Count;
 import cucumber.perf.salad.ast.Group;
 import cucumber.perf.salad.ast.Runners;
 import cucumber.perf.salad.ast.Slice;
-import cucumber.runtime.model.CucumberFeature;
-import gherkin.ast.DataTable;
-import gherkin.ast.Node;
-import gherkin.ast.TableRow;
+import io.cucumber.core.gherkin.Feature;
+import io.cucumber.core.internal.gherkin.ast.DataTable;
+import io.cucumber.core.internal.gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.TableRow;
+
 
 public class PerfGroup {
 	private final String keyword;
@@ -21,7 +22,7 @@ public class PerfGroup {
 	private int running=0;
 	private int ran = 0;
 	private DataTable slices;
-	private List<CucumberFeature> features;
+	private List<Feature> features;
 	
 	 public PerfGroup(String keyword, String text,int threads, int count,DataTable slices) {
 	        this.keyword = keyword;
@@ -113,11 +114,11 @@ public class PerfGroup {
 		return null;
 	}
 
-	public List<CucumberFeature> getFeatures() {
+	public List<Feature> getFeatures() {
 		return features;
 	}
 
-	public void setFeatures(List<CucumberFeature> features) {
+	public void setFeatures(List<Feature> features) {
 		this.features = features;
 	}
 

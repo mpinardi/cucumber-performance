@@ -20,6 +20,7 @@ final class CanonicalEventOrder implements Comparator<Event> {
         private final List<Class<? extends Event>> fixedOrder = asList(
             (Class<? extends Event>)
             PerfRunStarted.class,
+            TestSourceRead.class,
             ConfigStatistics.class,
             SimulationStarted.class,
             GroupEvent.class,

@@ -2,7 +2,7 @@ package cucumber.perf.api.result;
 
 import java.time.LocalDateTime;
 
-import cucumber.api.Result;
+import io.cucumber.plugin.event.Result;
 
 public class StepResult extends BaseResult {
 	private TestStep testStep;

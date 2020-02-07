@@ -6,29 +6,29 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import cucumber.api.formatter.ColorAware;
-import cucumber.api.formatter.AnsiEscapes;
-import cucumber.api.Result;
 import cucumber.perf.api.PerfGroup;
 import cucumber.perf.api.event.ConcurrentEventListener;
 import cucumber.perf.api.event.EventHandler;
 import cucumber.perf.api.event.EventPublisher;
 import cucumber.perf.api.event.GroupFinished;
 import cucumber.perf.api.event.GroupStarted;
+import cucumber.perf.api.formatter.AnsiEscapes;
 import cucumber.perf.api.result.GroupResult;
+import io.cucumber.plugin.ColorAware;
+import io.cucumber.plugin.event.Status;
 
 public class DetailDisplayPrinter implements ConcurrentEventListener,ColorAware {
 	private final PrintStream out;
 	private boolean monochrome;
 	private List<PerfGroup> groups = new ArrayList<PerfGroup>();
-    private static final Map<Result.Type, AnsiEscapes> ANSI_ESCAPES = new HashMap<Result.Type, AnsiEscapes>() {
+    private static final Map<Status, AnsiEscapes> ANSI_ESCAPES = new HashMap<Status, AnsiEscapes>() {
 		private static final long serialVersionUID = 1630641595685292213L;
 		{
-	        put(Result.Type.PASSED, AnsiEscapes.GREEN);
-	        put(Result.Type.UNDEFINED, AnsiEscapes.YELLOW);
-	        put(Result.Type.PENDING, AnsiEscapes.YELLOW);
-	        put(Result.Type.SKIPPED, AnsiEscapes.CYAN);
-	        put(Result.Type.FAILED, AnsiEscapes.RED);
+	        put(Status.PASSED, AnsiEscapes.GREEN);
+	        put(Status.UNDEFINED, AnsiEscapes.YELLOW);
+	        put(Status.PENDING, AnsiEscapes.YELLOW);
+	        put(Status.SKIPPED, AnsiEscapes.CYAN);
+	        put(Status.FAILED, AnsiEscapes.RED);
 		}
 	};
     

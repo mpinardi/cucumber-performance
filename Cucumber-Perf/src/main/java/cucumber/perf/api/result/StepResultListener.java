@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import cucumber.api.PickleStepTestStep;
-import cucumber.api.event.EventHandler;
-import cucumber.api.event.EventListener;
-import cucumber.api.event.EventPublisher;
-import cucumber.api.event.TestStepStarted;
-import cucumber.api.event.TestStepFinished;
+import io.cucumber.plugin.EventListener;
+import io.cucumber.plugin.event.EventHandler;
+import io.cucumber.plugin.event.EventPublisher;
+import io.cucumber.plugin.event.PickleStepTestStep;
+import io.cucumber.plugin.event.TestStepFinished;
+import io.cucumber.plugin.event.TestStepStarted;
 
 public class StepResultListener implements EventListener {
     static final String UNDEFINED_MESSAGE = "There are undefined steps";
@@ -20,7 +20,7 @@ public class StepResultListener implements EventListener {
     private final EventHandler<TestStepFinished> testStepFinishedHandler = new EventHandler<TestStepFinished>() {
 		@Override
 		public void receive(TestStepFinished event) {
-			results.add(new StepResult(name,new TestStep(event.testStep),event.result,start,LocalDateTime.now()));
+			results.add(new StepResult(name,new TestStep(event.getTestStep()),event.getResult(),start,LocalDateTime.now()));
 		}
     };
     
@@ -28,7 +28,7 @@ public class StepResultListener implements EventListener {
 		@Override
 		public void receive(TestStepStarted event) {
 			start = LocalDateTime.now();
-			name = ((PickleStepTestStep)event.testStep).getStepText();
+			name = ((PickleStepTestStep)event.getTestStep()).getStep().getText();
 		}
     };
     

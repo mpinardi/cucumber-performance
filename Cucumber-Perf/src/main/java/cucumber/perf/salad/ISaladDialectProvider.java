@@ -1,7 +1,8 @@
 package cucumber.perf.salad;
-import gherkin.ast.Location;
 
 import java.util.List;
+
+import io.cucumber.core.internal.gherkin.ast.Location;
 
 public interface ISaladDialectProvider {
     SaladDialect getDefaultDialect();

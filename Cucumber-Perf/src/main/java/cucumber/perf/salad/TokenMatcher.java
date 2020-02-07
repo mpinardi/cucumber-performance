@@ -1,15 +1,14 @@
 package cucumber.perf.salad;
 
-import gherkin.GherkinLanguageConstants;
-import gherkin.GherkinLineSpan;
-import gherkin.ast.Location;
-
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cucumber.perf.salad.Parser.ITokenMatcher;
 import cucumber.perf.salad.Parser.TokenType;
+import io.cucumber.core.internal.gherkin.GherkinLanguageConstants;
+import io.cucumber.core.internal.gherkin.GherkinLineSpan;
+import io.cucumber.core.internal.gherkin.ast.Location;
 
 
 public class TokenMatcher implements ITokenMatcher {

@@ -1,17 +1,21 @@
 package cucumber.perf.runtime;
 
-import cucumber.api.Result;
+/*import cucumber.api.Result;
 import cucumber.api.event.TestRunFinished;
-import cucumber.api.event.TestRunStarted;
+import cucumber.api.event.TestRunStarted;*/
 import cucumber.perf.api.FeatureBuilder;
-import cucumber.perf.api.PerfCompiler;
+import cucumber.perf.api.PerfPickle;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.GroupResultListener;
 import cucumber.perf.api.result.ScenarioResult;
 import cucumber.perf.api.result.StepResultListener;
 import cucumber.perf.api.result.TestCaseResultListener;
 import cucumber.perf.salad.ast.Slice;
-import cucumber.runner.TimeServiceEventBus;
+import io.cucumber.core.filter.Filters;
+import io.cucumber.core.gherkin.Feature;
+import io.cucumber.core.gherkin.Pickle;
+import io.cucumber.core.gherkin.ScenarioDefinition;
+/*import cucumber.runner.TimeServiceEventBus;
 import cucumber.runner.TimeService;
 import cucumber.runner.RunnerSupplier;
 import cucumber.runner.ThreadLocalRunnerSupplier;
@@ -27,21 +31,39 @@ import cucumber.runtime.formatter.PluginFactory;
 import cucumber.runtime.io.MultiLoader;
 import cucumber.runtime.io.ResourceLoader;
 import cucumber.runtime.io.ResourceLoaderClassFinder;
-import cucumber.runtime.model.CucumberFeature;
+import cucumber.runtime.model.Feature;
 import cucumber.runtime.model.FeatureLoader;
 import gherkin.ast.ScenarioDefinition;
-import gherkin.events.PickleEvent;
-import io.cucumber.core.options.CommandlineOptionsParser;
-import io.cucumber.core.options.CucumberOptionsAnnotationParser;
-import io.cucumber.core.options.EnvironmentOptionsParser;
+import gherkin.events.PickleEvent;*/
+//import io.cucumber.core.options.EnvironmentOptionsParser;
 import io.cucumber.core.options.RuntimeOptions;
+import io.cucumber.core.plugin.PluginFactory;
+import io.cucumber.core.plugin.Plugins;
+import io.cucumber.core.runtime.BackendServiceLoader;
+import io.cucumber.core.runtime.FeaturePathFeatureSupplier;
+import io.cucumber.core.runtime.FeatureSupplier;
+import io.cucumber.core.runtime.ObjectFactoryServiceLoader;
+import io.cucumber.core.runtime.ObjectFactorySupplier;
+import io.cucumber.core.runtime.RunnerSupplier;
+import io.cucumber.core.runtime.ScanningTypeRegistryConfigurerSupplier;
+import io.cucumber.core.runtime.SingletonObjectFactorySupplier;
+import io.cucumber.core.runtime.ThreadLocalRunnerSupplier;
+import io.cucumber.core.runtime.TypeRegistryConfigurerSupplier;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
+import io.cucumber.plugin.event.TestRunFinished;
+import io.cucumber.plugin.event.TestRunStarted;
+import io.cucumber.plugin.event.TestSourceRead;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
 /**
  * The Cucumber Performance thread runner.
@@ -52,10 +74,9 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CucumberRunner implements Callable<Object> {
 	private RuntimeOptions runtimeOptions;
 	private RunnerSupplier runnerSupplier;
-	private cucumber.runner.EventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private io.cucumber.core.eventbus.EventBus eventBus = new io.cucumber.core.runtime.TimeServiceEventBus(Clock.systemUTC(),UUID::randomUUID);
 	private Filters filters;
 	private FeatureSupplier featureSupplier;
-	@SuppressWarnings("unused")
 	private Plugins plugins;
 	private GroupResultListener resultListener;
 	private TestCaseResultListener testCaseResultListener;
@@ -84,9 +105,7 @@ public class CucumberRunner implements Callable<Object> {
 		this.failFast = failFast;
 		this.options = options;
 		// prepare runtime options
-		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
-		runtimeOptions = new CommandlineOptionsParser(resourceLoader).parse(args).build();
-		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
+		runtimeOptions = FeatureBuilder.createRuntimeOptions(args);
 		// prepare runtime
 		this.BuildRuntime();
 		this.configListeners();
@@ -97,9 +116,7 @@ public class CucumberRunner implements Callable<Object> {
 		this.failFast = failFast;
 		this.options = options;
 		// prepare runtime options
-		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
-		runtimeOptions = new CucumberOptionsAnnotationParser(resourceLoader).parse(clazz).build();
-		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
+		runtimeOptions = FeatureBuilder.createRuntimeOptions(clazz);
 		// prepare runtime
 		this.BuildRuntime();
 		this.configListeners();
@@ -124,8 +141,8 @@ public class CucumberRunner implements Callable<Object> {
 		// plugins.stepDefinitionReporter();
 		// runnerSupplier.get().reportStepDefinitions(stepDefinitionReporter);
 
-		for (CucumberFeature feature : this.options.getFeatures()) {
-			feature.sendTestSourceRead(eventBus);
+		for (Feature feature : this.options.getFeatures()) {
+			 eventBus.send(new TestSourceRead(eventBus.getInstant(), feature.getUri(), feature.getSource()));
 		}
 
 		// Enable plugins
@@ -146,12 +163,12 @@ public class CucumberRunner implements Callable<Object> {
 
 	@Override
 	public Object call() {
-		List<CucumberFeature> features = this.getFeatures();
+		List<Feature> features = this.getFeatures();
 		GroupResult result = null;
 		randomWait();
 		try {
 			start();
-			for (CucumberFeature f : features) {
+			for (Feature f : features) {
 				runFeature(f, options.getSlice());
 			}
 			finish();
@@ -160,24 +177,35 @@ public class CucumberRunner implements Callable<Object> {
 		} catch (Throwable e) {
 			result = (resultListener.getResult() != null) ? resultListener.getResult()
 					: new GroupResult(this.options.getGroupText(),
-							new Result(Result.Type.FAILED, (long) 0, e), LocalDateTime.now(), LocalDateTime.now());
+							new Result(Status.FAILED, Duration.ofMillis(0), e), LocalDateTime.now(), LocalDateTime.now());
 			result.setChildResults(scenarioResults);
 		}
 		return result;
 	}
 
-	private void runFeature(CucumberFeature cucumberFeature, Slice slice) throws Throwable {
-		PerfCompiler compiler = new PerfCompiler();
-		List<PickleEvent> pickles = compiler.compileFeature(cucumberFeature, slice);
-		for (PickleEvent pickle : pickles) {
-			if (filters.matchesFilters(pickle)) {
+    public static List<Pickle> createPickles(Feature feature, Slice slice) {
+	    if (slice!= null) {
+		    List<Pickle> pickles = new ArrayList<Pickle>();
+		    for (Pickle pickle : feature.getPickles()) {
+		    	pickles.add(new PerfPickle(pickle,slice));
+		    }
+		    return pickles;
+	    } else {
+	    	return feature.getPickles();
+	    }
+	}
+
+	private void runFeature(Feature cucumberFeature, Slice slice) throws Throwable {
+		List<Pickle> pickles = createPickles(cucumberFeature, slice);
+		for (Pickle pickle : pickles) {
+			if (filters.test(pickle)) {
 				runScenario(pickle);
 			}
 		}
 	}
 
 	/*
-	 * private void runCucumberDirect(CucumberFeature cucumberFeature) throws
+	 * private void runCucumberDirect(Feature cucumberFeature) throws
 	 * Throwable { resultListener.startFeature();
 	 * runtime.runFeature(cucumberFeature);
 	 * 
@@ -185,7 +213,7 @@ public class CucumberRunner implements Callable<Object> {
 	 * CucumberException(resultListener.getResult().getError()); } }
 	 */
 
-	private void runScenario(PickleEvent pickle) throws Throwable {
+	private void runScenario(Pickle pickle) throws Throwable {
 		runnerSupplier.get().runPickle(pickle);
 
 		ScenarioResult sr = testCaseResultListener.getResult();
@@ -202,25 +230,26 @@ public class CucumberRunner implements Callable<Object> {
 	 * Sends the test run start to Cucumber runtime eventBus.
 	 */
 	private void start() {
-		eventBus.send(new TestRunStarted(eventBus.getTime(), eventBus.getTimeMillis()));
+		eventBus.send(new TestRunStarted(Clock.systemUTC().instant()));
 	}
 
 	/**
 	 * Sends the test run finished to Cucumber runtime eventBus.
 	 */
 	private void finish() {
-		eventBus.send(new TestRunFinished(eventBus.getTime(), eventBus.getTimeMillis()));
+		eventBus.send(new TestRunFinished(Clock.systemUTC().instant()));
 	}
 
 	/**
 	 * Builds local runtime instead of using cucumber runtime class.
 	 */
 	private void BuildRuntime() {
-		ClassLoader classLoader = this.getClass().getClassLoader();
-		ResourceLoader resourceLoader = new MultiLoader(classLoader);
-		ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-		BackendSupplier backendSupplier = new BackendModuleBackendSupplier(resourceLoader, classFinder,
-				this.runtimeOptions);
+		Supplier<ClassLoader> classLoader = CucumberRunner.class::getClassLoader;
+        ObjectFactoryServiceLoader objectFactoryServiceLoader = new ObjectFactoryServiceLoader(runtimeOptions);
+        ObjectFactorySupplier objectFactory = new SingletonObjectFactorySupplier(objectFactoryServiceLoader);
+        BackendServiceLoader backendSupplier = new BackendServiceLoader(classLoader, objectFactory);
+        TypeRegistryConfigurerSupplier typeRegistryConfigurerSupplier = new ScanningTypeRegistryConfigurerSupplier(classLoader, runtimeOptions);
+        runnerSupplier = new ThreadLocalRunnerSupplier(runtimeOptions, eventBus, backendSupplier, objectFactory, typeRegistryConfigurerSupplier);
 		// can cull out pretty here
 		// Plugins orgPlugins = new Plugins(this.classLoader, new PluginFactory(),
 		// this.eventBus, this.runtimeOptions);
@@ -232,19 +261,17 @@ public class CucumberRunner implements Callable<Object> {
 		// plugins.addPlugin(plugin);
 		// }
 		// }
-		this.plugins = new Plugins(classLoader, new PluginFactory(), runtimeOptions);
+		this.plugins = new Plugins(new PluginFactory(), runtimeOptions);
 		this.plugins.setEventBusOnEventListenerPlugins(eventBus);
 		this.plugins.setSerialEventBusOnEventListenerPlugins(eventBus);
-		this.runnerSupplier = new ThreadLocalRunnerSupplier(this.runtimeOptions, eventBus, backendSupplier);
-		FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
-		this.featureSupplier = new FeaturePathFeatureSupplier(featureLoader, this.runtimeOptions);
+		this.featureSupplier = new FeaturePathFeatureSupplier(classLoader, this.runtimeOptions, null);
 		this.filters = new Filters(this.runtimeOptions);
 	}
 
 	/**
 	 * @return List of detected cucumber features
 	 */
-	public List<CucumberFeature> getFeatures() {
+	public List<Feature> getFeatures() {
 
 		if (this.options.getFeatures() == null) {
 			return featureSupplier.get();

@@ -1,13 +1,12 @@
 package cucumber.perf.runtime.filter;
 
-import gherkin.ast.Node;
-
 import java.util.List;
 import java.util.regex.Pattern;
 
 import cucumber.perf.salad.ast.Plan;
 import cucumber.perf.salad.ast.Simulation;
 import cucumber.perf.salad.ast.SimulationPeriod;
+import io.cucumber.core.internal.gherkin.ast.Node;
 
 public class NamePredicate implements Predicate {
     private List<Pattern> patterns;

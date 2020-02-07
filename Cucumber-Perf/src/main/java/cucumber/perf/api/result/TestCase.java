@@ -1,25 +1,24 @@
 package cucumber.perf.api.result;
 
+import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 
-import cucumber.api.TestStep;
-import gherkin.pickles.PickleTag;
-
-public class TestCase implements cucumber.api.TestCase{
+public class TestCase implements io.cucumber.plugin.event.TestCase{
 
 	private int line;
-	private String uri;
+	private URI uri;
 	private String name;
 	private String scenarioDesignation;
-	private List<PickleTag> tags;
-	private List<TestStep> testSteps;
+	private List<String> tags;
+	private List<io.cucumber.plugin.event.TestStep> testSteps;
 	
 	public TestCase()
 	{
 		
 	}
 	
-	public TestCase(int line,String uri,String name,String scenarioDesignation,List<PickleTag> tags,List<TestStep> testSteps)
+	public TestCase(int line,URI uri,String name,String scenarioDesignation,List<String> tags,List<io.cucumber.plugin.event.TestStep> testSteps)
 	{
 		this.line = line;
 		this.uri = uri;
@@ -29,13 +28,13 @@ public class TestCase implements cucumber.api.TestCase{
 		this.testSteps = testSteps;
 	}
 	
-	public TestCase(cucumber.api.TestCase testCase)
+	public TestCase(io.cucumber.plugin.event.TestCase testCase)
 	{
 		this(testCase.getLine(),testCase.getUri(),testCase.getName(),testCase.getScenarioDesignation(),testCase.getTags(),testCase.getTestSteps());
 	}
 	
 	@Override
-	public int getLine() {
+	public Integer getLine() {
 		return line;
 	}
 
@@ -50,17 +49,30 @@ public class TestCase implements cucumber.api.TestCase{
 	}
 
 	@Override
-	public List<PickleTag> getTags() {
+	public List<String> getTags() {
 		return tags;
 	}
 	
 	@Override
-	public List<TestStep> getTestSteps() {
+	public List<io.cucumber.plugin.event.TestStep> getTestSteps() {
 		return testSteps;
 	}
 
 	@Override
-	public String getUri() {
+	public URI getUri() {
 		return uri;
 	}
+
+	@Override
+	public String getKeyword() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UUID getId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

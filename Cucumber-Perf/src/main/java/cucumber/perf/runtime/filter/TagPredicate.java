@@ -9,10 +9,11 @@ import java.util.List;
 import cucumber.perf.salad.ast.Plan;
 import cucumber.perf.salad.ast.Simulation;
 import cucumber.perf.salad.ast.SimulationPeriod;
-import gherkin.ast.Node;
-import gherkin.ast.Tag;
-import gherkin.pickles.PickleLocation;
-import gherkin.pickles.PickleTag;
+import io.cucumber.core.gherkin.Pickle;
+import io.cucumber.core.internal.gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.Tag;
+import io.cucumber.core.internal.gherkin.pickles.PickleLocation;
+import io.cucumber.core.internal.gherkin.pickles.PickleTag;
 import io.cucumber.tagexpressions.Expression;
 import io.cucumber.tagexpressions.TagExpressionParser;
 
@@ -76,6 +77,17 @@ public class TagPredicate implements Predicate {
         }
         return true;
     }
+    
+    public boolean test(Pickle pickle) {
+        if (expressions.isEmpty()) {
+            return true;
+        }
+
+        List<String> tags = pickle.getTags();
+        return expressions.stream()
+            .allMatch(expression -> expression.evaluate(tags));
+    }
+  
 
 }
 

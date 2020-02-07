@@ -1,14 +1,21 @@
 package cucumber.perf.runtime;
 
+import cucumber.perf.api.FixJava;
+import cucumber.perf.api.Mapper;
 import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.salad.ISaladDialectProvider;
 import cucumber.perf.salad.SaladDialect;
 import cucumber.perf.salad.SaladDialectProvider;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.core.options.PluginOption;
+/*import cucumber.runtime.CucumberException;
 import cucumber.runtime.Shellwords;
 import cucumber.util.FixJava;
-import cucumber.util.Mapper;
+import cucumber.util.Mapper;*/
 import io.cucumber.datatable.DataTable;
+import io.cucumber.plugin.ConcurrentEventListener;
+import io.cucumber.plugin.EventListener;
+import io.cucumber.plugin.SummaryPrinter;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -17,14 +24,15 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import static cucumber.util.FixJava.join;
-import static cucumber.util.FixJava.map;
+/*import static cucumber.util.FixJava.join;
+import static cucumber.util.FixJava.map;*/
 import static java.util.Arrays.asList;
-
+import static cucumber.perf.api.FixJava.map;
+import static cucumber.perf.api.FixJava.join;
 // IMPORTANT! Make sure USAGE.txt is always up to date if this class changes.
 
 public class PerfRuntimeOptions {
-	public static final String VERSION = ResourceBundle.getBundle("cucumber.version").getString("cucumber-jvm.version");
+	public static final String VERSION = ResourceBundle.getBundle("version").getString("cucumber-perf");
 	public static final String USAGE_RESOURCE = "/USAGE.txt";
 
 	static String usageText;
@@ -185,14 +193,12 @@ public class PerfRuntimeOptions {
 		return plugins;
 	}
     
-	private boolean isCucumberPlugin(String string) throws Exception {
-		if (cucumber.runtime.formatter.PluginFactory.isSummaryPrinterName(string)) {
+	private boolean isCucumberPlugin(String name) throws Exception {
+	  PluginOption plugin = PluginOption.parse(name);
+		if (SummaryPrinter.class.isAssignableFrom(plugin.pluginClass())) {
 			return true;
 		}
-		if (cucumber.runtime.formatter.PluginFactory.isFormatterName(string)) {
-			return true;
-		}
-		if (cucumber.runtime.formatter.PluginFactory.isStepDefinitionReporterName(string)) {
+		if (EventListener.class.isAssignableFrom(plugin.pluginClass()) || ConcurrentEventListener.class.isAssignableFrom(plugin.pluginClass())) {
 			return true;
 		}
 		return false;

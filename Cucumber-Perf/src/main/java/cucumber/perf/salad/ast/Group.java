@@ -2,8 +2,9 @@ package cucumber.perf.salad.ast;
 
 import java.util.List;
 
-import gherkin.ast.Location;
-import gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.Location;
+import io.cucumber.core.internal.gherkin.ast.Node;
+
 
 public class Group extends Node {
     private final String keyword;

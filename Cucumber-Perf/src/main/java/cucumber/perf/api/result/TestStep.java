@@ -1,6 +1,6 @@
 package cucumber.perf.api.result;
 
-public class TestStep implements cucumber.api.TestStep{
+public class TestStep implements io.cucumber.plugin.event.TestStep{
 	
 	private String codeLocation;
 	
@@ -11,7 +11,11 @@ public class TestStep implements cucumber.api.TestStep{
 		this.codeLocation = codeLocation;
 	}
 	
-	public TestStep(cucumber.api.TestStep testStep) {
+	public TestStep(io.cucumber.plugin.event.TestStep testStep) {
+		this.codeLocation = testStep.getCodeLocation();
+	}
+	
+	public TestStep(TestStep testStep) {
 		this.codeLocation = testStep.getCodeLocation();
 	}
 	

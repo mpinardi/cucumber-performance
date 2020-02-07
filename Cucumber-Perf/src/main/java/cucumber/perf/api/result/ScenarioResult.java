@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import cucumber.api.Result;
+import io.cucumber.plugin.event.Result;
 
 public class ScenarioResult extends BaseResult{
 

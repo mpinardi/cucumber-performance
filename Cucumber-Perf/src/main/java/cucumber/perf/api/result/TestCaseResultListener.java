@@ -2,11 +2,11 @@ package cucumber.perf.api.result;
 
 import java.time.LocalDateTime;
 
-import cucumber.api.event.EventHandler;
-import cucumber.api.event.EventListener;
-import cucumber.api.event.EventPublisher;
-import cucumber.api.event.TestCaseFinished;
-import cucumber.api.event.TestCaseStarted;
+import io.cucumber.plugin.EventListener;
+import io.cucumber.plugin.event.EventHandler;
+import io.cucumber.plugin.event.EventPublisher;
+import io.cucumber.plugin.event.TestCaseFinished;
+import io.cucumber.plugin.event.TestCaseStarted;
 
 public class TestCaseResultListener implements EventListener {
     static final String UNDEFINED_MESSAGE = "There are undefined steps";
@@ -18,7 +18,7 @@ public class TestCaseResultListener implements EventListener {
 
         @Override
         public void receive(TestCaseFinished event) {
-            result = new ScenarioResult(name,new TestCase(event.testCase),event.result,start,LocalDateTime.now());
+            result = new ScenarioResult(name,new TestCase(event.getTestCase()),event.getResult(),start,LocalDateTime.now());
         }
     };
     
@@ -27,7 +27,7 @@ public class TestCaseResultListener implements EventListener {
 		@Override
 		public void receive(TestCaseStarted event) {
 			start = LocalDateTime.now();
-			name = event.testCase.getName();
+			name = event.getTestCase().getName();
 		}
     };
     

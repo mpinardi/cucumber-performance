@@ -1,6 +1,5 @@
 package cucumber.perf.runtime.formatter;
 
-import cucumber.api.formatter.NiceAppendable;
 import cucumber.perf.api.event.ConfigStatistics;
 import cucumber.perf.api.event.EventBus;
 import cucumber.perf.api.event.EventHandler;
@@ -9,6 +8,7 @@ import cucumber.perf.api.event.EventPublisher;
 import cucumber.perf.api.event.PerfRunStarted;
 import cucumber.perf.api.event.StatisticsFinished;
 import cucumber.perf.api.formatter.EventWriter;
+import cucumber.perf.api.formatter.NiceAppendable;
 import cucumber.perf.api.formatter.Statistics;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.ScenarioResult;
@@ -94,7 +94,7 @@ public final class ChartPointsFormatter implements EventListener, EventWriter {
 			String step = "";
 			String type = e.getKey();
 			String datetime = e.getValue().getStop().toString();
-			long value = e.getValue().getResultDuration();
+			long value = e.getValue().getResultDuration().toNanos();
 			if (lineGroups.containsKey(feature+":"+type))
 			{
 				lineGroups.get(feature+":"+type).add(feature+","+scenario+","+step+","+type+","+datetime+","+value);
@@ -109,7 +109,7 @@ public final class ChartPointsFormatter implements EventListener, EventWriter {
 			for (ScenarioResult sr : e.getValue().getChildResults()) {
 				scenario = sr.getName();
 				datetime = sr.getStop().toString();
-				value = sr.getResultDuration();
+				value = sr.getResultDuration().toNanos();
 				if (lineGroups.containsKey(feature+"."+scenario+":"+type))
 				{
 					lineGroups.get(feature+"."+scenario+":"+type).add(feature+","+scenario+","+step+","+type+","+datetime+","+value);
@@ -123,7 +123,7 @@ public final class ChartPointsFormatter implements EventListener, EventWriter {
 				for (StepResult stpr : sr.getChildResults()) {
 					step = stpr.getName();
 					datetime = sr.getStop().toString();
-					value = sr.getResultDuration();
+					value = sr.getResultDuration().toNanos();
 					if (lineGroups.containsKey(feature+"."+scenario+"."+step+":"+type))
 					{
 						lineGroups.get(feature+"."+scenario+"."+step+":"+type).add(feature+","+scenario+","+step+","+type+","+datetime+","+value);

@@ -1,10 +1,11 @@
 package cucumber.perf.salad;
 
-import gherkin.StringUtils;
-import gherkin.ast.Location;
 
 import java.util.Collections;
 import java.util.List;
+
+import io.cucumber.core.internal.gherkin.StringUtils;
+import io.cucumber.core.internal.gherkin.ast.Location;
 
 public class ParserException extends RuntimeException {
 	private static final long serialVersionUID = -297574257757404805L;

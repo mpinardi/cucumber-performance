@@ -43,17 +43,17 @@ public class DefaultSummaryPrinter implements SummaryPrinter, EventListener  {
 			out.println("Simulation: " + s.getSimulation().getName() + " Start: "+ s.getSimulation().getStart()+ " Stop: "+ s.getSimulation().getStop()+ " Duration: "+ s.getSimulation().getDuration().toString());
 		}
 		for (Entry<String, GroupResult> entry : s.getAvg().entrySet()) {
-			out.println("Group: " + entry.getKey() + " Count: " + s.getCnt().get(entry.getKey()).getResultDuration()
-					+ " Avg: " + entry.getValue().getResultDuration() / 1000000
-					+ " Min: " + s.getMin().get(entry.getKey()).getResultDuration() / 1000000 + " Max: "
-					+ s.getMax().get(entry.getKey()).getResultDuration() / 1000000);
+			out.println("Group: " + entry.getKey() + " Count: " + s.getCnt().get(entry.getKey()).getResultDuration().toNanos()
+					+ " Avg: " + entry.getValue().getResultDuration().toMillis()
+					+ " Min: " + s.getMin().get(entry.getKey()).getResultDuration().toMillis() + " Max: "
+					+ s.getMax().get(entry.getKey()).getResultDuration().toMillis());
 			for (int sc = 0; sc < entry.getValue().getChildResults().size(); sc++) {
 				out.println("	Scenario: " + entry.getValue().getChildResults().get(sc).getName() + " Count: "
-						+ s.getCnt().get(entry.getKey()).getChildResults().get(sc).getResultDuration() + " Avg: "
-						+ entry.getValue().getChildResults().get(sc).getResultDuration() / 1000000 + " Min: "
-						+ s.getMin().get(entry.getKey()).getChildResults().get(sc).getResultDuration() / 1000000
+						+ s.getCnt().get(entry.getKey()).getChildResults().get(sc).getResultDuration().toNanos() + " Avg: "
+						+ entry.getValue().getChildResults().get(sc).getResultDuration().toMillis() + " Min: "
+						+ s.getMin().get(entry.getKey()).getChildResults().get(sc).getResultDuration().toMillis()
 						+ " Max: "
-						+ s.getMax().get(entry.getKey()).getChildResults().get(sc).getResultDuration() / 1000000);// 1000000
+						+ s.getMax().get(entry.getKey()).getChildResults().get(sc).getResultDuration().toMillis());// 1000000
 			
 				for (int stp = 0; stp < entry.getValue().getChildResults().get(sc).getChildResults().size(); stp++) {
 					if (entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration() != null)
@@ -61,14 +61,13 @@ public class DefaultSummaryPrinter implements SummaryPrinter, EventListener  {
 					out.println("		Step: "
 							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getName() + " Count: "
 							+ s.getCnt().get(entry.getKey()).getChildResults().get(sc).getChildResults().get(stp)
-									.getResultDuration() + " Avg: "
-							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration()
-									/ 1000000
+									.getResultDuration().toNanos() + " Avg: "
+							+ entry.getValue().getChildResults().get(sc).getChildResults().get(stp).getResultDuration().toMillis()
 							+ " Min: "
 							+ s.getMin().get(entry.getKey()).getChildResults().get(sc).getChildResults().get(stp)
-									.getResultDuration() / 1000000
+									.getResultDuration().toMillis()
 							+ " Max: " + s.getMax().get(entry.getKey()).getChildResults().get(sc).getChildResults()
-									.get(stp).getResultDuration() / 1000000);
+									.get(stp).getResultDuration().toMillis());
 					}
 				}
 			}

@@ -1,10 +1,10 @@
 package cucumber.perf.salad;
 
-import gherkin.GherkinLineSpan;
-import gherkin.IGherkinLine;
-import gherkin.ast.Location;
-
 import java.util.List;
+
+import io.cucumber.core.internal.gherkin.GherkinLineSpan;
+import io.cucumber.core.internal.gherkin.IGherkinLine;
+import io.cucumber.core.internal.gherkin.ast.Location;
 
 public class Token {
     public final IGherkinLine line;

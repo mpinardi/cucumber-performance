@@ -3,8 +3,8 @@ package cucumber.perf.salad.ast;
 import java.util.Collections;
 import java.util.List;
 
-import gherkin.ast.Comment;
-import gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.Comment;
+import io.cucumber.core.internal.gherkin.ast.Node;
 
 public class SaladDocument extends Node {
 

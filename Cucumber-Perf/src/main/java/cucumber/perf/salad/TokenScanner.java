@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-import gherkin.GherkinLine;
-import gherkin.ast.Location;
+import io.cucumber.core.internal.gherkin.GherkinLine;
+import io.cucumber.core.internal.gherkin.ast.Location;
 
 /**
  * <p>

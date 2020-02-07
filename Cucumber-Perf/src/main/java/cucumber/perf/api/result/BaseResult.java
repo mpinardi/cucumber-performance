@@ -3,7 +3,8 @@ package cucumber.perf.api.result;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-import cucumber.api.Result;
+import io.cucumber.plugin.event.Result;
+
 
 public class BaseResult {
 	private LocalDateTime start = LocalDateTime.now();
@@ -52,7 +53,7 @@ public class BaseResult {
 		return Duration.between(start, stop);
 	}
 	
-	public Long getResultDuration()
+	public Duration getResultDuration()
 	{
 		return result.getDuration();
 	}

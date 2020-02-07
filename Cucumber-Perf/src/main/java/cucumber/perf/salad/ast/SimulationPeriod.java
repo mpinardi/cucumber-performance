@@ -3,8 +3,8 @@ package cucumber.perf.salad.ast;
 import java.util.Collections;
 import java.util.List;
 
-import gherkin.ast.Location;
-import gherkin.ast.Tag;
+import io.cucumber.core.internal.gherkin.ast.Location;
+import io.cucumber.core.internal.gherkin.ast.Tag;
 
 public class SimulationPeriod extends SimulationDefinition {
     private final List<Tag> tags;

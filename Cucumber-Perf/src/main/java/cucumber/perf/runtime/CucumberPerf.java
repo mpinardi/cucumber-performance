@@ -1,5 +1,6 @@
 package cucumber.perf.runtime;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -7,23 +8,25 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Supplier;
 
-import cucumber.api.Result;
 import cucumber.perf.api.FeatureBuilder;
 import cucumber.perf.api.PerfGroup;
-import cucumber.perf.api.PerfPlan;
-import cucumber.perf.api.PlanBuilder;
 import cucumber.perf.api.event.GroupFinished;
 import cucumber.perf.api.event.GroupStarted;
 import cucumber.perf.api.event.PerfRunFinished;
 import cucumber.perf.api.event.PerfRunStarted;
 import cucumber.perf.api.event.SimulationFinished;
 import cucumber.perf.api.event.SimulationStarted;
+import cucumber.perf.api.plan.PathPlanSupplier;
+import cucumber.perf.api.plan.PerfPlan;
+import cucumber.perf.api.plan.PlanParser;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.SimulationResult;
 import cucumber.perf.runtime.filter.FeatureFilter;
@@ -35,10 +38,14 @@ import cucumber.perf.salad.ast.SaladDocument;
 import cucumber.perf.salad.ast.Simulation;
 import cucumber.perf.salad.ast.SimulationDefinition;
 import cucumber.perf.salad.ast.SimulationPeriod;
-import cucumber.runner.TimeService;
-import cucumber.runtime.model.CucumberFeature;
-import gherkin.ast.Tag;
+import io.cucumber.core.gherkin.Feature;
+import io.cucumber.core.internal.gherkin.ast.Tag;
+//import cucumber.runner.TimeService;
+//import gherkin.ast.Tag;
 import io.cucumber.core.options.RuntimeOptions;
+import io.cucumber.core.plugin.Options.Plugin;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
 
 /**
  * Cucumber Perf(Performance) AKA Cucumber Salad
@@ -51,7 +58,7 @@ public class CucumberPerf {
 	private ExecutorService pool = null;
 	private Filters filters;
 	private Class<?> clazz = null;
-	private List<CucumberFeature> features = null;
+	private List<Feature> features = null;
 	private FeatureFilter featureFilter = null;
 	private PerfRuntimeOptions options = null;
 	private Plugins plugins = null;
@@ -70,7 +77,7 @@ public class CucumberPerf {
 	
 	private long maxRan = 0;
 	private int maxRampPeriods = 10;
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemUTC());
 	/**
 	 * Create a new CucumberPerf instance using a existing class for the cucumber options.
 	 * All expected features and scenarios must be included in options.
@@ -126,7 +133,10 @@ public class CucumberPerf {
 	 */
 	public void runThreads() throws Throwable {
 		eventBus.send(new PerfRunStarted(eventBus.getTime(),eventBus.getTimeMillis()));
-		plans = PlanBuilder.LoadPlans(this.getClass(), new ArrayList<String>(options.getPlanPaths()));
+		Supplier<ClassLoader> classLoader = FeatureBuilder.class::getClassLoader;
+		PlanParser parser = new PlanParser(UUID::randomUUID);
+		plans =  new PathPlanSupplier(classLoader, options.getPlanPaths(), parser).get();
+		
 		if (plans != null && !plans.isEmpty()) {
 			for (int p = 0; p < plans.size(); p++) {
 				SaladDocument pl = plans.get(p).getSaladPlan();
@@ -281,7 +291,7 @@ public class CucumberPerf {
 						//
 						this.totalRanCount += ranCount;
 						waitForFinished(60);
-						eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult(sim.getName(), new Result(Result.Type.PASSED,  Duration.between(start, LocalDateTime.now()).getSeconds(), null), start,LocalDateTime.now(), this.finished)));
+						eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult(sim.getName(), new Result(Status.PASSED,  Duration.between(start, LocalDateTime.now()), null), start,LocalDateTime.now(), this.finished)));
 					}
 				}
 			}
@@ -454,21 +464,21 @@ public class CucumberPerf {
 		return time.getSeconds() / times;
 	}
 	
-	private List<CucumberFeature> getFeatures(PerfGroup pg){
+	private List<Feature> getFeatures(PerfGroup pg){
 		return this.featureFilter.filter(pg.getText());
 	}
 	
 	private void warnProgressFormatter(RuntimeOptions runtimeOptions)
 	{
-		for(String plugin: runtimeOptions.getPluginNames())
+		for(Plugin plugin: runtimeOptions.plugins())
 		{
-			if (plugin.equalsIgnoreCase("progress"))
+			if (plugin.pluginString().equalsIgnoreCase("progress"))
 			{
 				options.disableDisplay();
 				System.out.println("WARNING: Cucumber options contains Progress formatter.");
 				System.out.println(	"	This is enabled by default in Cucumber when no formatter is passed in.");
 				System.out.println(	"	Disabling all display printers. To enable pass in plugin \"cucumber.formatter.NullFormatter\"");
-			} else if (plugin.equalsIgnoreCase("default_summary"))
+			} else if (plugin.pluginString().equalsIgnoreCase("default_summary"))
 			{
 				options.disableDisplay();
 				System.out.println("WARNING: Cucumber options contains default summary.");

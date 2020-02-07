@@ -2,9 +2,10 @@ package cucumber.perf.salad.ast;
 
 import java.util.List;
 
-import gherkin.ast.DataTable;
-import gherkin.ast.TableCell;
-import gherkin.ast.TableRow;
+import io.cucumber.core.internal.gherkin.ast.DataTable;
+import io.cucumber.core.internal.gherkin.ast.TableCell;
+import io.cucumber.core.internal.gherkin.ast.TableRow;
+
 
 /**
  * Slice represents a DataTable with header and single row.

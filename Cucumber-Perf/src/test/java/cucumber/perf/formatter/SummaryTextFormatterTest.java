@@ -5,6 +5,9 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +15,7 @@ import java.util.Scanner;
 import static org.hamcrest.CoreMatchers.containsString;
 import org.junit.Test;
 
-import cucumber.api.Result;
-import cucumber.api.Result.Type;
+
 import cucumber.perf.api.event.SimulationFinished;
 import cucumber.perf.api.event.StatisticsFinished;
 import cucumber.perf.api.formatter.Statistics;
@@ -28,10 +30,12 @@ import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
 import cucumber.perf.runtime.formatter.StatisticsFormatter;
 import cucumber.perf.runtime.formatter.SummaryTextFormatter;
-import cucumber.runner.TimeService;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
+
 
 public class SummaryTextFormatterTest {
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemDefaultZone());
 	
 	@Test
 	public void testSummaryTextFormatter() {
@@ -156,12 +160,12 @@ public class SummaryTextFormatterTest {
 		try {
 			SummaryTextFormatter stf = new SummaryTextFormatter(new AppendableBuilder("file://C:/test/summarytext.txt"));
 			 List<GroupResult> list = new ArrayList<GroupResult>();
-			list.add(new GroupResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now()));
-			list.add(new GroupResult("test2", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now()));
+			list.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now()));
+			list.add(new GroupResult("test2", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now()));
 			Throwable error =  new Throwable();
 			error.setStackTrace(new StackTraceElement[] {new StackTraceElement("src.main.test.test","TestIt","testing.class",1),new StackTraceElement("src.main.test.test","TestIt","testing.class",2)});
-			GroupResult fres = new GroupResult("test", new Result(Type.FAILED, (long)1000, new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now());
-			fres.addChildResult(new ScenarioResult("scentest", new TestCase(4, "features/ScenTest.feature", "ScenTest 1", null, null, null), new Result(Type.FAILED, (long)1000, new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now()));
+			GroupResult fres = new GroupResult("test", new Result(Status.FAILED, Duration.ofMillis(1000), new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now());
+			fres.addChildResult(new ScenarioResult("scentest", new TestCase(4, URI.create("features/ScenTest.feature"), "ScenTest 1", null, null, null), new Result(Status.FAILED, Duration.ofMillis(1000), new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now()));
 			list.add(fres);
 			PluginFactory pf = new PluginFactory();
 			PerfRuntimeOptions options = new PerfRuntimeOptions();
@@ -171,7 +175,7 @@ public class SummaryTextFormatterTest {
 			StatisticsFormatter s = new StatisticsFormatter();
 			plugins.addPlugin(s);
 			plugins.setEventBusOnPlugins(eventBus);
-			eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult("test", new Result(Result.Type.PASSED, (long)0, null), LocalDateTime.parse("2007-12-12T05:20:22"),LocalDateTime.parse("2007-12-12T05:25:22"), list)));
+			eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult("test", new Result(Status.PASSED, Duration.ZERO, null), LocalDateTime.parse("2007-12-12T05:20:22"),LocalDateTime.parse("2007-12-12T05:25:22"), list)));
 		} catch (MalformedURLException e) {
 			fail("MalformedURL");
 		} catch (IOException e) {
@@ -180,13 +184,13 @@ public class SummaryTextFormatterTest {
 		String filepath = "C:/test/summarytext.txt";
 		String result = readFile(filepath);
 		String compare = "\r\nSimulation: test Start: 2007-12-12T05:20:22 Stop: 2007-12-12T05:25:22 Duration: PT5M"+
-				"\r\n\tGroup: test2 Count: 1 Avg: 0 Min: 0 Max: 0"+
-				"\r\n\tGroup: test Count: 1 Avg: 0 Min: 0 Max: 0"+
+				"\r\n\tGroup: test2 Count: 1 Avg: 1000 Min: 1000 Max: 1000"+
+				"\r\n\tGroup: test Count: 1 Avg: 1000 Min: 1000 Max: 1000"+
 				"\r\nErrors:"+
 				  "\r\n\tScenario: test"+
 				  "\r\n\t\tStep: test"+
 					"\r\n\t\tHere is an error"+
-					"\r\n\t\tcucumber.perf.formatter.SummaryTextFormatterTest.testFinishReportErrors(SummaryTextFormatterTest.java:164)"+
+					"\r\n\t\tcucumber.perf.formatter.SummaryTextFormatterTest.testFinishReportErrors(SummaryTextFormatterTest.java:168)"+
 					"\r\n\t\tsun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-2)"+
 					"\r\n\t\tsun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)"+
 					"\r\n\t\tsun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)"+

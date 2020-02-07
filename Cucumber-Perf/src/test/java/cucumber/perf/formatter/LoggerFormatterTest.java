@@ -5,6 +5,9 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URI;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +16,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.Ignore;
 
-import cucumber.api.Result;
-import cucumber.api.Result.Type;
 import cucumber.perf.api.PerfGroup;
 import cucumber.perf.api.event.EventHandler;
 import cucumber.perf.api.event.GroupFinished;
@@ -33,15 +34,14 @@ import cucumber.perf.runtime.formatter.AppendableBuilder;
 import cucumber.perf.runtime.formatter.LoggerFormatter;
 import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
-import cucumber.runner.TimeService;
-import cucumber.runtime.CucumberException;
-import gherkin.deps.com.google.gson.Gson;
-import gherkin.deps.com.google.gson.stream.JsonReader;
-import gherkin.pickles.PickleLocation;
-import gherkin.pickles.PickleTag;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.core.internal.gherkin.deps.com.google.gson.Gson;
+import io.cucumber.core.internal.gherkin.deps.com.google.gson.stream.JsonReader;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
 
 public class LoggerFormatterTest {
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemDefaultZone());
 	private boolean isStatisticsStarted = false;
 	private EventHandler<StatisticsStarted> statisticsStartedListener = new EventHandler<StatisticsStarted>() {
 		@Override
@@ -62,18 +62,18 @@ public class LoggerFormatterTest {
 
 	@Test
 	public void testOutput() {
+		LoggerFormatter stf;
 		try {
-			LoggerFormatter stf = new LoggerFormatter(new AppendableBuilder("file://C:/test/log.json"));
+			stf = new LoggerFormatter(new AppendableBuilder("file://C:/test/log.json"));
 			PluginFactory pf = new PluginFactory();
 			PerfRuntimeOptions options = new PerfRuntimeOptions();
 			Plugins plugins = new Plugins(this.getClass().getClassLoader(), pf, options);
 			plugins.addPlugin(stf);
 			plugins.setEventBusOnPlugins(eventBus);
-			eventBus.send(new SimulationStarted(eventBus.getTime(),eventBus.getTimeMillis(), "test"));
-			eventBus.send(new GroupFinished(eventBus.getTime(),eventBus.getTimeMillis(),0, new PerfGroup("group", "test.feature", 1, 10, null),new GroupResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now())));
 		} catch (CucumberException e) {
 			fail("Issue");
 		}
+		eventBus.send(new SimulationStarted(eventBus.getTime(),eventBus.getTimeMillis(), null));
 		eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(), null));
 		long fs = getFileSize("C:/test/log.json");
 		assertTrue(fs>=1);
@@ -106,7 +106,7 @@ public class LoggerFormatterTest {
 			plugins.addPlugin(stf);
 			plugins.setEventBusOnPlugins(eventBus);
 			eventBus.send(new SimulationStarted(eventBus.getTime(),eventBus.getTimeMillis(), "test"));
-			eventBus.send(new GroupFinished(eventBus.getTime(),eventBus.getTimeMillis(),0, new PerfGroup("group", "test.feature", 1, 10, null),new GroupResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now())));
+			eventBus.send(new GroupFinished(eventBus.getTime(),eventBus.getTimeMillis(),0, new PerfGroup("group", "test.feature", 1, 10, null),new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now())));
 			eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(), null));
 		} catch (CucumberException e) {
 			fail("Issue");
@@ -135,12 +135,12 @@ public class LoggerFormatterTest {
 		try {
 			stf = new LoggerFormatter(new AppendableBuilder("file://C:/test/log.json"));
 			List<GroupResult> list = new ArrayList<GroupResult>();
-			list.add(new GroupResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now()));
-			list.add(new GroupResult("test2", new Result(Type.PASSED, (long)2300, null), LocalDateTime.now(), LocalDateTime.now()));
+			list.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now()));
+			list.add(new GroupResult("test2", new Result(Status.PASSED, Duration.ofMillis(2300), null), LocalDateTime.now(), LocalDateTime.now()));
 			Throwable error =  new Throwable();
 			error.setStackTrace(new StackTraceElement[] {new StackTraceElement("src.main.test.test","TestIt","testing.class",1),new StackTraceElement("src.main.test.test","TestIt","testing.class",2)});
-			GroupResult fres = new GroupResult("test", new Result(Type.FAILED, (long)1000, new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now());
-			fres.addChildResult(new ScenarioResult("scentest", new TestCase(4, "features/ScenTest.feature", "ScenTest 1", null, null, null), new Result(Type.FAILED, (long)1000, new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now()));
+			GroupResult fres = new GroupResult("test", new Result(Status.FAILED, Duration.ofMillis(1000), new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now());
+			fres.addChildResult(new ScenarioResult("scentest", new TestCase(4, URI.create("features/ScenTest.feature"), "ScenTest 1", null, null, null), new Result(Status.FAILED, Duration.ofMillis(1000), new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now()));
 			list.add(fres);
 			PluginFactory pf = new PluginFactory();
 			PerfRuntimeOptions options = new PerfRuntimeOptions();
@@ -160,7 +160,7 @@ public class LoggerFormatterTest {
 		List<Map<String, Object>> json = (List<Map<String, Object>>) getFileJSON("C:/test/log.json",resultList.getClass());
 		json.remove(0);
 		resultList = stf.createGroupResultList(json);
-		assertEquals((long)2300,(long)resultList.get(1).getResultDuration());
+		assertEquals((long)2300,resultList.get(1).getResultDuration().toMillis());
 		assertTrue(deleteFile("C:/test/log.json"));
 	}
 	
@@ -170,18 +170,18 @@ public class LoggerFormatterTest {
 		LoggerFormatter stf = null;
 		try {
 			stf = new LoggerFormatter(new AppendableBuilder("file://C:/test/log.json"));
-			GroupResult gr = new GroupResult("test", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now());
-			List<PickleTag> pickletags = new ArrayList<PickleTag>();
+			GroupResult gr = new GroupResult("test", new Result(Status.PASSED,  Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now());
+			List<String> pickletags = new ArrayList<String>();
 			List<GroupResult> list = new ArrayList<GroupResult>();
-			pickletags.add(new PickleTag(new PickleLocation(0, 10), "mytag"));
-			List<cucumber.api.TestStep> teststeps = new ArrayList<cucumber.api.TestStep>();
+			pickletags.add("mytag");
+			List<io.cucumber.plugin.event.TestStep> teststeps = new ArrayList<io.cucumber.plugin.event.TestStep>();
 			teststeps.add(new TestStep("my step"));
-			ScenarioResult scnr = new ScenarioResult("test", new TestCase(0, "testcases/testCase", "testCase", "scenario", pickletags,teststeps),new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now());
-			StepResult stpr = new StepResult("test", new TestStep("my step"), new Result(Type.PASSED, (long)222, null), LocalDateTime.now(), LocalDateTime.now());
+			ScenarioResult scnr = new ScenarioResult("test", new TestCase(0, URI.create("testcases/testCase"), "testCase", "scenario", pickletags,teststeps),new Result(Status.PASSED,  Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now());
+			StepResult stpr = new StepResult("test", new TestStep("my step"), new Result(Status.PASSED,  Duration.ofMillis(222), null), LocalDateTime.now(), LocalDateTime.now());
 			scnr.addChildResult(stpr);
 			gr.addChildResult(scnr);
 			list.add(gr);
-			list.add(new GroupResult("test2", new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.now()));
+			list.add(new GroupResult("test2", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(), LocalDateTime.now()));
 			PluginFactory pf = new PluginFactory();
 			PerfRuntimeOptions options = new PerfRuntimeOptions();
 			Plugins plugins = new Plugins(this.getClass().getClassLoader(), pf, options);
@@ -200,7 +200,7 @@ public class LoggerFormatterTest {
 		List<Map<String, Object>> json = (List<Map<String, Object>>) getFileJSON("C:/test/log.json",resultList.getClass());
 		json.remove(0);
 		resultList = stf.createGroupResultList(json);
-		assertEquals((long)222,(long)resultList.get(0).getChildResults().get(0).getChildResults().get(0).getResultDuration());
+		assertEquals((long)222,resultList.get(0).getChildResults().get(0).getChildResults().get(0).getResultDuration().toMillis());
 		assertTrue(deleteFile("C:/test/log.json"));
 	}
 

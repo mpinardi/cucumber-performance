@@ -1,50 +1,51 @@
 package cucumber.perf.api;
 
-import gherkin.ast.ScenarioDefinition;
-
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 
-import cucumber.runtime.Env;
-import cucumber.runtime.FeaturePathFeatureSupplier;
+import io.cucumber.core.feature.FeatureParser;
+import io.cucumber.core.gherkin.Feature;
+import io.cucumber.core.gherkin.Node;
+import io.cucumber.core.gherkin.ScenarioDefinition;
 import io.cucumber.core.options.CommandlineOptionsParser;
-import io.cucumber.core.options.EnvironmentOptionsParser;
 import io.cucumber.core.options.CucumberOptionsAnnotationParser;
+import io.cucumber.core.options.CucumberProperties;
+import io.cucumber.core.options.CucumberPropertiesParser;
 import io.cucumber.core.options.RuntimeOptions;
-import cucumber.runtime.io.MultiLoader;
-import cucumber.runtime.io.ResourceLoader;
-import cucumber.runtime.model.CucumberFeature;
-import cucumber.runtime.model.FeatureLoader;
+
+import io.cucumber.core.runtime.FeaturePathFeatureSupplier;
 
 public class FeatureBuilder {
 
 	public static RuntimeOptions createRuntimeOptions(Class<?> clazz) {
-		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
-		RuntimeOptions runtimeOptions = new CucumberOptionsAnnotationParser(resourceLoader).parse(clazz).build();
-
-		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
+		RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser().parse(CucumberProperties.fromPropertiesFile()).build();
+		RuntimeOptions systemOptions = new CucumberPropertiesParser().parse(CucumberProperties.fromSystemProperties()) .build(propertiesFileOptions);
+		RuntimeOptions envOptions = new CucumberPropertiesParser().parse(CucumberProperties.fromEnvironment()).build(systemOptions);
+		RuntimeOptions runtimeOptions = new CucumberOptionsAnnotationParser().withOptionsProvider(new CucumberOptionsProvider()).parse(clazz).build(envOptions);
 		return runtimeOptions;
 	}
 
 	public static RuntimeOptions createRuntimeOptions(List<String> args) {
-		ResourceLoader resourceLoader = new MultiLoader(Thread.currentThread().getContextClassLoader());
-		RuntimeOptions runtimeOptions = new CommandlineOptionsParser(resourceLoader).parse(args).build();
-
-		new EnvironmentOptionsParser(resourceLoader).parse(Env.INSTANCE).build(runtimeOptions);
+		RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser().parse(CucumberProperties.fromPropertiesFile()).build();
+		RuntimeOptions systemOptions = new CucumberPropertiesParser().parse(CucumberProperties.fromSystemProperties()) .build(propertiesFileOptions);
+		RuntimeOptions envOptions = new CucumberPropertiesParser().parse(CucumberProperties.fromEnvironment()).build(systemOptions);
+		RuntimeOptions runtimeOptions = new CommandlineOptionsParser().parse(args).build(envOptions);
 		return runtimeOptions;
 	}
 
-	public static List<CucumberFeature> getFeatures(RuntimeOptions runtimeOptions) {
-		ClassLoader classLoader = FeatureBuilder.class.getClassLoader();
-		ResourceLoader resourceLoader = new MultiLoader(classLoader);
-		FeatureLoader featureLoader = new FeatureLoader(resourceLoader);
-		return new FeaturePathFeatureSupplier(featureLoader, runtimeOptions).get();
+	public static List<Feature> getFeatures(RuntimeOptions runtimeOptions) {
+		Supplier<ClassLoader> classLoader = FeatureBuilder.class::getClassLoader;
+		FeatureParser parser = new FeatureParser(UUID::randomUUID);
+		return new FeaturePathFeatureSupplier(classLoader, runtimeOptions,parser).get();
 	}
 
-	public static List<CucumberFeature> FindFeatures(String prefix, List<CucumberFeature> features) {
-		List<CucumberFeature> result = new ArrayList<CucumberFeature>();
-		for (CucumberFeature f : features) {
-			if (f.getGherkinFeature().getFeature().getName().toLowerCase().startsWith(prefix)) {
+	public static List<Feature> FindFeatures(String prefix, List<Feature> features) {
+		List<Feature> result = new ArrayList<Feature>();
+		for (Feature f : features) {
+			if (f.getName().toLowerCase().startsWith(prefix)) {
 				result.add(f);
 			}
 		}
@@ -52,26 +53,32 @@ public class FeatureBuilder {
 	}
 
 	public static List<ScenarioDefinition> FindScenarios(String prefix, String feature,
-			List<CucumberFeature> features) {
+			List<Feature> features) {
 		List<ScenarioDefinition> result = new ArrayList<ScenarioDefinition>();
-		for (CucumberFeature f : features) {
-			if (f.getGherkinFeature().getFeature().getName().equalsIgnoreCase(feature)) {
-				for (ScenarioDefinition s : f.getGherkinFeature().getFeature().getChildren()) {
-					if (s.getName().startsWith(prefix)) {
-						result.add(s);
-					}
+		for (Feature f : features) {
+			if (f.getName().equalsIgnoreCase(feature)) {
+				for (Iterator<Node> iterator = f.children().iterator(); iterator.hasNext();) {
+					Node n = iterator.next();
+					 if (n instanceof ScenarioDefinition) {
+						 if (((ScenarioDefinition)n).getName().startsWith(prefix)) {
+							result.add(((ScenarioDefinition)n));
+						}
+					 }
 				}
 			}
 		}
 		return result;
 	}
 
-	public static List<List<ScenarioDefinition>> GetScenarios(List<CucumberFeature> features) {
+	public static List<List<ScenarioDefinition>> GetScenarios(List<Feature> features) {
 		List<List<ScenarioDefinition>> result = new ArrayList<List<ScenarioDefinition>>();
-		for (CucumberFeature f : features) {
+		for (Feature f : features) {
 			List<ScenarioDefinition> sc = new ArrayList<ScenarioDefinition>();
-			for (ScenarioDefinition s : f.getGherkinFeature().getFeature().getChildren()) {
-				sc.add(s);
+			for (Iterator<Node> iterator = f.children().iterator(); iterator.hasNext();) {
+				Node n = iterator.next();
+				 if (n instanceof ScenarioDefinition) {
+						sc.add(((ScenarioDefinition)n));
+				 }
 			}
 			result.add(sc);
 		}

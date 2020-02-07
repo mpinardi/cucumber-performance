@@ -5,12 +5,15 @@ import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 
 import org.junit.Test;
 
 import cucumber.perf.api.PerfGroup;
-import cucumber.perf.api.PerfPlan;
-import cucumber.perf.api.PlanBuilder;
+import cucumber.perf.api.plan.PathPlanSupplier;
+import cucumber.perf.api.plan.PerfPlan;
+import cucumber.perf.api.plan.PlanParser;
 import cucumber.perf.runtime.CucumberPerfTest.options1;
 import cucumber.perf.runtime.PerfRuntimeOptions;
 import cucumber.perf.runtime.PerfRuntimeOptionsFactory;
@@ -18,10 +21,10 @@ import cucumber.perf.salad.ast.Count;
 import cucumber.perf.salad.ast.Group;
 import cucumber.perf.salad.ast.Runners;
 import cucumber.perf.salad.ast.SimulationDefinition;
-import gherkin.ast.DataTable;
-import gherkin.ast.Node;
-import gherkin.ast.TableCell;
-import gherkin.ast.TableRow;
+import io.cucumber.core.internal.gherkin.ast.DataTable;
+import io.cucumber.core.internal.gherkin.ast.Node;
+import io.cucumber.core.internal.gherkin.ast.TableCell;
+import io.cucumber.core.internal.gherkin.ast.TableRow;
 
 public class PerfGroupTest {
 
@@ -48,9 +51,10 @@ public class PerfGroupTest {
 	public void testGetMaxThreads() {
 		PerfRuntimeOptionsFactory optf = new PerfRuntimeOptionsFactory(options1.class);
 		PerfRuntimeOptions opt = optf.create();
-		List<PerfPlan> res = PlanBuilder.LoadPlans(this.getClass(), new ArrayList<String>(opt.getPlanPaths()));
+		PlanParser parser = new PlanParser(UUID::randomUUID);
+		Supplier<ClassLoader> classLoader = this.getClass()::getClassLoader;
+		List<PerfPlan> res =  new PathPlanSupplier(classLoader, opt.getPlanPaths(), parser).get();
 	    List <PerfGroup> pg = buildGroups(res.get(0).getSaladPlan().getPlan().getChildren().get(0));
-		
 		assertEquals(2,pg.get(0).getMaxThreads());
 	}
 

@@ -5,8 +5,8 @@ import java.util.Collections;
 import org.junit.Test;
 
 import cucumber.perf.salad.ast.Simulation;
-import gherkin.ast.Location;
-import gherkin.ast.Tag;
+import io.cucumber.core.internal.gherkin.ast.Location;
+import io.cucumber.core.internal.gherkin.ast.Tag;
 
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertFalse;
