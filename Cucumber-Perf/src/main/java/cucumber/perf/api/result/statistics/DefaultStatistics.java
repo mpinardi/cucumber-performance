@@ -1,0 +1,242 @@
+package cucumber.perf.api.result.statistics;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
+import cucumber.api.Result;
+import cucumber.perf.api.result.BaseResult;
+import cucumber.perf.api.result.GroupResult;
+import cucumber.perf.api.result.ScenarioResult;
+import cucumber.perf.api.result.StepResult;
+
+public class DefaultStatistics {
+	
+	private Statistics statistics = new Statistics();
+	private BaseResult simulation = new BaseResult();
+	private HashMap<String,List<Long>> sortedResults = new HashMap<String,List<Long>>();
+	private HashMap<String,List<GroupResult>> results = new HashMap<String,List<GroupResult>>();
+	private LocalDateTime startPeriod = null;
+	private LocalDateTime endPeriod = null;
+	
+	public DefaultStatistics(BaseResult simulation,HashMap<String,List<GroupResult>> results)
+	{
+		this.results = results;
+		this.simulation = simulation;
+	}
+	
+	public Statistics getStatistics()
+	{
+		return statistics;
+	}
+	
+	public HashMap<String,List<Long>> getSortedResults()
+	{
+		return this.sortedResults;
+	}
+	
+	public Stats getStats(boolean isStrict)
+	{
+		return getStats(isStrict,null,null);
+	}
+	
+	public Stats getStats(boolean isStrict,LocalDateTime startPeriod,LocalDateTime endPeriod)
+	{
+		this.startPeriod=startPeriod;
+		this.endPeriod=endPeriod;
+		statistics = new Statistics();
+		statistics.setSimulation(new BaseResult(simulation));
+		Stats stats = getDefaultStats(isStrict);
+		sortedResults = new HashMap<String,List<Long>>();
+		for (Entry<String,List<GroupResult>> entry: results.entrySet()){
+			LocalDateTime nextConcurrentPeriod = null;
+			boolean groupAdded = false;
+			sortedResults = new HashMap<String,List<Long>>();
+			List<LocalDateTime> concurrency = new ArrayList<LocalDateTime>();
+			for (GroupResult g : entry.getValue()){
+				if( nextConcurrentPeriod==null) {
+					nextConcurrentPeriod = LocalDateTime.from(g.getStart()).plus(1,ChronoUnit.SECONDS); 
+				} else if(g.getStart().isAfter(nextConcurrentPeriod)) {
+					while(g.getStart().isAfter(nextConcurrentPeriod) && !stats.isEmpty()) {
+						nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
+						stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", g.getName())+getConcurrent(nextConcurrentPeriod,concurrency),g.getName());
+					}
+				}
+				if (endPeriod!=null && (g.getStop().isAfter(endPeriod))) {
+					break;
+				}
+				if (startPeriod==null || g.getStop().isAfter(startPeriod)) {
+					if (!groupAdded) {
+						statistics.putGroup(entry.getKey(), g);
+						groupAdded=true;
+					}
+					if (!sortedResults.containsKey(g.getName()))
+						sortedResults.put(g.getName(), new ArrayList<Long>());
+					stats.putKey(g.getName());
+					concurrency.add(g.getStop());
+					if ((isStrict && g.getResult().isOk(isStrict)) || !isStrict) {
+						sortedResults.get(g.getName()).add(g.getResultDuration());
+						LinkedHashMap<String,Double> gs = stats.getStatistics(g.getName());
+						if(!isStrict && g.getResult().isOk(true))
+							stats.putStatistic("pass",gs.get("pass")+1,g.getName());
+						else if (!isStrict)
+							stats.putStatistic("fail",gs.get("fail")+1,g.getName());
+						stats.putStatistic("avg",gs.get("avg")+g.getResultDuration(),g.getName());
+						stats.putStatistic("cnt",gs.get("cnt")+1,g.getName());
+						if (g.getResultDuration()>gs.get("max"))
+							stats.putStatistic("max",g.getResultDuration().doubleValue(),g.getName());
+						if (gs.get("min")==0.0||g.getResultDuration()<gs.get("min"))
+							stats.putStatistic("min",g.getResultDuration().doubleValue(),g.getName());
+					}
+					for (int sci = 0; sci < g.getChildResults().size(); sci++)
+					{
+						ScenarioResult sc = g.getChildResults().get(sci);
+						stats.putKey(g.getName(),sc.getName());
+						if (!sortedResults.containsKey(g.getName()+"."+sc.getName()))
+							sortedResults.put(g.getName()+"."+sc.getName(), new ArrayList<Long>());
+						if ((isStrict && sc.getResult().isOk(isStrict)) || !isStrict) {
+							try {
+								sortedResults.get(g.getName()+"."+sc.getName()).add(sc.getResultDuration());
+								LinkedHashMap<String,Double> ss= stats.getStatistics(g.getName(),sc.getName());
+								if(!isStrict && sc.getResult().isOk(true))
+									stats.putStatistic("pass",ss.get("pass")+1,g.getName(),sc.getName());
+								else if (!isStrict)
+									stats.putStatistic("fail",ss.get("fail")+1,g.getName(),sc.getName());
+								stats.putStatistic("avg",ss.get("avg")+sc.getResultDuration().doubleValue(),g.getName(),sc.getName());
+								stats.putStatistic("cnt",ss.get("cnt")+1,g.getName(),sc.getName());
+								if (sc.getResultDuration()>ss.get("max"))
+									stats.putStatistic("max",sc.getResultDuration().doubleValue(),g.getName(),sc.getName());
+								if (ss.get("min")==0.0||sc.getResultDuration()<ss.get("min"))
+									stats.putStatistic("min",sc.getResultDuration().doubleValue(),g.getName(),sc.getName());
+							}catch (Exception e){}
+						}
+						for (int sti = 0; sti < sc.getChildResults().size(); sti++)
+						{
+							StepResult stp = sc.getChildResults().get(sti);
+							if (!sortedResults.containsKey(g.getName()+"."+sc.getName()+"."+stp.getName()))
+								sortedResults.put(g.getName()+"."+sc.getName()+"."+stp.getName(), new ArrayList<Long>());
+							stats.putKey(g.getName(),sc.getName(),stp.getName());
+							if ((isStrict && stp.getResult().isOk(isStrict)) || !isStrict) {
+								try {
+									sortedResults.get(g.getName()+"."+sc.getName()+"."+stp.getName()).add(stp.getResultDuration());
+									LinkedHashMap<String,Double> sts= stats.getStatistics(g.getName(),sc.getName(),stp.getName());
+									if(!isStrict && stp.getResult().isOk(true))
+										stats.putStatistic("pass",sts.get("pass")+1,g.getName(),sc.getName(),stp.getName());
+									else
+										stats.putStatistic("fail",sts.get("fail")+1,g.getName(),sc.getName(),stp.getName());
+									stats.putStatistic("cnt",sts.get("cnt")+1,g.getName(),sc.getName(),stp.getName());
+									if (stp.getResultDuration()!=null)
+										stats.putStatistic("avg",sts.get("avg")+stp.getResultDuration().doubleValue(),g.getName(),sc.getName(),stp.getName());
+									if (stp.getResultDuration()!=null && stp.getResultDuration()>sts.get("max"))
+										stats.putStatistic("max",stp.getResultDuration().doubleValue(),g.getName(),sc.getName(),stp.getName());
+									if (stp.getResultDuration()!=null && (sts.get("min")==0.0||stp.getResultDuration()<sts.get("min")))
+										stats.putStatistic("min",stp.getResultDuration().doubleValue(),g.getName(),sc.getName(),stp.getName());
+								}catch (Exception e){}
+							}
+						}
+					}
+				}
+			}
+			if (!stats.isEmpty()) {
+				GroupResult last = entry.getValue().get(entry.getValue().size()-1);
+				while(last.getStop().isAfter(nextConcurrentPeriod)) {
+					nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
+					stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", last.getName())+getConcurrent(nextConcurrentPeriod,concurrency),last.getName());
+				}
+				long totalSeconds =  Duration.between(entry.getValue().get(0).getStart(),last.getStop()).getSeconds();
+				if (totalSeconds>0)
+					stats.putStatistic("cncrnt",stats.getStatistic("cncrnt",last.getName())/totalSeconds, last.getName());
+			}
+		}
+		if (!stats.isEmpty()) {
+			for (String key :stats.getStatisticKeys())
+			{
+				if (stats.getStatistic("avg", key)>0 && stats.getStatistic("cnt", key)>0)
+					stats.putStatistic("avg",stats.getStatistic("avg", key)/stats.getStatistic("cnt", key),key);
+			}
+		}
+		this.statistics.setStats(stats);
+		this.sortResults();
+		return stats;
+	}
+	
+	public HashMap<String,HashMap<String,StepErrors>> getErrors()
+	{
+		HashMap<String,HashMap<String,StepErrors>> map = new HashMap<String,HashMap<String,StepErrors>>();
+		for (Entry<String,List<GroupResult>> entry: results.entrySet())
+		{
+			int c = 0;
+			for (GroupResult f : entry.getValue())
+			{
+				c++;
+				if ((startPeriod==null || f.getStop().isAfter(startPeriod))&&(endPeriod==null || (f.getStop().isBefore(endPeriod) ||c ==entry.getValue().size()))) {
+					if (f.getResult().is(Result.Type.FAILED))
+					{
+						HashMap<String,StepErrors> sErrs = new HashMap<String,StepErrors>();
+						if (map.containsKey(f.getName()))
+						{
+							sErrs = map.get(f.getName());
+						}
+						for (ScenarioResult sr : f.getChildResults())
+						{
+							if (sr.getResult().is(Result.Type.FAILED))
+							{
+								for (StepResult str : sr.getChildResults())
+								{
+									if (str.getResult().is(Result.Type.FAILED))
+									{
+										if (sErrs.containsKey(sr.getName()))
+											sErrs.get(sr.getName()).putError(str.getName(),str.getStop(), str.getError());
+										else
+											sErrs.put(sr.getName(),new StepErrors(str.getName(),str.getStop(), str.getError()));
+									}
+								}
+							}
+						}
+						map.put(f.getName(), sErrs);
+					}
+				}
+			}
+		}
+		this.statistics.setErrors(map);
+		return map;
+	}
+	
+	public static Stats getDefaultStats(boolean isStrict)
+	{
+		Stats stats = new Stats();
+		stats.putStatisticType(Stats.StatType.COUNT.type);
+		if(!isStrict)
+		{
+			stats.putStatisticType(Stats.StatType.PASSED.type);
+			stats.putStatisticType(Stats.StatType.FAILED.type);
+		}
+		stats.putStatisticType(Stats.StatType.AVERAGE.type);
+		stats.putStatisticType(Stats.StatType.MINIMUM.type);
+		stats.putStatisticType(Stats.StatType.MAXIMUM.type);
+		stats.putStatisticType(Stats.StatType.CONCURRENCY.type);
+		return stats;
+	}
+	
+	
+	private void sortResults() {
+		for (String key : sortedResults.keySet())
+		{
+			Collections.sort(sortedResults.get(key));
+		}
+	}
+	
+	private Double getConcurrent(LocalDateTime now, List<LocalDateTime> concurrency) {
+		for (int i = 0; i < concurrency.size();i++){
+			if (concurrency.get(i).isBefore(now))
+				concurrency.remove(i);
+		}
+		return (double) concurrency.size();
+	}
+}

@@ -35,8 +35,10 @@ public final class Plugins {
         List<Plugin> plugins = new ArrayList<Plugin>();
         if (!pluginNamesInstantiated) {
             for (String pluginName : pluginOptions.getPluginsNames()) {
-                Plugin plugin = pluginFactory.create(pluginName);
-                addPlugin(plugins, plugin);
+            	if (!PluginFactory.isMinionName(pluginName)){
+	                Plugin plugin = pluginFactory.create(pluginName);
+	                addPlugin(plugins, plugin);
+            	}
             }
             pluginNamesInstantiated = true;
         }

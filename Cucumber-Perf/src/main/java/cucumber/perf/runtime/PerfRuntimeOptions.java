@@ -24,7 +24,7 @@ import static java.util.Arrays.asList;
 // IMPORTANT! Make sure USAGE.txt is always up to date if this class changes.
 
 public class PerfRuntimeOptions {
-	public static final String VERSION = ResourceBundle.getBundle("cucumber.version").getString("cucumber-jvm.version");
+	public static final String VERSION = ResourceBundle.getBundle("version").getString("cucumber-perf");
 	public static final String USAGE_RESOURCE = "/USAGE.txt";
 
 	static String usageText;
@@ -41,12 +41,12 @@ public class PerfRuntimeOptions {
 	private final List<String> planPaths = new ArrayList<String>();
 	private final List<String> cucumberOptions = new ArrayList<String>();
 	private final List<String> pluginFormatterNames = new ArrayList<String>();
-	private List<String> pluginDisplayNames = new ArrayList<String>();
+	private final List<String> pluginDisplayNames = new ArrayList<String>();
     private final List<String> pluginSummaryPrinterNames = new ArrayList<String>();
 	private boolean dryRun;
 	private boolean strict = true;
-	private boolean monochrome = false;
-	private boolean failFast = false;
+	private boolean monochrome;
+	private boolean failFast;
 
 	public PerfRuntimeOptions() {
 		this(new ArrayList<String>());
@@ -62,11 +62,18 @@ public class PerfRuntimeOptions {
 		argv = new ArrayList<String>(argv); // in case the one passed in is unmodifiable.
 		List<String> ls = parse(argv);
 		addCucumberOptions(ls);
-		
-		if (pluginFormatterNames.isEmpty() || !pluginFormatterNames.contains("statistics")) {
-			pluginFormatterNames.add("statistics");
+   
+		if (!pluginFormatterNames.isEmpty()) {
+			boolean found= false;
+			for (String fn : pluginFormatterNames) {
+				if (fn.toLowerCase().startsWith("statistics"))
+					found = true;
+			}
+			if (!found)
+				pluginFormatterNames.add("statistics");
+	    } else {
+	    	pluginFormatterNames.add("statistics");
 	    }
-		
 		 
         if (pluginSummaryPrinterNames.isEmpty()) {
             pluginSummaryPrinterNames.add("default_summary");
@@ -317,7 +324,7 @@ public class PerfRuntimeOptions {
 	 */
 	public void disableDisplay()
 	{
-		this.pluginDisplayNames = new ArrayList<String>();
+		this.pluginDisplayNames.clear();
 	}
 	
 	/**
@@ -404,5 +411,21 @@ public class PerfRuntimeOptions {
 				nameList.addAll(names);
 			}
 		}
+	}
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
+	}
+
+	public void setStrict(boolean strict) {
+		this.strict = strict;
+	}
+
+	public void setMonochrome(boolean monochrome) {
+		this.monochrome = monochrome;
+	}
+
+	public void setFailFast(boolean failFast) {
+		this.failFast = failFast;
 	}
 }

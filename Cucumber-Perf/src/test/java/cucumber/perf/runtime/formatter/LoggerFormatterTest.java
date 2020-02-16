@@ -1,4 +1,4 @@
-package cucumber.perf.formatter;
+package cucumber.perf.runtime.formatter;
 
 import static org.junit.Assert.*;
 

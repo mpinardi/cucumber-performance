@@ -28,13 +28,16 @@ public class PerfRuntimeOptionsFactory {
                 addName(options, args);
                 addPlans(options, args);
                 addPlugins(options, args);
+                addMonochrome(options, args);
+                addFailfast(options, args);
+                addStrict(options, args);
             }
         }
         addDefaultPlanPathIfNoPlanPathIsSpecified(args, clazz);
         return args;
     }
 
-    private void addName(CucumberPerfOptions options, List<String> args) {
+	private void addName(CucumberPerfOptions options, List<String> args) {
         for (String name : options.name()) {
             args.add("name="+name);
         }
@@ -45,6 +48,24 @@ public class PerfRuntimeOptionsFactory {
             args.add("dryrun");
         }
     }
+    
+    private void addStrict(CucumberPerfOptions options, List<String> args) {
+        if (!options.strict()) {
+            args.add("no-strict");
+        }
+	}
+
+	private void addFailfast(CucumberPerfOptions options, List<String> args) {
+        if (options.failfast()) {
+            args.add("failfast");
+        }
+	}
+
+	private void addMonochrome(CucumberPerfOptions options, List<String> args) {
+        if (options.monochrome()) {
+            args.add("monochrome");
+        }
+	}
     
     private void addTags(CucumberPerfOptions options, List<String> args) {
         for (String tags : options.tags()) {

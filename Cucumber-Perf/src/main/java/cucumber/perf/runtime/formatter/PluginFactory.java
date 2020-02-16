@@ -19,6 +19,8 @@ import cucumber.api.Plugin;
 import cucumber.perf.api.event.ConcurrentEventListener;
 import cucumber.perf.api.event.EventListener;
 import cucumber.perf.api.formatter.DisplayPrinter;
+import cucumber.perf.api.formatter.Minion;
+import cucumber.perf.api.formatter.StatisticCreator;
 import cucumber.perf.api.formatter.SummaryPrinter;
 import cucumber.runtime.CucumberException;
 
@@ -33,7 +35,7 @@ import cucumber.runtime.CucumberException;
  */
 public final class PluginFactory {
     @SuppressWarnings("rawtypes")
-	private final Class[] CTOR_PARAMETERS = new Class[]{String.class, Appendable.class, AppendableBuilder.class, URI.class, URL.class, File.class};
+	private final Class[] CTOR_PARAMETERS = new Class[]{String.class, String[].class, Appendable.class, AppendableBuilder.class, URI.class, URL.class, File.class};
 
     @SuppressWarnings("serial")
 	private static final HashMap<String, Class<? extends Plugin>> PLUGIN_CLASSES = new HashMap<String, Class<? extends Plugin>>() {{
@@ -46,10 +48,16 @@ public final class PluginFactory {
         put("null_summary", NullSummaryPrinter.class);
         put("null_display", NullDisplayPrinter.class);
         put("detail_display",DetailDisplayPrinter.class);
+        put("prcntl",PercentileCreator.class);
+        put("prctl",PercentileCreator.class);
+        put("stddev",StdDeviationCreator.class);
+        put("stdev",StdDeviationCreator.class);
+        put("taurus", TaurusFormatter.class);
     }};
     //old pattern ([^:]+):(.*)
     private static final Pattern PLUGIN_WITH_ARG_PATTERN = Pattern.compile("([^:]+):(.*)");
-    private static final Pattern PLUGIN_WITH_ARG_AND_OPTS_PATTERN = Pattern.compile("([^:]*)(?::)(.*)(?::(?![\\/]))([^:]*)");
+    private static final Pattern PLUGIN_WITH_ARG_AND_OPTS_PATTERN = Pattern.compile("([^:]*)(?::)(.*?)(?::(?![\\/]))(.*)");
+    private static final Pattern PLUGIN_WITH_ARG_AND_OPTS_WRAPPED_PATTERN = Pattern.compile("([^:]*)(?::)(.*?)(?::\\{(?![\\/]))(.*)(?:\\})");
     private String defaultOutFormatter = null;
 
     private Appendable defaultOut = new PrintStream(System.out) {
@@ -59,17 +67,22 @@ public final class PluginFactory {
         }
     };
 
-    public Plugin create(String pluginString) {
-        Matcher pluginWithArg = PLUGIN_WITH_ARG_PATTERN.matcher(pluginString);
+    private String[] getParts(String pluginString) {
+    	Matcher pluginWithArg = PLUGIN_WITH_ARG_PATTERN.matcher(pluginString);
         Matcher pluginWithArgOpts = PLUGIN_WITH_ARG_AND_OPTS_PATTERN.matcher(pluginString);
+        Matcher pluginWithArgOptsW = PLUGIN_WITH_ARG_AND_OPTS_WRAPPED_PATTERN.matcher(pluginString);
         String pluginName;
         String argument;
         String options;
-        if (pluginWithArgOpts.matches()) {
+        if (pluginWithArgOptsW.matches()) {
+            pluginName =  pluginWithArgOptsW.group(1);
+            argument =  pluginWithArgOptsW.group(2);
+            options = pluginWithArgOptsW.group(3);
+        } else if (pluginWithArgOpts.matches()) {
             pluginName =  pluginWithArgOpts.group(1);
             argument =  pluginWithArgOpts.group(2);
             options = pluginWithArgOpts.group(3);
-        } if (pluginWithArg.matches()) {
+        } else if (pluginWithArg.matches()) {
             pluginName =  pluginWithArg.group(1);
             argument =  pluginWithArg.group(2);
             options = null;
@@ -78,9 +91,14 @@ public final class PluginFactory {
             argument = null;
             options = null;
         }
-        Class<? extends Plugin> pluginClass = pluginClass(pluginName);
+        return new String[] {pluginName,argument,options};
+    }
+    
+    public Plugin create(String pluginString) {
+        String[] parts = getParts(pluginString);
+        Class<? extends Plugin> pluginClass = pluginClass(parts[0]);
         try {
-            return instantiate(pluginString, pluginClass, argument,options);
+            return instantiate(pluginString, pluginClass, parts[1],parts[2]);
         } catch (IOException e) {
             throw new CucumberException(e);
         } catch (URISyntaxException e) {
@@ -99,6 +117,14 @@ public final class PluginFactory {
                 return newInstance(twoarg, ctorArg,opts);
         }
         if (singlearg != null) {
+        	if (singlearg.getParameterTypes()[0].equals(String[].class) && options!=null) {
+        		if (argument.isEmpty())
+        			argument = options;
+        		else {
+        			argument = argument.startsWith(":")||argument.startsWith("{")?argument.substring(1)+":"+options:argument+":"+options;
+        			argument = argument.endsWith("{")?argument.substring(0, argument.length()-1):argument;
+        		} 	
+        	}
             Object ctorArg = convertOrNull(argument, singlearg.getParameterTypes()[0], pluginString);
             if (ctorArg != null)
                 return newInstance(singlearg, ctorArg);
@@ -143,6 +169,9 @@ public final class PluginFactory {
         }
         if (ctorArgClass.equals(String.class)) {
             return arg;
+        }
+        if (ctorArgClass.equals(String[].class)) {
+        	return arg == null? new String[0]:(arg.contains(",")?arg.split(","):new String[] {arg});
         }
         if (ctorArgClass.equals(Appendable.class)) {
         	 return new UTF8OutputStreamWriter(new URLOutputStream(toURL(arg)));
@@ -233,7 +262,12 @@ public final class PluginFactory {
         Class<?> pluginClass = getPluginClass(name);
         return EventListener.class.isAssignableFrom(pluginClass) || ConcurrentEventListener.class.isAssignableFrom(pluginClass);
     }
-
+    
+    public static boolean isStatisticCreatorName(String name) {
+        Class<?> pluginClass = getPluginClass(name);
+        return StatisticCreator.class.isAssignableFrom(pluginClass);
+    }
+    
     public static boolean isSummaryPrinterName(String name) {
         Class<?> pluginClass = getPluginClass(name);
         return SummaryPrinter.class.isAssignableFrom(pluginClass);
@@ -242,6 +276,11 @@ public final class PluginFactory {
     public static boolean isDisplayName(String name) {
         Class<?> pluginClass = getPluginClass(name);
         return DisplayPrinter.class.isAssignableFrom(pluginClass);
+    }
+    
+    public static boolean isMinionName(String name) {
+        Class<?> pluginClass = getPluginClass(name);
+        return Minion.class.isAssignableFrom(pluginClass);
     }
 
     private static Class<?> getPluginClass(String name) {

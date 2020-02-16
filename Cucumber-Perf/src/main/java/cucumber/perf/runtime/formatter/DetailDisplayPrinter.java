@@ -17,7 +17,7 @@ import cucumber.perf.api.event.GroupFinished;
 import cucumber.perf.api.event.GroupStarted;
 import cucumber.perf.api.result.GroupResult;
 
-public class DetailDisplayPrinter implements ConcurrentEventListener,ColorAware {
+public final class DetailDisplayPrinter implements ConcurrentEventListener,ColorAware {
 	private final PrintStream out;
 	private boolean monochrome;
 	private List<PerfGroup> groups = new ArrayList<PerfGroup>();

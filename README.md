@@ -1,8 +1,9 @@
-# cucumber-perf
+# Cucumber-Performance
+
 A performance testing framework for cucumber io.
 
 ## What is Cucumber Perf?
-Cucumber perf represents a new idea in automated testing development.
+Cucumber-Performance is a tool that allows multithreaded performance tests using cucumber as runner specification.
 
 ### What is Cucumber?
 Cucumber is a implementation of Behavior Driven Development (BDD).
@@ -27,10 +28,10 @@ Also, you would need to create a performance test harness.
 Most likely each team will end up with something that is project specific and doesn't use the existing functional code base.
 
 ### The fix
-Cucumber Perf provides a level of automation on top of Cucumber.
-It’s an implementation of a new concept (as far as I know) called Concurrent Behavior Driven Testing (CBDT).
+Cucumber Performance provides a level of automation on top of Cucumber.
+And is an implementation of a new concept (as far as I know) called Concurrent Behavior Driven Testing (CBDT).
 
-Cucumber perf provides a means to use your existing functional code without writing a single line of code.
+Cucumber Performance provides a means to use your existing functional tests without writing a single line of code.
 It provides the ability to run performance simulations with support for common load testing features:
 * Timed Tests
 * Multi-Threading
@@ -38,12 +39,17 @@ It provides the ability to run performance simulations with support for common l
 * Ramp Up/Down
 * Data replacing
 * Random Wait
-* Reporting
-* Junit XML export
+* Statistics
+* Console reporting
+And creates a number of outputs
+* Data Points (csv)
+* JUnit Report
 * Logging
+* Summary Report
+* Taurus Final Stats
 
 It uses a new type of script called Salad.
-Salad is a reimplementation of Cucumber Gherkin with the focus on performance simulations.
+Salad is a re-implementation of Cucumber Gherkin with the focus on performance simulations.
 
 ```
 Plan: Bar visit
@@ -90,8 +96,8 @@ Concurrent Behavior Driven Testing is the methodology of creating functional aut
 This means coding with the understanding that each functional test could be used in a multithreaded environment.
 
 CBDT requires an automation team to follow strict guidelines when coding functional test cases.
-Being careful to avoid static variables and race conditions that will cause failures in a multi-threaded world.
-This of course requires a larger understanding of programing or a least team leadership that can enforce these guidelines.
+Being careful to avoid static variables and race conditions that will cause failures in a multiple-threaded world.
+This of course requires a larger understanding of programming or a least team leadership that can enforce these guidelines.
 
 ## Getting Started
 It takes a lot of planning to implement Cucumber Perf.
@@ -109,7 +115,7 @@ Maven
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>2.1.1</version>
+  <version>3.0.0</version>
 </dependency>
 ```
 ## Versioning

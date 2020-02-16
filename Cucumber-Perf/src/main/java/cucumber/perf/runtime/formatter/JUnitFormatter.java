@@ -18,9 +18,9 @@ import cucumber.perf.api.event.EventHandler;
 import cucumber.perf.api.event.EventListener;
 import cucumber.perf.api.event.EventPublisher;
 import cucumber.perf.api.event.StatisticsFinished;
-import cucumber.perf.api.formatter.Statistics;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.ScenarioResult;
+import cucumber.perf.api.result.statistics.Statistics;
 import cucumber.runtime.CucumberException;
 
 import java.io.Closeable;
@@ -48,9 +48,8 @@ public final class JUnitFormatter implements EventListener {
 		}
 	};
 
-	public JUnitFormatter(AppendableBuilder builder) throws IOException {
+	public JUnitFormatter(AppendableBuilder builder) {
 		this.builder = builder;
-		reset();
 	}
 	
 	@Override
@@ -74,7 +73,7 @@ public final class JUnitFormatter implements EventListener {
 
 	public void process(Statistics stats) {
 		reset();
-		for (Entry<String, GroupResult> r : stats.getAvg().entrySet()) {
+		for (Entry<String, GroupResult> r : stats.getGroups().entrySet()) {
 			this.addFeatureResult(r.getValue());
 		}
 		this.finishReport();

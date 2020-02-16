@@ -1,4 +1,4 @@
-package cucumber.perf.formatter;
+package cucumber.perf.runtime.formatter;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.*;
@@ -13,21 +13,18 @@ import org.junit.Test;
 
 import cucumber.api.Result;
 import cucumber.api.Result.Type;
-import cucumber.perf.api.event.ConfigStatistics;
-import cucumber.perf.api.event.EventHandler;
 import cucumber.perf.api.event.PerfRunStarted;
 import cucumber.perf.api.event.SimulationFinished;
 import cucumber.perf.api.event.StatisticsFinished;
-import cucumber.perf.api.formatter.Statistics;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.SimulationResult;
+import cucumber.perf.api.result.statistics.Statistics;
 import cucumber.perf.runtime.PerfRuntimeOptions;
 import cucumber.perf.runtime.TimeServiceEventBus;
 import cucumber.perf.runtime.formatter.AppendableBuilder;
 import cucumber.perf.runtime.formatter.ChartPointsFormatter;
 import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
-import cucumber.perf.runtime.formatter.StatisticsFormatter;
 import cucumber.runner.TimeService;
 import cucumber.runtime.CucumberException;
 
@@ -53,7 +50,6 @@ public class ChartPointsFormatterTest {
 			Plugins plugins = new Plugins(this.getClass().getClassLoader(), pf, options);
 			plugins.addPlugin(cpf);
 			plugins.setEventBusOnPlugins(eventBus);
-			eventBus.registerHandlerFor(ConfigStatistics.class, statsEventhandler);
 			eventBus.send(new PerfRunStarted(eventBus.getTime(),eventBus.getTimeMillis()));
 		} catch (CucumberException e) {
 			fail("CucumberException");
@@ -75,7 +71,7 @@ public class ChartPointsFormatterTest {
 			fail("CucumberException");
 		}
 
-		assertTrue(deleteFile("C:/test/chartpoints.csv"));
+		assertFalse(deleteFile("C:/test/chartpoints.csv"));
 	}
 	
 	@Test
@@ -94,29 +90,32 @@ public class ChartPointsFormatterTest {
 			PerfRuntimeOptions options = new PerfRuntimeOptions();
 			Plugins plugins = new Plugins(this.getClass().getClassLoader(), pf, options);
 			plugins.setEventBusOnPlugins(eventBus);
-			ChartPointsFormatter cpf = new ChartPointsFormatter(new AppendableBuilder("file://C:/test/chartpoints.csv"));
+			ChartPointsFormatter cpf = new ChartPointsFormatter(new AppendableBuilder("file://C:/test/chartpoints.csv"),new String[] {"3"});
 			plugins.addPlugin(cpf);
 			plugins.setEventBusOnPlugins(eventBus);
-			eventBus.send(new ConfigStatistics(eventBus.getTime(),eventBus.getTimeMillis(),StatisticsFormatter.CONFIG_MAXPOINTS,3));
+
 			eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(), new SimulationResult("test",new Result(Result.Type.PASSED, (long)(0), null),  LocalDateTime.parse("2007-12-12T05:20:22"),LocalDateTime.parse("2007-12-12T05:25:22"), res)));
 		} catch (CucumberException e) {
 			fail("CucumberException");
 		}
 		String filepath = "C:/test/chartpoints.csv";
 		String result = readFile(filepath);
-		String compare = "\r\ntest,,,avg,2007-12-12T05:20:55,25000"
-				+ "\r\ntest,,,avg,2007-12-12T05:22:33,19000"
-				+ "\r\ntest,,,avg,2007-12-12T05:23:50,24000"
-				+ "\r\ntest,,,min,2007-12-12T05:20:55,20000"
-				+ "\r\ntest,,,min,2007-12-12T05:22:33,32000"
-				+ "\r\ntest,,,min,2007-12-12T05:23:50,40000"
-				+ "\r\ntest,,,max,2007-12-12T05:20:55,30000"
-				+ "\r\ntest,,,max,2007-12-12T05:22:33,32000"
-				+ "\r\ntest,,,max,2007-12-12T05:23:50,40000"
-				+ "\r\ntest,,,cnt,2007-12-12T05:20:55,2"
-				+ "\r\ntest,,,cnt,2007-12-12T05:22:33,3"
-				+ "\r\ntest,,,cnt,2007-12-12T05:23:50,4";
-		deleteFile(filepath);
+		String compare = "\r\ntest,,,cnt,2007-12-12T05:20:55,2"
+				+ "\r\ntest,,,cnt,2007-12-12T05:22:33,2"
+				+ "\r\ntest,,,cnt,2007-12-12T05:23:50,4"
+				+ "\r\ntest,,,avg,2007-12-12T05:20:55,25000.0"
+				+ "\r\ntest,,,avg,2007-12-12T05:22:33,28500.0"
+				+ "\r\ntest,,,avg,2007-12-12T05:23:50,29000.0"
+				+ "\r\ntest,,,min,2007-12-12T05:20:55,20000.0"
+				+ "\r\ntest,,,min,2007-12-12T05:22:33,25000.0"
+				+ "\r\ntest,,,min,2007-12-12T05:23:50,20000.0"
+				+ "\r\ntest,,,max,2007-12-12T05:20:55,30000.0"
+				+ "\r\ntest,,,max,2007-12-12T05:22:33,32000.0"
+				+ "\r\ntest,,,max,2007-12-12T05:23:50,40000.0"
+				+ "\r\ntest,,,cncrnt,2007-12-12T05:20:55,0.17193"
+				+ "\r\ntest,,,cncrnt,2007-12-12T05:22:33,0.49825"
+				+ "\r\ntest,,,cncrnt,2007-12-12T05:23:50,0.94737";
+		assertTrue(deleteFile(filepath));
 		assertThat(result, containsString(compare));
 	}
 	
@@ -153,12 +152,5 @@ public class ChartPointsFormatterTest {
 		}
 		return result;
 	}
-	
-	private EventHandler<ConfigStatistics> statsEventhandler = new EventHandler<ConfigStatistics>() {
-        @Override
-        public void receive(ConfigStatistics event) {
-            assertTrue(event.setting.equalsIgnoreCase(StatisticsFormatter.CONFIG_MAXPOINTS));
-        }
- };
 
 }
