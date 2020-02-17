@@ -64,12 +64,7 @@ public class PerfRuntimeOptions {
 		addCucumberOptions(ls);
    
 		if (!pluginFormatterNames.isEmpty()) {
-			boolean found= false;
-			for (String fn : pluginFormatterNames) {
-				if (fn.toLowerCase().startsWith("statistics"))
-					found = true;
-			}
-			if (!found)
+			if (this.findFormatterPlugin("statistics")==-1)
 				pluginFormatterNames.add("statistics");
 	    } else {
 	    	pluginFormatterNames.add("statistics");
@@ -204,6 +199,14 @@ public class PerfRuntimeOptions {
 		}
 		return false;
 	}
+	
+	private int findFormatterPlugin(String name) {
+		for (int i = 0; i < pluginFormatterNames.size(); i++) {
+			if (pluginFormatterNames.get(i).toLowerCase().startsWith(name))
+				return i;
+		}
+		return -1;
+	}
 
 	/**
 	 * @return True if dry run option was passed.
@@ -309,7 +312,15 @@ public class PerfRuntimeOptions {
 			}
 			else if (PluginFactory.isFormatterName(plugin))
 			{
-				this.pluginFormatterNames.add(plugin);
+				if (plugin.toLowerCase().startsWith("statistics")) {
+					int i = this.findFormatterPlugin("statistics");
+					if (i==-1)
+						this.pluginFormatterNames.add(plugin);
+					else
+						this.pluginFormatterNames.set(i, plugin);
+				} else {
+					this.pluginFormatterNames.add(plugin);
+				}
 			}
 			else if (PluginFactory.isSummaryPrinterName(plugin))
 			{
