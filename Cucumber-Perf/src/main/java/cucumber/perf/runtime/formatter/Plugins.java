@@ -31,17 +31,19 @@ public final class Plugins {
 		this.plugins = createPlugins();
 	}
 
-	private List<Plugin> createPlugins() {
-		List<Plugin> plugins = new ArrayList<Plugin>();
-		if (!pluginNamesInstantiated) {
-			for (String pluginName : pluginOptions.getPluginsNames()) {
-				Plugin plugin = pluginFactory.create(pluginName);
-				addPlugin(plugins, plugin);
-			}
-			pluginNamesInstantiated = true;
-		}
-		return plugins;
-	}
+    private List<Plugin> createPlugins() {
+        List<Plugin> plugins = new ArrayList<Plugin>();
+        if (!pluginNamesInstantiated) {
+            for (String pluginName : pluginOptions.getPluginsNames()) {
+            	if (!PluginFactory.isMinionName(pluginName)){
+	                Plugin plugin = pluginFactory.create(pluginName);
+	                addPlugin(plugins, plugin);
+            	}
+            }
+            pluginNamesInstantiated = true;
+        }
+        return plugins;
+    }
 
 	public List<Plugin> getPlugins() {
 		return plugins;
@@ -83,65 +85,4 @@ public final class Plugins {
 			}
 		}
 	}
-	/*
-	*//**
-		 * Creates a dynamic proxy that multiplexes method invocations to all plugins of
-		 * the same type.
-		 *
-		 * @param type proxy type
-		 * @param <T>  generic proxy type
-		 * @return a proxy
-		 *//*
-			 * @SuppressWarnings("unused") private <T> T pluginProxy(final Class<T> type) {
-			 * Object proxy = Proxy.newProxyInstance(classLoader, new Class<?>[]{type}, new
-			 * InvocationHandler() {
-			 * 
-			 * @Override public Object invoke(Object target, Method method, Object[] args)
-			 * throws Throwable { for (Object plugin : getPlugins()) { if
-			 * (type.isInstance(plugin)) { try { invoke(plugin, method, (long)0, args); }
-			 * catch (Throwable t) { if
-			 * (!method.getName().equals("startOfScenarioLifeCycle") &&
-			 * !method.getName().equals("endOfScenarioLifeCycle")) { // IntelliJ has its own
-			 * formatter which doesn't yet implement these methods. throw t; } } } } return
-			 * null; } }); return type.cast(proxy); }
-			 * 
-			 * public static Object invoke(final Object target, final Method method, long
-			 * timeoutMillis, final Object... args) throws Throwable { final Method
-			 * targetMethod = targetMethod(target, method); return Timeout.timeout(new
-			 * Timeout.Callback<Object>() {
-			 * 
-			 * @Override public Object call() throws Throwable { boolean accessible =
-			 * targetMethod.isAccessible(); try { targetMethod.setAccessible(true); return
-			 * targetMethod.invoke(target, args); } catch (IllegalArgumentException e) {
-			 * throw new CucumberException("Failed to invoke " +
-			 * MethodFormat.FULL.format(targetMethod) + ", caused by " +
-			 * e.getClass().getName() + ": " + e.getMessage(), e); } catch
-			 * (InvocationTargetException e) { throw e.getTargetException(); } catch
-			 * (IllegalAccessException e) { throw new CucumberException("Failed to invoke "
-			 * + MethodFormat.FULL.format(targetMethod) + ", caused by " +
-			 * e.getClass().getName() + ": " + e.getMessage(), e); } finally {
-			 * targetMethod.setAccessible(accessible); } } }, timeoutMillis); }
-			 * 
-			 * private static Method targetMethod(final Object target, final Method method)
-			 * throws NoSuchMethodException { final Class<?> targetClass =
-			 * target.getClass(); final Class<?> declaringClass =
-			 * method.getDeclaringClass();
-			 * 
-			 * // Immediately return the provided method if the class loaders are the same.
-			 * if (targetClass.getClassLoader().equals(declaringClass.getClassLoader())) {
-			 * return method; } else { // Check if the method is publicly accessible. Note
-			 * that methods from interfaces are always public. if
-			 * (Modifier.isPublic(method.getModifiers())) { return
-			 * targetClass.getMethod(method.getName(), method.getParameterTypes()); }
-			 * 
-			 * // Loop through all the super classes until the declared method is found.
-			 * Class<?> currentClass = targetClass; while (currentClass != Object.class) {
-			 * try { return currentClass.getDeclaredMethod(method.getName(),
-			 * method.getParameterTypes()); } catch (NoSuchMethodException e) { currentClass
-			 * = currentClass.getSuperclass(); } }
-			 * 
-			 * // The method does not exist in the class hierarchy. throw new
-			 * NoSuchMethodException(String.valueOf(method)); } }
-			 */
-
 }

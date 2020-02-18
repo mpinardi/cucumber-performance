@@ -49,12 +49,12 @@ public class PerfRuntimeOptions {
 	private final List<String> planPaths = new ArrayList<String>();
 	private final List<String> cucumberOptions = new ArrayList<String>();
 	private final List<String> pluginFormatterNames = new ArrayList<String>();
-	private List<String> pluginDisplayNames = new ArrayList<String>();
+	private final List<String> pluginDisplayNames = new ArrayList<String>();
     private final List<String> pluginSummaryPrinterNames = new ArrayList<String>();
 	private boolean dryRun;
 	private boolean strict = true;
-	private boolean monochrome = false;
-	private boolean failFast = false;
+	private boolean monochrome;
+	private boolean failFast;
 
 	public PerfRuntimeOptions() {
 		this(new ArrayList<String>());
@@ -70,11 +70,13 @@ public class PerfRuntimeOptions {
 		argv = new ArrayList<String>(argv); // in case the one passed in is unmodifiable.
 		List<String> ls = parse(argv);
 		addCucumberOptions(ls);
-		
-		if (pluginFormatterNames.isEmpty() || !pluginFormatterNames.contains("statistics")) {
-			pluginFormatterNames.add("statistics");
+   
+		if (!pluginFormatterNames.isEmpty()) {
+			if (this.findFormatterPlugin("statistics")==-1)
+				pluginFormatterNames.add("statistics");
+	    } else {
+	    	pluginFormatterNames.add("statistics");
 	    }
-		
 		 
         if (pluginSummaryPrinterNames.isEmpty()) {
             pluginSummaryPrinterNames.add("default_summary");
@@ -203,6 +205,14 @@ public class PerfRuntimeOptions {
 		}
 		return false;
 	}
+	
+	private int findFormatterPlugin(String name) {
+		for (int i = 0; i < pluginFormatterNames.size(); i++) {
+			if (pluginFormatterNames.get(i).toLowerCase().startsWith(name))
+				return i;
+		}
+		return -1;
+	}
 
 	/**
 	 * @return True if dry run option was passed.
@@ -308,7 +318,15 @@ public class PerfRuntimeOptions {
 			}
 			else if (PluginFactory.isFormatterName(plugin))
 			{
-				this.pluginFormatterNames.add(plugin);
+				if (plugin.toLowerCase().startsWith("statistics")) {
+					int i = this.findFormatterPlugin("statistics");
+					if (i==-1)
+						this.pluginFormatterNames.add(plugin);
+					else
+						this.pluginFormatterNames.set(i, plugin);
+				} else {
+					this.pluginFormatterNames.add(plugin);
+				}
 			}
 			else if (PluginFactory.isSummaryPrinterName(plugin))
 			{
@@ -323,7 +341,7 @@ public class PerfRuntimeOptions {
 	 */
 	public void disableDisplay()
 	{
-		this.pluginDisplayNames = new ArrayList<String>();
+		this.pluginDisplayNames.clear();
 	}
 	
 	/**
@@ -410,5 +428,21 @@ public class PerfRuntimeOptions {
 				nameList.addAll(names);
 			}
 		}
+	}
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
+	}
+
+	public void setStrict(boolean strict) {
+		this.strict = strict;
+	}
+
+	public void setMonochrome(boolean monochrome) {
+		this.monochrome = monochrome;
+	}
+
+	public void setFailFast(boolean failFast) {
+		this.failFast = failFast;
 	}
 }

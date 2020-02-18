@@ -1,8 +1,8 @@
 package cucumber.perf.api.event;
 
-import cucumber.perf.api.formatter.Statistics;
+import cucumber.perf.api.result.statistics.Statistics;
 
-public class StatisticsFinished extends StatisticsEvent {
+public class StatisticsFinished extends StatisticsEvent{
 
 	private final Statistics result;
 	

@@ -20,7 +20,6 @@ public interface Event {
      * <li>StatisticsStarted
      * <li>StatisticsFinished
      * </ol>
-     * <p>
      */
     Comparator<Event> CANONICAL_ORDER = new CanonicalEventOrder();
 

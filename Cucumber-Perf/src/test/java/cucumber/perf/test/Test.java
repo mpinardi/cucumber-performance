@@ -19,8 +19,8 @@ import java.util.Arrays;
 		plans = {"classpath:resources"},
 		tags = {"not @bskip","@planPosTest"},
 		plugin = {"detail_display","chart_points:file://C:/test/chartpoints|-#0001.csv"},
-		name = {"^(?!.*period).*$"})
-
+		name = {"^(?!.*period).*$"},
+		strict = false)
 public class Test {
 	
 	public static void main(String[] args)

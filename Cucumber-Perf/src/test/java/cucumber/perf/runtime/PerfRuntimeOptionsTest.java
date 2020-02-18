@@ -46,5 +46,19 @@ public class PerfRuntimeOptionsTest {
 		PerfRuntimeOptions pro = new PerfRuntimeOptions(Arrays.asList(new String[] {"plans=src/test/java/resources","-p pretty","-g steps","src/test/java/resources","no-strict"}));		
 		assertFalse(pro.isStrict());
 	}
+	
+	@Test
+	public void testAddPluginsStatistics() {
+		PerfRuntimeOptions options = new PerfRuntimeOptions();
+		options.addPlugins(Arrays.asList(new String[]{"detail_display","summary_text:file://C:/test/cukeperf-st-del|-@dd-@HHmmss.txt","junit:file://C:/test/cukeperf-ju-del|-@HHmmss.json","chart_points:file://C:/test/cukeperf-cp-del|-@dd-#1-@HHmmss-@yyyy.csv","statistics:prctl:90"}));
+		int c = 0;
+		for (String option : options.getPluginsNames()) {
+			if (option.toLowerCase().startsWith("statistics")) {
+				c++;
+				assertEquals("statistics:prctl:90",option);
+			}
+		}
+		assertTrue(c == 1);
+	}
 
 }

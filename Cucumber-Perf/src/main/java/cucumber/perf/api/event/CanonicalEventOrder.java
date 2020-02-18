@@ -25,8 +25,7 @@ final class CanonicalEventOrder implements Comparator<Event> {
             SimulationStarted.class,
             GroupEvent.class,
             SimulationFinished.class,
-            StatisticsStarted.class,
-            StatisticsFinished.class,
+            StatisticsEvent.class,
             PerfRunFinished.class
         );
 
