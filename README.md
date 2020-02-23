@@ -111,6 +111,17 @@ Follow directions in [wiki](https://github.com/mpinardi/cucumber-performance/wik
 
 ### Installing
 Maven
+
+Cucumber 5.*
+```
+<dependency>
+  <groupId>com.github.mpinardi</groupId>
+  <artifactId>cucumber-perf</artifactId>
+  <version>4.0.0</version>
+</dependency>
+```
+
+Cucumber 4.*
 ```
 <dependency>
   <groupId>com.github.mpinardi</groupId>
