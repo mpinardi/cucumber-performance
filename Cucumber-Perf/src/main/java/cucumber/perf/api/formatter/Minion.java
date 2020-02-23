@@ -1,6 +1,6 @@
 package cucumber.perf.api.formatter;
 
-import cucumber.api.Plugin;
+import io.cucumber.plugin.Plugin;
 
 /**
  * Interface for plugins that only run when requested.

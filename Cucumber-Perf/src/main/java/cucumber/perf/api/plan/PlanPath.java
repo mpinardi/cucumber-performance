@@ -22,8 +22,7 @@ import static java.util.Objects.requireNonNull;
  * doing so when the scheme must be omitted: {@code path\to.plan}.
  * <em>It is recommended to use `{@code /}` as the path separator.</em>
  *
- * @see FeatureIdentifier
- * @see FeatureWithLines
+ * @see PlanIdentifier
  */
 public class PlanPath {
 

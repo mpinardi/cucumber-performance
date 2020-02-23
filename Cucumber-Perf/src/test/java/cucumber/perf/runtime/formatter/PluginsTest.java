@@ -2,7 +2,7 @@ package cucumber.perf.runtime.formatter;
 
 import static org.junit.Assert.*;
 
-
+import java.time.Clock;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -11,11 +11,10 @@ import cucumber.perf.runtime.PerfRuntimeOptions;
 import cucumber.perf.runtime.TimeServiceEventBus;
 import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
-import cucumber.runner.TimeService;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 
 public class PluginsTest {
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemDefaultZone());
 
 	@Test
 	public void testIgnoreMinions() {
@@ -25,7 +24,7 @@ public class PluginsTest {
 			options.addPlugins(Arrays.asList(new String[] {"prcntl:40"}));
 			Plugins plugins = new Plugins(this.getClass().getClassLoader(), pf, options);
 			plugins.setEventBusOnPlugins(eventBus);
-			for (cucumber.api.Plugin p : plugins.getPlugins())
+			for (io.cucumber.plugin.Plugin p : plugins.getPlugins())
 			{
 				assertFalse(PluginFactory.isMinionName(p.getClass().getName()));
 			}

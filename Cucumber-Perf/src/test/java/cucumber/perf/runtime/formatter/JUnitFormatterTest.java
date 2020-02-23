@@ -3,6 +3,7 @@ package cucumber.perf.runtime.formatter;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.time.Clock;
 
 import org.junit.Test;
 
@@ -14,10 +15,9 @@ import cucumber.perf.runtime.formatter.AppendableBuilder;
 import cucumber.perf.runtime.formatter.JUnitFormatter;
 import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
-import cucumber.runner.TimeService;
 
 public class JUnitFormatterTest {
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemDefaultZone());
 
 	@Test
 	public void testJUnitFormatter() {

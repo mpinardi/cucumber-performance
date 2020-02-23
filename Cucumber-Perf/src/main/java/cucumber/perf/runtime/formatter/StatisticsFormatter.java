@@ -20,10 +20,7 @@ import cucumber.perf.api.formatter.StatisticCreator;
 import cucumber.perf.api.result.BaseResult;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.SimulationResult;
-import cucumber.perf.api.result.StepResult;
 import io.cucumber.plugin.StrictAware;
-import io.cucumber.plugin.event.Result;
-import io.cucumber.plugin.event.Status;
 import cucumber.perf.api.result.statistics.DefaultStatistics;
 
 public final class StatisticsFormatter implements EventListener,EventWriter,StrictAware,PluginSpawner {

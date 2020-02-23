@@ -28,6 +28,8 @@ import cucumber.perf.runtime.formatter.ChartPointsFormatterTest;
 import cucumber.perf.runtime.formatter.JUnitFormatterTest;
 import cucumber.perf.runtime.formatter.LoggerFormatterTest;
 import cucumber.perf.runtime.formatter.PercentileCreatorTest;
+import cucumber.perf.runtime.formatter.PluginFactoryTest;
+import cucumber.perf.runtime.formatter.PluginsTest;
 import cucumber.perf.runtime.formatter.StatisticsFormatterTest;
 import cucumber.perf.runtime.formatter.StdDeviationCreatorTest;
 import cucumber.perf.runtime.formatter.SummaryTextFormatterTest;
@@ -40,7 +42,7 @@ import cucumber.perf.runtime.formatter.TaurusFormatterTest;
 				StatsTest.class,StatTest.class,DefaultStatisticsTest.class, //stats
 				AppendableBuilderTest.class, ChartPointsFormatterTest.class,JUnitFormatterTest.class,LoggerFormatterTest.class,//formatter
 				StatisticsFormatterTest.class, SummaryTextFormatterTest.class,TaurusFormatterTest.class, //formatter
-				StdDeviationCreatorTest.class,PercentileCreatorTest.class,  //formatter
+				StdDeviationCreatorTest.class,PercentileCreatorTest.class, PluginFactoryTest.class,PluginsTest.class, //formatter
 				CucumberPerfTest.class,  PerfCucumberRunnerTest.class, PerfRuntimeOptionsFactoryTest.class,PerfRuntimeOptionsTest.class, //runtime
 				FeatureFilterTest.class, NamePredicateTest.class, TagPredicateTest.class})//filter
 

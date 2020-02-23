@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.Test;
 
 import cucumber.perf.api.result.statistics.Stats;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 
 public class PercentileCreatorTest {
 

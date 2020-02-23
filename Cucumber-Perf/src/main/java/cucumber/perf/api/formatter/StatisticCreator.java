@@ -4,12 +4,10 @@ package cucumber.perf.api.formatter;
 import java.util.HashMap;
 import java.util.List;
 
-import cucumber.api.Plugin;
 import cucumber.perf.api.result.statistics.Stats;
 
 /**
  * Interface for plugins that create statistics.
- * @see Plugin
  */
 public interface StatisticCreator extends Minion {
 	

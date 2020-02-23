@@ -6,10 +6,9 @@ import java.nio.file.Path;
 /**
  * Identifies a single plan.
  * <p>
- * Features are identified by a URI as defined in {@link FeaturePath}.
+ * Features are identified by a URI as defined in {@link PlanPath}.
  * Additionally the scheme specific part must end with {@code .plan}
  *
- * @see FeatureWithLines
  */
 public class PlanIdentifier {
 

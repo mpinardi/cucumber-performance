@@ -10,11 +10,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import cucumber.api.Result;
 import cucumber.perf.api.result.BaseResult;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.ScenarioResult;
 import cucumber.perf.api.result.StepResult;
+import io.cucumber.plugin.event.Status;
 
 public class DefaultStatistics {
 	
@@ -80,19 +80,19 @@ public class DefaultStatistics {
 						sortedResults.put(g.getName(), new ArrayList<Long>());
 					stats.putKey(g.getName());
 					concurrency.add(g.getStop());
-					if ((isStrict && g.getResult().isOk(isStrict)) || !isStrict) {
-						sortedResults.get(g.getName()).add(g.getResultDuration());
+					if ((isStrict && g.getResult().getStatus().isOk(isStrict)) || !isStrict) {
+						sortedResults.get(g.getName()).add(g.getResultDuration().toNanos());
 						LinkedHashMap<String,Double> gs = stats.getStatistics(g.getName());
-						if(!isStrict && g.getResult().isOk(true))
+						if(!isStrict && g.getResult().getStatus().isOk(true))
 							stats.putStatistic("pass",gs.get("pass")+1,g.getName());
 						else if (!isStrict)
 							stats.putStatistic("fail",gs.get("fail")+1,g.getName());
-						stats.putStatistic("avg",gs.get("avg")+g.getResultDuration(),g.getName());
+						stats.putStatistic("avg",gs.get("avg")+(double)g.getResultDuration().toNanos(),g.getName());
 						stats.putStatistic("cnt",gs.get("cnt")+1,g.getName());
-						if (g.getResultDuration()>gs.get("max"))
-							stats.putStatistic("max",g.getResultDuration().doubleValue(),g.getName());
-						if (gs.get("min")==0.0||g.getResultDuration()<gs.get("min"))
-							stats.putStatistic("min",g.getResultDuration().doubleValue(),g.getName());
+						if (((double)g.getResultDuration().toNanos())>gs.get("max"))
+							stats.putStatistic("max",(double)g.getResultDuration().toNanos(),g.getName());
+						if (gs.get("min")==0.0||((double)g.getResultDuration().toNanos())<gs.get("min"))
+							stats.putStatistic("min",(double)g.getResultDuration().toNanos(),g.getName());
 					}
 					for (int sci = 0; sci < g.getChildResults().size(); sci++)
 					{
@@ -100,20 +100,20 @@ public class DefaultStatistics {
 						stats.putKey(g.getName(),sc.getName());
 						if (!sortedResults.containsKey(g.getName()+"."+sc.getName()))
 							sortedResults.put(g.getName()+"."+sc.getName(), new ArrayList<Long>());
-						if ((isStrict && sc.getResult().isOk(isStrict)) || !isStrict) {
+						if ((isStrict && sc.getResult().getStatus().isOk(isStrict)) || !isStrict) {
 							try {
-								sortedResults.get(g.getName()+"."+sc.getName()).add(sc.getResultDuration());
+								sortedResults.get(g.getName()+"."+sc.getName()).add(sc.getResultDuration().toNanos());
 								LinkedHashMap<String,Double> ss= stats.getStatistics(g.getName(),sc.getName());
-								if(!isStrict && sc.getResult().isOk(true))
+								if(!isStrict && sc.getResult().getStatus().isOk(true))
 									stats.putStatistic("pass",ss.get("pass")+1,g.getName(),sc.getName());
 								else if (!isStrict)
 									stats.putStatistic("fail",ss.get("fail")+1,g.getName(),sc.getName());
-								stats.putStatistic("avg",ss.get("avg")+sc.getResultDuration().doubleValue(),g.getName(),sc.getName());
+								stats.putStatistic("avg",ss.get("avg")+sc.getResultDuration().toNanos(),g.getName(),sc.getName());
 								stats.putStatistic("cnt",ss.get("cnt")+1,g.getName(),sc.getName());
-								if (sc.getResultDuration()>ss.get("max"))
-									stats.putStatistic("max",sc.getResultDuration().doubleValue(),g.getName(),sc.getName());
-								if (ss.get("min")==0.0||sc.getResultDuration()<ss.get("min"))
-									stats.putStatistic("min",sc.getResultDuration().doubleValue(),g.getName(),sc.getName());
+								if (((double)sc.getResultDuration().toNanos())>ss.get("max"))
+									stats.putStatistic("max",(double)sc.getResultDuration().toNanos(),g.getName(),sc.getName());
+								if (ss.get("min")==0.0||((double)sc.getResultDuration().toNanos())<ss.get("min"))
+									stats.putStatistic("min",(double)sc.getResultDuration().toNanos(),g.getName(),sc.getName());
 							}catch (Exception e){}
 						}
 						for (int sti = 0; sti < sc.getChildResults().size(); sti++)
@@ -122,21 +122,21 @@ public class DefaultStatistics {
 							if (!sortedResults.containsKey(g.getName()+"."+sc.getName()+"."+stp.getName()))
 								sortedResults.put(g.getName()+"."+sc.getName()+"."+stp.getName(), new ArrayList<Long>());
 							stats.putKey(g.getName(),sc.getName(),stp.getName());
-							if ((isStrict && stp.getResult().isOk(isStrict)) || !isStrict) {
+							if ((isStrict && stp.getResult().getStatus().isOk(isStrict)) || !isStrict) {
 								try {
-									sortedResults.get(g.getName()+"."+sc.getName()+"."+stp.getName()).add(stp.getResultDuration());
+									sortedResults.get(g.getName()+"."+sc.getName()+"."+stp.getName()).add(stp.getResultDuration().toNanos());
 									LinkedHashMap<String,Double> sts= stats.getStatistics(g.getName(),sc.getName(),stp.getName());
-									if(!isStrict && stp.getResult().isOk(true))
+									if(!isStrict && stp.getResult().getStatus().isOk(true))
 										stats.putStatistic("pass",sts.get("pass")+1,g.getName(),sc.getName(),stp.getName());
 									else
 										stats.putStatistic("fail",sts.get("fail")+1,g.getName(),sc.getName(),stp.getName());
 									stats.putStatistic("cnt",sts.get("cnt")+1,g.getName(),sc.getName(),stp.getName());
 									if (stp.getResultDuration()!=null)
-										stats.putStatistic("avg",sts.get("avg")+stp.getResultDuration().doubleValue(),g.getName(),sc.getName(),stp.getName());
-									if (stp.getResultDuration()!=null && stp.getResultDuration()>sts.get("max"))
-										stats.putStatistic("max",stp.getResultDuration().doubleValue(),g.getName(),sc.getName(),stp.getName());
-									if (stp.getResultDuration()!=null && (sts.get("min")==0.0||stp.getResultDuration()<sts.get("min")))
-										stats.putStatistic("min",stp.getResultDuration().doubleValue(),g.getName(),sc.getName(),stp.getName());
+										stats.putStatistic("avg",sts.get("avg")+stp.getResultDuration().toNanos(),g.getName(),sc.getName(),stp.getName());
+									if (stp.getResultDuration()!=null && ((double)stp.getResultDuration().toNanos())>sts.get("max"))
+										stats.putStatistic("max",((double)stp.getResultDuration().toNanos()),g.getName(),sc.getName(),stp.getName());
+									if (stp.getResultDuration()!=null && (sts.get("min")==0.0||((double)stp.getResultDuration().toNanos())<sts.get("min")))
+										stats.putStatistic("min",((double)stp.getResultDuration().toNanos()),g.getName(),sc.getName(),stp.getName());
 								}catch (Exception e){}
 							}
 						}
@@ -176,7 +176,7 @@ public class DefaultStatistics {
 			{
 				c++;
 				if ((startPeriod==null || f.getStop().isAfter(startPeriod))&&(endPeriod==null || (f.getStop().isBefore(endPeriod) ||c ==entry.getValue().size()))) {
-					if (f.getResult().is(Result.Type.FAILED))
+					if (f.getResult().getStatus().is(Status.FAILED))
 					{
 						HashMap<String,StepErrors> sErrs = new HashMap<String,StepErrors>();
 						if (map.containsKey(f.getName()))
@@ -185,11 +185,11 @@ public class DefaultStatistics {
 						}
 						for (ScenarioResult sr : f.getChildResults())
 						{
-							if (sr.getResult().is(Result.Type.FAILED))
+							if (sr.getResult().getStatus().is(Status.FAILED))
 							{
 								for (StepResult str : sr.getChildResults())
 								{
-									if (str.getResult().is(Result.Type.FAILED))
+									if (str.getResult().getStatus().is(Status.FAILED))
 									{
 										if (sErrs.containsKey(sr.getName()))
 											sErrs.get(sr.getName()).putError(str.getName(),str.getStop(), str.getError());

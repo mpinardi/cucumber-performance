@@ -8,7 +8,7 @@ import io.cucumber.plugin.Plugin;
  * <p>
  * When cucumber executes test in parallel or in a framework
  * that supports parallel execution (e.g. JUnit or TestNG)
- * {@link cucumber.api.event.Event}s are stored and published
+ * Events are stored and published
  * in @{@link Event#CANONICAL_ORDER} after the test run has
  * completed.
  *

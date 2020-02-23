@@ -3,6 +3,9 @@ package cucumber.perf.runtime.formatter;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.net.URI;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +13,6 @@ import java.util.Scanner;
 import static org.hamcrest.CoreMatchers.containsString;
 import org.junit.Test;
 
-import cucumber.api.Result;
-import cucumber.api.Result.Type;
 import cucumber.perf.api.event.SimulationFinished;
 import cucumber.perf.api.event.StatisticsFinished;
 import cucumber.perf.api.result.GroupResult;
@@ -26,11 +27,13 @@ import cucumber.perf.runtime.formatter.PluginFactory;
 import cucumber.perf.runtime.formatter.Plugins;
 import cucumber.perf.runtime.formatter.StatisticsFormatter;
 import cucumber.perf.runtime.formatter.TaurusFormatter;
-import cucumber.runner.TimeService;
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.Status;
+
 
 public class TaurusFormatterTest {
-	private TimeServiceEventBus eventBus = new TimeServiceEventBus(TimeService.SYSTEM);
+	private TimeServiceEventBus eventBus = new TimeServiceEventBus(Clock.systemDefaultZone());
 
 	@Test
 	public void testTaurusFormatter() {
@@ -122,12 +125,12 @@ public class TaurusFormatterTest {
 	public void testFinishReportErrors() {
 		TaurusFormatter stf = new TaurusFormatter(new AppendableBuilder("file://C:/test/taurusout.csv"));
 		 List<GroupResult> list = new ArrayList<GroupResult>();
-		list.add(new GroupResult("test", new Result(Type.PASSED, (long)1000000, null), LocalDateTime.now(), LocalDateTime.now()));
-		list.add(new GroupResult("test2", new Result(Type.PASSED, (long)1000000, null), LocalDateTime.now(), LocalDateTime.now()));
+		list.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofNanos(1000000), null), LocalDateTime.now(), LocalDateTime.now()));
+		list.add(new GroupResult("test2", new Result(Status.PASSED, Duration.ofNanos(1000000), null), LocalDateTime.now(), LocalDateTime.now()));
 		Throwable error =  new Throwable();
 		error.setStackTrace(new StackTraceElement[] {new StackTraceElement("src.main.test.test","TestIt","testing.class",1),new StackTraceElement("src.main.test.test","TestIt","testing.class",2)});
-		GroupResult fres = new GroupResult("test", new Result(Type.FAILED, (long)1000, new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now());
-		fres.addChildResult(new ScenarioResult("scentest", new TestCase(4, "features/ScenTest.feature", "ScenTest 1", null, null, null), new Result(Type.FAILED, (long)1000, new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now()));
+		GroupResult fres = new GroupResult("test", new Result(Status.FAILED,Duration.ofMillis(1000), new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now());
+		fres.addChildResult(new ScenarioResult("scentest", new TestCase(4, URI.create("features/ScenTest.feature"), "ScenTest 1", null, null, null), new Result(Status.FAILED, Duration.ofMillis(1000L), new Exception("Here is an error",error)), LocalDateTime.now(), LocalDateTime.now()));
 		list.add(fres);
 		PluginFactory pf = new PluginFactory();
 		PerfRuntimeOptions options = new PerfRuntimeOptions();
@@ -137,7 +140,7 @@ public class TaurusFormatterTest {
 		StatisticsFormatter s = new StatisticsFormatter();
 		plugins.addPlugin(s);
 		plugins.setEventBusOnPlugins(eventBus);
-		eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult("test", new Result(Result.Type.PASSED, (long)0, null), LocalDateTime.parse("2007-12-12T05:20:22"),LocalDateTime.parse("2007-12-12T05:25:22"), list)));
+		eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult("test", new Result(Status.PASSED, Duration.ZERO, null), LocalDateTime.parse("2007-12-12T05:20:22"),LocalDateTime.parse("2007-12-12T05:25:22"), list)));
 		String filepath = "C:/test/taurusout.csv";
 		String result = readFile(filepath);
 		String compare = "\r\nlabel,avg_ct,avg_lt,avg_rt,bytes,concurrency,fail,stdev_rt,succ,throughput,perc_0.0,perc_50.0,perc_90.0,perc_95.0,perc_99.0,perc_99.9,perc_100.0,rc_200" + 

@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import org.junit.Test;
 
-import cucumber.runtime.CucumberException;
+import io.cucumber.core.exception.CucumberException;
 
 public class PluginFactoryTest {
 	 PluginFactory pf = new PluginFactory();

@@ -8,7 +8,7 @@ import io.cucumber.plugin.Plugin;
  * <p>
  * When cucumber executes test in parallel or in a framework
  * that supports parallel execution (e.g. JUnit or TestNG)
- * {@link cucumber.api.TestCase} events from different
+ * cucumber TestCase events from different
  * pickles may interleave.
  * <p>
  * This interface marks an {@link EventListener} as capable of

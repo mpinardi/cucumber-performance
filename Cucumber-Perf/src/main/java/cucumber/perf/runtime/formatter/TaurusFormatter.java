@@ -1,6 +1,5 @@
 package cucumber.perf.runtime.formatter;
 
-import cucumber.api.formatter.NiceAppendable;
 import cucumber.perf.api.event.ConfigStatistics;
 import cucumber.perf.api.event.EventBus;
 import cucumber.perf.api.event.EventHandler;
@@ -9,6 +8,7 @@ import cucumber.perf.api.event.EventPublisher;
 import cucumber.perf.api.event.PerfRunStarted;
 import cucumber.perf.api.event.StatisticsFinished;
 import cucumber.perf.api.formatter.EventWriter;
+import cucumber.perf.api.formatter.NiceAppendable;
 import cucumber.perf.api.result.GroupResult;
 import cucumber.perf.api.result.ScenarioResult;
 import cucumber.perf.api.result.StepResult;
