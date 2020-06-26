@@ -9,7 +9,7 @@ import cucumber.runtime.model.CucumberFeature;
 import gherkin.events.PickleEvent;
 
 public class FeatureFilter {
-	public static Pattern TAG_PATTERN = Pattern.compile("((\\(?@\\w* (or|and) @\\w*\\)?( (or|and) @\\w*)?)|@\\w*(?=[ ,])|@\\w*(?=[@])|@\\w*)");//"@(.*)(?=[ ,])|@.*(?=[@])|@.*");
+	public static Pattern TAG_PATTERN = Pattern.compile("((\\(?@\\w* (or|and) @\\w*\\)?( (or|and) @\\w*)?)|not @\\w*|@\\w*(?=[ ,])|@\\w*(?=[@])|@\\w*)");//"@(.*)(?=[ ,])|@.*(?=[@])|@.*");
 	private List<CucumberFeature> features;
 
 	public FeatureFilter(List<CucumberFeature> features) {

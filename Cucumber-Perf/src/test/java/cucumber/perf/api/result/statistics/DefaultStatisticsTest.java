@@ -158,6 +158,38 @@ public class DefaultStatisticsTest {
 	}
 
 	@Test
+	public void testDefaultStats_ValidateChildren() {
+		HashMap<String,List<GroupResult>> results = new HashMap<String,List<GroupResult>>();
+		List<GroupResult> res = new ArrayList<GroupResult>();
+		res.add(new GroupResult("test", new Result(Type.PASSED, 20000000000L, null), LocalDateTime.parse("2007-12-12T05:20:35"),LocalDateTime.parse("2007-12-12T05:20:55")));
+		res.add(new GroupResult("test", new Result(Type.PASSED, 30000000000L, null), LocalDateTime.parse("2007-12-12T05:21:10"),LocalDateTime.parse("2007-12-12T05:21:40")));
+		res.add(new GroupResult("test", new Result(Type.PASSED, 32000000000L, null), LocalDateTime.parse("2007-12-12T05:22:01"),LocalDateTime.parse("2007-12-12T05:22:33")));
+		GroupResult gr = new GroupResult("test2", new Result(Type.PASSED, 1000000000L, null), LocalDateTime.parse("2007-12-12T05:22:30"),LocalDateTime.parse("2007-12-12T05:22:31"));
+		ScenarioResult sc = new ScenarioResult("scentest", new TestCase(4, "features/ScenTest.feature", "ScenTest 1", null, null, null), new Result(Type.PASSED, (long)2000, null), LocalDateTime.now(), LocalDateTime.now());
+		sc.addChildResult(new StepResult("steptest", new TestStep(),new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.parse("2007-12-12T05:22:31")));
+		sc.addChildResult(new StepResult("steptest", new TestStep(),new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.parse("2007-12-12T05:22:31")));
+		gr.addChildResult(sc);
+		res.add(gr);
+		GroupResult gr2 = new GroupResult("test2", new Result(Type.PASSED, 990000000L, null), LocalDateTime.parse("2007-12-12T05:23:35"),LocalDateTime.parse("2007-12-12T05:23:36"));
+		ScenarioResult sc2 = new ScenarioResult("scentest", new TestCase(4, "features/ScenTest.feature", "ScenTest 1", null, null, null), new Result(Type.PASSED, (long)1500, null), LocalDateTime.now(), LocalDateTime.now());
+		sc2.addChildResult(new StepResult("steptest", new TestStep(),new Result(Type.PASSED, (long)1000, null), LocalDateTime.now(), LocalDateTime.parse("2007-12-12T05:23:36")));
+		sc2.addChildResult(new StepResult("steptest", new TestStep(),new Result(Type.PASSED, (long)500, null), LocalDateTime.now(), LocalDateTime.parse("2007-12-12T05:23:36")));
+		gr2.addChildResult(sc2);
+		res.add(gr2);
+		res.add(new GroupResult("test", new Result(Type.PASSED, 25000000000L, null), LocalDateTime.parse("2007-12-12T05:22:40"),LocalDateTime.parse("2007-12-12T05:23:05")));
+		res.add(new GroupResult("test", new Result(Type.PASSED, 40000000000L, null), LocalDateTime.parse("2007-12-12T05:23:10"),LocalDateTime.parse("2007-12-12T05:23:50")));
+		results.put("test",res);
+		DefaultStatistics statistics = new DefaultStatistics(new BaseResult("sim",new Result(Type.PASSED,240000000L, null),LocalDateTime.parse("2007-12-12T05:20:00"),LocalDateTime.parse("2007-12-12T05:24:00")),results);
+		statistics.getStats(true);
+		try {
+			assertEquals(875,statistics.getStatistics().getAvg("test2", "scentest", "steptest"),.001);
+			assertEquals(1750,statistics.getStatistics().getAvg("test2", "scentest"),.001);
+		} catch(Exception e) {
+			fail("children are not being calculated correctly");
+		}
+	}
+	
+	@Test
 	public void testGetDefaultStats() {
 		Stats s = DefaultStatistics.getDefaultStats(true);
 		assertEquals("avg",s.getStatisticType("avg").getKey());
