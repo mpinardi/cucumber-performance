@@ -113,9 +113,12 @@ public class ChartPointsFormatterTest {
 				+ "\r\ntest,,,max,2007-12-12T05:20:55,3.0E10"
 				+ "\r\ntest,,,max,2007-12-12T05:22:33,3.2E10"
 				+ "\r\ntest,,,max,2007-12-12T05:23:50,4.0E10"
-				+ "\r\ntest,,,cncrnt,2007-12-12T05:20:55,0.17193"
-				+ "\r\ntest,,,cncrnt,2007-12-12T05:22:33,0.49825"
-				+ "\r\ntest,,,cncrnt,2007-12-12T05:23:50,0.94737";
+				+ "\r\ntest,,,cncrnt,2007-12-12T05:20:55,0.49000"
+				+ "\r\ntest,,,cncrnt,2007-12-12T05:22:33,0.56000"
+				+ "\r\ntest,,,cncrnt,2007-12-12T05:23:50,1.15000";
+		/*0.4800,0.49825,0.94737
+		 * 0.49000 0.56000 1.15000
+		 */
 		assertTrue(deleteFile(filepath));
 		assertThat(result, containsString(compare));
 	}

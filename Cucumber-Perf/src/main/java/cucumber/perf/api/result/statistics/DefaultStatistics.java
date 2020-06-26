@@ -60,14 +60,6 @@ public class DefaultStatistics {
 			sortedResults = new HashMap<String,List<Long>>();
 			List<LocalDateTime> concurrency = new ArrayList<LocalDateTime>();
 			for (GroupResult g : entry.getValue()){
-				if( nextConcurrentPeriod==null) {
-					nextConcurrentPeriod = LocalDateTime.from(g.getStart()).plus(1,ChronoUnit.SECONDS); 
-				} else if(g.getStart().isAfter(nextConcurrentPeriod)) {
-					while(g.getStart().isAfter(nextConcurrentPeriod) && !stats.isEmpty()) {
-						nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
-						stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", g.getName())+getConcurrent(nextConcurrentPeriod,concurrency),g.getName());
-					}
-				}
 				if (endPeriod!=null && (g.getStop().isAfter(endPeriod))) {
 					break;
 				}
@@ -79,8 +71,16 @@ public class DefaultStatistics {
 					if (!sortedResults.containsKey(g.getName()))
 						sortedResults.put(g.getName(), new ArrayList<Long>());
 					stats.putKey(g.getName());
-					concurrency.add(g.getStop());
+					if( nextConcurrentPeriod==null) {
+						nextConcurrentPeriod = LocalDateTime.from(g.getStart()).plus(1,ChronoUnit.SECONDS); 
+					} else if(g.getStart().isAfter(nextConcurrentPeriod)) {
+						while(g.getStart().isAfter(nextConcurrentPeriod) && !stats.isEmpty()) {
+							nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
+							stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", g.getName())+getConcurrent(nextConcurrentPeriod,concurrency),g.getName());
+						}
+					}
 					if ((isStrict && g.getResult().getStatus().isOk(isStrict)) || !isStrict) {
+						concurrency.add(g.getStop());
 						sortedResults.get(g.getName()).add(g.getResultDuration().toNanos());
 						LinkedHashMap<String,Double> gs = stats.getStatistics(g.getName());
 						if(!isStrict && g.getResult().getStatus().isOk(true))
@@ -128,7 +128,7 @@ public class DefaultStatistics {
 									LinkedHashMap<String,Double> sts= stats.getStatistics(g.getName(),sc.getName(),stp.getName());
 									if(!isStrict && stp.getResult().getStatus().isOk(true))
 										stats.putStatistic("pass",sts.get("pass")+1,g.getName(),sc.getName(),stp.getName());
-									else
+									else if (!isStrict)
 										stats.putStatistic("fail",sts.get("fail")+1,g.getName(),sc.getName(),stp.getName());
 									stats.putStatistic("cnt",sts.get("cnt")+1,g.getName(),sc.getName(),stp.getName());
 									if (stp.getResultDuration()!=null)
@@ -145,11 +145,17 @@ public class DefaultStatistics {
 			}
 			if (!stats.isEmpty()) {
 				GroupResult last = entry.getValue().get(entry.getValue().size()-1);
+				LocalDateTime stop = last.getStop();
+				LocalDateTime start = entry.getValue().get(0).getStart();
+				if (startPeriod != null) {
+					stop = endPeriod;
+					start = startPeriod;
+			    }
 				while(last.getStop().isAfter(nextConcurrentPeriod)) {
 					nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
 					stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", last.getName())+getConcurrent(nextConcurrentPeriod,concurrency),last.getName());
 				}
-				long totalSeconds =  Duration.between(entry.getValue().get(0).getStart(),last.getStop()).getSeconds();
+				long totalSeconds =  Duration.between(start,stop).getSeconds();
 				if (totalSeconds>0)
 					stats.putStatistic("cncrnt",stats.getStatistic("cncrnt",last.getName())/totalSeconds, last.getName());
 			}

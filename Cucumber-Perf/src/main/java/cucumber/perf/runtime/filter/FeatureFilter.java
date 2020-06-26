@@ -11,7 +11,7 @@ import io.cucumber.core.internal.gherkin.events.PickleEvent;
 //import io.cucumber.core.gherkin.messages.*;
 
 public class FeatureFilter {
-	public static Pattern TAG_PATTERN = Pattern.compile("((\\(?@\\w* (or|and) @\\w*\\)?( (or|and) @\\w*)?)|@\\w*(?=[ ,])|@\\w*(?=[@])|@\\w*)");//"@(.*)(?=[ ,])|@.*(?=[@])|@.*");
+	public static Pattern TAG_PATTERN = Pattern.compile("((\\(?@\\w* (or|and) @\\w*\\)?( (or|and) @\\w*)?)|not @\\w*|@\\w*(?=[ ,])|@\\w*(?=[@])|@\\w*)");//"@(.*)(?=[ ,])|@.*(?=[@])|@.*");
 	private List<Feature> features;
 
 	public FeatureFilter(List<Feature> features) {
