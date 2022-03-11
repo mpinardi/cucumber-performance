@@ -104,6 +104,7 @@ public final class ChartPointsFormatter implements EventListener, EventWriter,St
 				chart = createChart(new BaseResult(result.getName(),result.getResult(),result.getStart(),result.getStop()),
 						result.getStart(),result.getStop(),results);
 			}
+			//fix chart possible null with sub minute
 			reset();
 			addLines(chart);
 			this.finishReport();
