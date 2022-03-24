@@ -23,7 +23,7 @@ public class DefaultStatistics {
 	private HashMap<String,List<Long>> sortedResults = new HashMap<String,List<Long>>();
 	private HashMap<String,List<GroupResult>> results = new HashMap<String,List<GroupResult>>();
 	private LocalDateTime startPeriod = null;
-	private LocalDateTime endPeriod = null;
+	private LocalDateTime stopPeriod = null;
 	
 	public DefaultStatistics(BaseResult simulation,HashMap<String,List<GroupResult>> results)
 	{
@@ -46,12 +46,18 @@ public class DefaultStatistics {
 		return getStats(isStrict,null,null);
 	}
 	
-	public Stats getStats(boolean isStrict,LocalDateTime startPeriod,LocalDateTime endPeriod)
+	public Stats getStats(boolean isStrict,LocalDateTime startPeriod,LocalDateTime stopPeriod)
 	{
 		this.startPeriod=startPeriod;
-		this.endPeriod=endPeriod;
+		this.stopPeriod=stopPeriod;
 		statistics = new Statistics();
 		statistics.setSimulation(new BaseResult(simulation));
+		if (startPeriod != null) {
+			statistics.getSimulation().setStart(startPeriod);
+		}
+		if (stopPeriod != null) {
+			statistics.getSimulation().setStop(stopPeriod);
+		}
 		Stats stats = getDefaultStats(isStrict);
 		sortedResults = new HashMap<String,List<Long>>();
 		for (Entry<String,List<GroupResult>> entry: results.entrySet()){
@@ -60,7 +66,7 @@ public class DefaultStatistics {
 			sortedResults = new HashMap<String,List<Long>>();
 			List<LocalDateTime> concurrency = new ArrayList<LocalDateTime>();
 			for (GroupResult g : entry.getValue()){
-				if (endPeriod!=null && (g.getStop().isAfter(endPeriod))) {
+				if (stopPeriod!=null && (g.getStop().isAfter(stopPeriod))) {
 					break;
 				}
 				if (startPeriod==null || g.getStop().isAfter(startPeriod)) {
@@ -148,16 +154,20 @@ public class DefaultStatistics {
 				LocalDateTime stop = last.getStop();
 				LocalDateTime start = entry.getValue().get(0).getStart();
 				if (startPeriod != null) {
-					stop = endPeriod;
+					stop = stopPeriod;
 					start = startPeriod;
 			    }
-				while(last.getStop().isAfter(nextConcurrentPeriod)) {
-					nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
-					stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", last.getName())+getConcurrent(nextConcurrentPeriod,concurrency),last.getName());
+				//If this is null than the group was not run during the time period
+				if (nextConcurrentPeriod!=null) {
+					while(last.getStop().isAfter(nextConcurrentPeriod)) {
+						nextConcurrentPeriod = LocalDateTime.from(nextConcurrentPeriod).plus(1,ChronoUnit.SECONDS);
+						stats.putStatistic("cncrnt",stats.getStatistic("cncrnt", last.getName())+getConcurrent(nextConcurrentPeriod,concurrency),last.getName());
+					}
+					long totalSeconds =  Duration.between(start,stop).getSeconds();
+					if (totalSeconds>0) {
+						stats.putStatistic("cncrnt",stats.getStatistic("cncrnt",last.getName())/totalSeconds, last.getName());
+					}
 				}
-				long totalSeconds =  Duration.between(start,stop).getSeconds();
-				if (totalSeconds>0)
-					stats.putStatistic("cncrnt",stats.getStatistic("cncrnt",last.getName())/totalSeconds, last.getName());
 			}
 		}
 		if (!stats.isEmpty()) {
@@ -181,7 +191,7 @@ public class DefaultStatistics {
 			for (GroupResult f : entry.getValue())
 			{
 				c++;
-				if ((startPeriod==null || f.getStop().isAfter(startPeriod))&&(endPeriod==null || (f.getStop().isBefore(endPeriod) ||c ==entry.getValue().size()))) {
+				if ((startPeriod==null || f.getStop().isAfter(startPeriod))&&(stopPeriod==null || (f.getStop().isBefore(stopPeriod) ||c ==entry.getValue().size()))) {
 					if (f.getResult().getStatus().is(Status.FAILED))
 					{
 						HashMap<String,StepErrors> sErrs = new HashMap<String,StepErrors>();
