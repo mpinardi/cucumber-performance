@@ -11,6 +11,7 @@ import cucumber.perf.api.result.ScenarioResult;
 import cucumber.perf.api.result.StepResultListener;
 import cucumber.perf.api.result.TestCaseResultListener;
 import cucumber.perf.salad.ast.Slice;
+import io.cucumber.core.feature.FeatureParser;
 import io.cucumber.core.filter.Filters;
 import io.cucumber.core.gherkin.Feature;
 import io.cucumber.core.gherkin.Pickle;
@@ -77,6 +78,7 @@ public class CucumberRunner implements Callable<Object> {
 	private io.cucumber.core.eventbus.EventBus eventBus = new io.cucumber.core.runtime.TimeServiceEventBus(Clock.systemUTC(),UUID::randomUUID);
 	private Filters filters;
 	private FeatureSupplier featureSupplier;
+	private FeatureParser featureParser;
 	private Plugins plugins;
 	private GroupResultListener resultListener;
 	private TestCaseResultListener testCaseResultListener;
@@ -264,7 +266,8 @@ public class CucumberRunner implements Callable<Object> {
 		this.plugins = new Plugins(new PluginFactory(), runtimeOptions);
 		this.plugins.setEventBusOnEventListenerPlugins(eventBus);
 		this.plugins.setSerialEventBusOnEventListenerPlugins(eventBus);
-		this.featureSupplier = new FeaturePathFeatureSupplier(classLoader, this.runtimeOptions, null);
+		this.featureParser = new FeatureParser(UUID::randomUUID);
+		this.featureSupplier = new FeaturePathFeatureSupplier(classLoader, this.runtimeOptions, this.featureParser);
 		this.filters = new Filters(this.runtimeOptions);
 	}
 
