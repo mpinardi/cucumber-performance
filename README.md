@@ -13,17 +13,18 @@ Example:
 ```
 Feature: Beer
   Scenario: Jeff dinks a beer
-  Given: Jeff is of age and has a beer
-  And: Jeff opens his beer.
-  When: Jeff takes a sip.
-  Then: Verify he enjoyed it.
+	  Given: Jeff is of age and has a beer
+	  And: Jeff opens his beer.
+	  When: Jeff takes a sip.
+	  Then: Verify he enjoyed it.
 ```
-These scripts can be used to develop the features themselves but also drive automated tests.
+
+These scripts can be used to develop the features themselves but also drive [automated tests](https://cucumber.io/docs/guides/10-minute-tutorial)
 
 ### The issue?
 So, you now have a working functional automation test suite.
 But you want to run a performance test. This would require either rewriting your existing functional tests or copying a bunch of code.
-Also, you would need to create a performance test harness.
+Also, you would need to create or implement a performance test harness.
 
 Most likely each team will end up with something that is project specific and doesn't use the existing functional code base.
 
@@ -97,14 +98,14 @@ This means coding with the understanding that each functional test could be used
 
 CBDT requires an automation team to follow strict guidelines when coding functional test cases.
 Being careful to avoid static variables and race conditions that will cause failures in a multiple-threaded world.
-This of course requires a larger understanding of programming or a least team leadership that can enforce these guidelines.
+This of course requires a larger understanding of programming or at least team leadership that can enforce these guidelines.
 
 ## Getting Started
 It takes a lot of planning to implement Cucumber Perf.
 
 Your functional automation should follow these rules:
 * Use a non specific test harness. This should standardize all your common functions.
-* Do not use static variables! Your code must work in a multithreaded world.
+* Do not use static variables!
 * Properly comment your features and scenarios. You want to keep track of what scenarios can be run multithreaded.
 
 Follow directions in [wiki](https://github.com/mpinardi/cucumber-performance/wiki) to get up and running.
@@ -117,7 +118,7 @@ Cucumber 5.*
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>4.0.0</version>
+  <version>4.0.3</version>
 </dependency>
 ```
 
@@ -126,7 +127,7 @@ Cucumber 4.*
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>3.0.0</version>
+  <version>3.0.2</version>
 </dependency>
 ```
 ## Versioning
