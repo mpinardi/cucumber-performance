@@ -152,6 +152,9 @@ public class StatisticsFormatterTest {
 		res.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1200), null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1400), null), LocalDateTime.now(),LocalDateTime.now()));
+		res.add(new GroupResult("test1", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(),LocalDateTime.now()));
+		res.add(new GroupResult("test1", new Result(Status.PASSED, Duration.ofMillis(1200), null), LocalDateTime.now(),LocalDateTime.now()));
+		res.add(new GroupResult("test1", new Result(Status.PASSED, Duration.ofMillis(1400), null), LocalDateTime.now(),LocalDateTime.now()));
 		PluginFactory pf = new PluginFactory();
 		List<String> args = new ArrayList<String>();
 		args.add("pg=statistics:prcntl:50");
@@ -189,6 +192,9 @@ public class StatisticsFormatterTest {
 		res.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1200), null), LocalDateTime.now(),LocalDateTime.now()));
 		res.add(new GroupResult("test", new Result(Status.PASSED, Duration.ofMillis(1400), null), LocalDateTime.now(),LocalDateTime.now()));
+		res.add(new GroupResult("test1", new Result(Status.PASSED, Duration.ofMillis(1000), null), LocalDateTime.now(),LocalDateTime.now()));
+		res.add(new GroupResult("test1", new Result(Status.PASSED, Duration.ofMillis(1200), null), LocalDateTime.now(),LocalDateTime.now()));
+		res.add(new GroupResult("test1", new Result(Status.PASSED, Duration.ofMillis(1400), null), LocalDateTime.now(),LocalDateTime.now()));
 		PluginFactory pf = new PluginFactory();
 		List<String> args = new ArrayList<String>();
 		args.add("pg=statistics:cucumber.perf.runtime.formatter.PercentileCreator:50");
@@ -224,6 +230,7 @@ public class StatisticsFormatterTest {
 		 		break;
 		 	case "prctl50":
 		 		assertEquals((long)value,(long)result.getStats().getStatistic("prctl_50", groupName).longValue());
+		 		assertEquals((long)value,(long)result.getStats().getStatistic("prctl_50", "test1").longValue());
 		 		break;
 		 	case "prctl75":
 		 		assertEquals((long)value,(long)result.getStats().getStatistic("prctl_75", groupName).longValue());

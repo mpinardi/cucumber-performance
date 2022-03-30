@@ -114,7 +114,8 @@ public final class TaurusFormatter implements EventListener, EventWriter {
 		String sep = ",";
 		//label,avg_ct,avg_lt,avg_rt,bytes,concurrency,fail,stdev_rt,succ,
 		//throughput,perc_0.0,perc_50.0,perc_90.0,perc_95.0,perc_99.0,perc_99.9,perc_100.0,rc_200
-		String result = label+sep+"0.00000"+sep+"0.00000"
+		//Must encode double quotes and wrap label string in double quotes.
+		String result = "\""+label.replaceAll("\"","\"\"")+"\""+sep+"0.00000"+sep+"0.00000"
 		+sep+convertStatDataType(Stats.StatType.AVERAGE.type.getDataType(),statistics.get(Stats.StatType.AVERAGE.key))
 		+sep+0
 		+sep+getStat(Stats.StatType.CONCURRENCY.type,statistics,"0.00000")

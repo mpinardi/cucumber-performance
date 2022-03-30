@@ -3,36 +3,39 @@ Usage: java -cp [path] cucumber.api.perf.cli.Main [options] [[[FILE|DIR][:LINE[:
 
 Options:
 
-  p=, plans=                       	   Where your plan files are located
-  t=, tags=TAG_EXPRESSION              Only run scenarios tagged with tags matching
-                                         TAG_EXPRESSION.
-  n=, name=REGEXP                      Only run scenarios whose names match REGEXP.
-  pg=,[add-]plugin= PLUGIN[:PATH_OR_URL[|[DELIM][#NUM][DELIM][@DATE_FORMAT]...]EXTENSION]
-                                         Register a plugin.
-                                         Built-in formatter PLUGIN types: junit, chart_points
-                                         and summary_text.
-                                         These support postfix's for file names. 
-                                         The | char separates the path from the postfix.
-                                         A auto incremented number with padding is supported:
-                                         Using a format #[PADDING_ZEROS][START_NUM].
-                                         Time stamps are also supported:
-                                         Using a format @[JAVA_DATE_FORMAT].
-                                         Any delimiter can be used between these settings
-                                         Built-in summary PLUGIN types:
-                                         default_summary, null_summary. 
-                                         Built-in display PLUGIN types: null_display,
-                                          detail_display, TBD.
-                                         PLUGIN can
-                                         also be a fully qualified class name, allowing
-                                         registration of 3rd party plugins.
-                                         --add-plugin does not clobber plugins of that 
+  p=, plans=                       	  Where your plan files are located
+  t=, tags=TAG_EXPRESSION             Only run scenarios tagged with tags matching TAG_EXPRESSION.
+  n=, name=REGEXP                     Only run scenarios whose names match REGEXP.
+  pg=,[add-]plugin= PLUGIN[:PATH_OR_URL[|[DELIM][#NUM][DELIM][@DATE_FORMAT]...]EXTENSION][,][OPTIONS...]
+                                      Register a plugin.
+                                         Built-in statistics PLUGIN: statistics
+	                                        This plugin handles default statistics and is always run.
+	                                        It also can run additional stat creator minion plugins.
+	                                        These are assigned as options to the plugin.
+                                         Built-in statistic minion PLUGIN types: stdev,prctl
+                                            You can apply these as parameters to the statistics plugin.
+                                            These also can take there own parameters.
+                                         Built-in formatter PLUGIN types: junit, chart_points,
+                                         taurus, logger and summary_text.
+	                                         These support postfix's for file names. 
+	                                         The | char separates the path from the postfix.
+	                                         A auto incremented number with padding is supported:
+	                                         Using a format #[PADDING_ZEROS][START_NUM].
+	                                         Time stamps are also supported:
+	                                         Using a format @[JAVA_DATE_FORMAT].
+	                                         Any delimiter can be used between these settings
+                                         Built-in summary PLUGIN types: default_summary, null_summary. 
+                                         Built-in display PLUGIN types: null_display, detail_display.
+                                         PLUGIN can also be a fully qualified class name, 
+                                         allowing registration of 3rd party plugins.
+                                         add-plugin= does not clobber plugins of that 
                                          type defined from a different source.
   monochrome  				          Turn on monochrome mode for formatters.
   no-strict  				          Process errors into statistics.
   dryrun  				          	  Run without starting threads. 
   failfast 				          	  Fail and stop a group after a scenario fails.
   i18n=LANG                           List keywords for in a particular language
-                                         Run with "--i18n help" to see all languages					     
+                                         Run with "i18n=help" to see all languages					     
   v, version                          Print version.
   h, help                             You're looking at it.
 

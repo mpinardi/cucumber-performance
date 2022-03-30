@@ -124,7 +124,7 @@ Cucumber 5.*
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>4.0.3</version>
+  <version>4.0.4</version>
 </dependency>
 ```
 
@@ -133,7 +133,7 @@ Cucumber 4.*
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>3.0.2</version>
+  <version>3.0.3</version>
 </dependency>
 ```
 ## Versioning

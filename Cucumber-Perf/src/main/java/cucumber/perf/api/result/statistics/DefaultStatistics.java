@@ -59,11 +59,9 @@ public class DefaultStatistics {
 			statistics.getSimulation().setStop(stopPeriod);
 		}
 		Stats stats = getDefaultStats(isStrict);
-		sortedResults = new HashMap<String,List<Long>>();
 		for (Entry<String,List<GroupResult>> entry: results.entrySet()){
 			LocalDateTime nextConcurrentPeriod = null;
 			boolean groupAdded = false;
-			sortedResults = new HashMap<String,List<Long>>();
 			List<LocalDateTime> concurrency = new ArrayList<LocalDateTime>();
 			for (GroupResult g : entry.getValue()){
 				if (stopPeriod!=null && (g.getStop().isAfter(stopPeriod))) {
