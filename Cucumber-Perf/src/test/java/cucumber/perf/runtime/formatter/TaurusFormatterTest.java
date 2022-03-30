@@ -141,8 +141,33 @@ public class TaurusFormatterTest {
 		String filepath = "C:/test/taurusout.csv";
 		String result = readFile(filepath);
 		String compare = "\r\nlabel,avg_ct,avg_lt,avg_rt,bytes,concurrency,fail,stdev_rt,succ,throughput,perc_0.0,perc_50.0,perc_90.0,perc_95.0,perc_99.0,perc_99.9,perc_100.0,rc_200" + 
-				"\r\ntest2,0.00000,0.00000,1.0,0,0.0,0,0.00000,0.00000,1,1.0,0.00000,0.00000,0.00000,0.00000,0.00000,1.0,0" + 
-				"\r\ntest,0.00000,0.00000,1.0,0,0.0,0,0.00000,0.00000,1,1.0,0.00000,0.00000,0.00000,0.00000,0.00000,1.0,0";
+				"\r\n\"test2\",0.00000,0.00000,1.0,0,0.0,0,0.00000,0.00000,1,1.0,0.00000,0.00000,0.00000,0.00000,0.00000,1.0,0" + 
+				"\r\n\"test\",0.00000,0.00000,1.0,0,0.0,0,0.00000,0.00000,1,1.0,0.00000,0.00000,0.00000,0.00000,0.00000,1.0,0";
+		assertTrue(deleteFile(filepath));
+		assertThat(result, containsString(compare));
+	}
+	
+	@Test
+	public void testFinishReportLabel() {
+		TaurusFormatter stf = new TaurusFormatter(new AppendableBuilder("file://C:/test/taurusout.csv"));
+		 List<GroupResult> list = new ArrayList<GroupResult>();
+		list.add(new GroupResult("test,what\"as\"", new Result(Type.PASSED, (long)1000000, null), LocalDateTime.now(), LocalDateTime.now()));
+		list.add(new GroupResult("test2,a,\"as\"", new Result(Type.PASSED, (long)1000000, null), LocalDateTime.now(), LocalDateTime.now()));
+		Throwable error =  new Throwable();
+		PluginFactory pf = new PluginFactory();
+		PerfRuntimeOptions options = new PerfRuntimeOptions();
+		Plugins plugins = new Plugins(this.getClass().getClassLoader(), pf, options);
+		plugins.addPlugin(stf);
+		plugins.setEventBusOnPlugins(eventBus);
+		StatisticsFormatter s = new StatisticsFormatter();
+		plugins.addPlugin(s);
+		plugins.setEventBusOnPlugins(eventBus);
+		eventBus.send(new SimulationFinished(eventBus.getTime(),eventBus.getTimeMillis(),new SimulationResult("test", new Result(Result.Type.PASSED, (long)0, null), LocalDateTime.parse("2007-12-12T05:20:22"),LocalDateTime.parse("2007-12-12T05:25:22"), list)));
+		String filepath = "C:/test/taurusout.csv";
+		String result = readFile(filepath);
+		String compare = "\r\nlabel,avg_ct,avg_lt,avg_rt,bytes,concurrency,fail,stdev_rt,succ,throughput,perc_0.0,perc_50.0,perc_90.0,perc_95.0,perc_99.0,perc_99.9,perc_100.0,rc_200" + 
+				"\r\n\"test,what\"\"as\"\"\",0.00000,0.00000,1.0,0,0.0,0,0.00000,0.00000,1,1.0,0.00000,0.00000,0.00000,0.00000,0.00000,1.0,0" + 
+				"\r\n\"test2,a,\"\"as\"\"\",0.00000,0.00000,1.0,0,0.0,0,0.00000,0.00000,1,1.0,0.00000,0.00000,0.00000,0.00000,0.00000,1.0,0";
 		assertTrue(deleteFile(filepath));
 		assertThat(result, containsString(compare));
 	}

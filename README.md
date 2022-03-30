@@ -1,36 +1,49 @@
 # Cucumber-Performance
 
-A performance testing framework for cucumber io.
+A concurrent behavior driven testing(CBDT) tool and performance testing framework for Cucumber IO.
 
 ## What is Cucumber Perf?
-Cucumber-Performance is a tool that allows multithreaded performance tests using cucumber as runner specification.
+Cucumber-Performance is a tool to simulate concurrent user behavior using cucumber features as runner specification.
 
 ### What is Cucumber?
-Cucumber is a implementation of Behavior Driven Development (BDD).
+Cucumber is a implementation of [Behavior Driven Development](https://en.wikipedia.org/wiki/Behavior-driven_development) [(BDD)](https://cucumber.io/docs/bdd/).
 Which uses simple natural language scripts to define a software feature.
-These executable specifications are written in a language called gherkin.
+These executable specifications are written in a language called [Gherkin](https://cucumber.io/docs/gherkin/).
 Example:
 ```
+#beer.feature
 Feature: Beer
   Scenario: Jeff dinks a beer
-  Given: Jeff is of age and has a beer
-  And: Jeff opens his beer.
-  When: Jeff takes a sip.
-  Then: Verify he enjoyed it.
+	  Given: Jeff is of age and has a beer
+	  And: Jeff opens his beer.
+	  When: Jeff takes a sip.
+	  Then: Verify he enjoyed it.
 ```
-These scripts can be used to develop the features themselves but also drive automated tests.
+
+These scripts can be used to develop the features themselves but also drive [automated tests](https://cucumber.io/docs/guides/10-minute-tutorial)
 
 ### The issue?
 So, you now have a working functional automation test suite.
-But you want to run a performance test. This would require either rewriting your existing functional tests or copying a bunch of code.
-Also, you would need to create a performance test harness.
+But you want to run a performance test. Generally this would require either rewriting your existing functional tests or copying a bunch of code.
+Also, you would need to create or implement a performance test harness.
 
 Most likely each team will end up with something that is project specific and doesn't use the existing functional code base.
 
-### The fix
+### The fix?
 Cucumber Performance provides a level of automation on top of Cucumber.
 And is an implementation of a new concept (as far as I know) called Concurrent Behavior Driven Testing (CBDT).
 
+## What is Concurrent Behavior Driven Testing?
+Concurrent Behavior Driven Testing (CBDT) is the concept of using BDD features to simulate real world concurrent events. 
+
+Most systems have multiple concurrent users who may be using different but complementary features, which been previously defined in [Gherkin](https://cucumber.io/docs/gherkin/).
+CBDT allows you to document these real world situations in a simple human readable domain-specific scripting language.
+
+CBDT requires an automation team to follow strict guidelines when coding functional test cases.
+Being careful to avoid static variables and race conditions that will cause failures in a multiple-threaded world.
+This of course requires a larger understanding of programming or at least team leadership that can enforce these guidelines.
+
+### How does Cucumber Performance work?
 Cucumber Performance provides a means to use your existing functional tests without writing a single line of code.
 It provides the ability to run performance simulations with support for common load testing features:
 * Timed Tests
@@ -91,31 +104,36 @@ Time: 00:00:30
 RampUp: 00:00:10
 RampDown: 00:00:10
 ```
-## What is Concurrent Behavior Driven Testing?
-Concurrent Behavior Driven Testing is the methodology of creating functional automation that can be used in concurrent test scenarios.
-This means coding with the understanding that each functional test could be used in a multithreaded environment.
-
-CBDT requires an automation team to follow strict guidelines when coding functional test cases.
-Being careful to avoid static variables and race conditions that will cause failures in a multiple-threaded world.
-This of course requires a larger understanding of programming or a least team leadership that can enforce these guidelines.
 
 ## Getting Started
-It takes a lot of planning to implement Cucumber Perf.
+It takes some planning to implement Cucumber Perf.
 
 Your functional automation should follow these rules:
 * Use a non specific test harness. This should standardize all your common functions.
-* Do not use static variables! Your code must work in a multithreaded world.
+* Do not use static variables!
 * Properly comment your features and scenarios. You want to keep track of what scenarios can be run multithreaded.
 
 Follow directions in [wiki](https://github.com/mpinardi/cucumber-performance/wiki) to get up and running.
 
 ### Installing
 Maven
+> Note currently Cucumber versions 6.* and 7.* are not supported but hopefully will be.
+
+Cucumber 5.*
 ```
 <dependency>
   <groupId>com.github.mpinardi</groupId>
   <artifactId>cucumber-perf</artifactId>
-  <version>3.0.0</version>
+  <version>4.0.4</version>
+</dependency>
+```
+
+Cucumber 4.*
+```
+<dependency>
+  <groupId>com.github.mpinardi</groupId>
+  <artifactId>cucumber-perf</artifactId>
+  <version>3.0.3</version>
 </dependency>
 ```
 ## Versioning
