@@ -188,6 +188,7 @@
                       <artifactId>hamcrest-core</artifactId>
                   </exclusion>
               </exclusions>
+              <scope>test</scope>
          </dependency>
 	</dependencies>
 	<distributionManagement>
